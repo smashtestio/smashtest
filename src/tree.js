@@ -135,8 +135,9 @@ class Tree {
      * @param {String} buffer - Contents of a test file
      * @param {String} filename - Name of the test file
      * @param {Boolean} [isPackaged] - If true, filename is a package file
+     * @param {Boolean} [allowIndented] - If true, allows the first step to have indents
      */
-    parseIn(buffer, filename, isPackaged) {
+    parseIn(buffer, filename, isPackaged, allowIndented) {
         let lines = buffer.split(/\n/);
 
         // Convert each string in lines to a StepNode object
@@ -176,7 +177,7 @@ class Tree {
                 let s = this.newStepNode().parseLine(line, filename, lineNumber);
                 s.indents = utils.numIndents(line, filename, lineNumber);
 
-                if(!lastNonEmptyStepNode && s.indents != 0) {
+                if(!allowIndented && !lastNonEmptyStepNode && s.indents != 0) {
                     utils.error(`The first step must have 0 indents`, filename, lineNumber);
                 }
 

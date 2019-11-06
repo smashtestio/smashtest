@@ -585,11 +585,11 @@ class BrowserInstance {
 
                 return result;
             }
-            catch(e) {}
+            catch(e) {
+                ef.props.shift(); // remove 'clickable'
+                this.runInstance.log(`No elements from \`${ef.print()}\` match the \`clickable\` prop, so trying all elements`);
+            }
         }
-
-        ef.props.shift(); // remove 'clickable'
-        this.runInstance.log(`Clickable element not found for \`${ef.print()}\`, so trying all elements`);
 
         results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
         let result = results[0];

@@ -30,7 +30,7 @@ const PROGRESS_BAR_ON = true;
 let fullRun = false;
 
 console.log(hRule);
-console.log(yellowChalk.bold("Smashtest 1.6.4"));
+console.log(yellowChalk.bold("Smashtest 1.6.5"));
 console.log("");
 
 // ***************************************
@@ -548,7 +548,22 @@ function plural(count) {
                 process.exit(0);
             }
 
-            console.log(`${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run` + (isReport ? ` | ${tree.counts.total} branch${plural(tree.counts.total)} total` : ``) + (tree.isDebug ? ` | ` + yellowChalk(`In DEBUG mode`) : ``));
+            console.log(
+                `${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run` +
+                (isReport ?
+                    ` | ${tree.counts.total} branch${plural(tree.counts.total)} total` :
+                    ``
+                ) +
+                (tree.isDebug ?
+                    (
+                        (tree.isExpressDebug ?
+                            ` | ` + yellowChalk(`In EXPRESS DEBUG mode`) :
+                            ` | ` + yellowChalk(`In DEBUG mode`)
+                        )
+                    ) :
+                    ``
+                )
+            );
             if(isReport) {
                 console.log(`Live report at: ` + chalk.gray.italic(reporter.getFullReportPath()));
             }
@@ -583,7 +598,7 @@ function plural(count) {
                 let nextStep = null;
                 let prevStep = null;
 
-                let codeBlockStep = null;
+                let codeBlockStep = null; // contents of a code block
 
                 prePrompt();
 
@@ -646,12 +661,49 @@ function plural(count) {
                 });
 
                 /**
+                 * @return {Number} The number of spaces at the front of s
+                 */
+                function numberOfSpacesInFront(s) {
+                    return (s.match(/^( *)/) || []).length;
+                }
+
+                /**
+                 * @return {String} The first line of s, "" if empty string
+                 */
+                function firstLine(s) {
+                    let matches = s.match(/^.*/);
+                    if(matches && matches.length > 0) {
+                        return matches[0];
+                    }
+                    else {
+                        return "";
+                    }
+                }
+
+                /**
+                 * @return {String} The last line of s, "" if empty string
+                 */
+                function lastLine(s) {
+                    let matches = s.match(/.*$/);
+                    if(matches && matches.length > 0) {
+                        return matches[0];
+                    }
+                    else {
+                        return "";
+                    }
+                }
+
+                /**
                  * Called when the REPL needs to eval input
                  */
                 async function evalLine(input) {
                     if(codeBlockStep !== null) { // we're currently inputting a code block
                         codeBlockStep += "\n" + input;
-                        if(input.length == 0 || input[0] != "}") { // not the end of code block input
+                        if(
+                            input.length == 0 ||
+                            input.trim() != "}" ||
+                            numberOfSpacesInFront(firstLine(codeBlockStep)) != numberOfSpacesInFront(lastLine(codeBlockStep))
+                        ) { // not the end of code block input
                             return;
                         }
                     }

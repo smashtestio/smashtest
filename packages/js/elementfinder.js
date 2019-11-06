@@ -516,31 +516,53 @@ class ElementFinder {
      * @throws {Error} If an element array wasn't properly matched
      */
     async getAll(driver, parentElem) {
-        let obj = await driver.executeScript(function(payload, parentElem) {
+        let obj = await driver.executeScript(function(payload, parentElem, isDebug) {
             payload = JSON.parse(payload);
             let ef = payload.ef;
             let definedProps = payload.definedProps;
 
-            const SEPARATOR = "%c――――――――――――――――――――――――――――――――――――――――――";
-            const SEPARATOR_STYLE = "color: #C0C0C0";
+            const SEPARATOR_STYLE = "color: #D0D0D0";
             const HEADING_STYLE = "font-weight: bold";
 
-            findEF(ef, parentElem ? toArray(parentElem.querySelectorAll('*')).concat([parentElem]) : toArray(document.querySelectorAll('*')));
+            let searchRecord = [];
+
+            findEF(ef, parentElem ?
+                toArray(parentElem.querySelectorAll('*')).concat([parentElem]) :
+                toArray(document.querySelectorAll('*'))
+            );
             let matches = (ef.matchMeElems && ef.matchMeElems.length > 0) ? ef.matchMeElems : ef.matchedElems;
 
-            console.log(SEPARATOR, SEPARATOR_STYLE);
-            console.log("%cElementFinder: ", HEADING_STYLE);
-            console.log(ef.fullStr.replace(/^(.*)$/g, '    $1'));
-            console.log(ef);
-            if(parentElem) {
-                console.log("%cParent:", HEADING_STYLE);
-                console.log(parentElem);
-            }
-            console.log("%cMatches:", HEADING_STYLE);
-            console.log(matches);
+            if(isDebug) {
+                console.log("");
+                console.log("%c-- Finding ElementFinder --", "color: blueviolet");
+                console.log(ef.fullStr);
 
-            console.log("%cDefined props: ", HEADING_STYLE);
-            console.log(definedProps);
+                if(parentElem) {
+                    console.log("Within parent element:");
+                    console.log(parentElem);
+                }
+
+                if(matches.length == 0) {
+                    console.log("%cNo matches found", "color: red");
+                }
+                else if(matches.length == 1) {
+                    console.log("%cMatch found", "color: green");
+                    console.log(matches[0]);
+                }
+                else {
+                    console.log("%cMatches found", "color: green");
+                    console.log(matches);
+                }
+
+                console.log("Search details");
+                console.log(searchRecord);
+
+                console.log("Advanced");
+                console.log({
+                    ef: ef,
+                    definedProps: definedProps
+                });
+            }
 
             return {
                 ef: ef,
@@ -760,6 +782,22 @@ class ElementFinder {
              * @return {Array of Element} Elements from pool that match the top line in ef. Ignores the counter.
              */
             function findTopEF(ef, pool) {
+                let record = {};
+                let propRecord = [];
+                if(isDebug) {
+                    let props = [];
+                    for(let prop of ef.props) {
+                        props.push(prop.prop);
+                    }
+                    record = {
+                        ['Searching for EF']: ef.line,
+                        ['[1] divide into props']: props,
+                        ['[2] before']: pool,
+                        ['[3] apply each prop']: [],
+                        ['[4] after']: []
+                    };
+                }
+
                 for(let i = 0; i < ef.props.length; i++) {
                     let prop = ef.props[i];
                     let approvedElems = [];
@@ -769,8 +807,9 @@ class ElementFinder {
                         return [];
                     }
 
-                    for(let j = 0; j < definedProps[prop.def].length; j++) {
-                        let def = definedProps[prop.def][j];
+                    let defs = definedProps[prop.def];
+                    for(let j = 0; j < defs.length; j++) {
+                        let def = defs[j];
                         if(typeof def == 'object') { // def is an EF
                             def.counter = { min: 1 }; // match multiple elements
                             findEF(def, pool);
@@ -783,7 +822,29 @@ class ElementFinder {
                         }
                     }
 
+                    let fromPool = null;
+                    if(isDebug) {
+                        fromPool = [];
+                        for(let elem of pool) {
+                            fromPool.push(elem);
+                        }
+                    }
+
                     pool = prop.not ? intersectArrNot(pool, approvedElems) : intersectArr(pool, approvedElems);
+
+                    if(isDebug) {
+                        let props = [];
+                        for(let prop of ef.props) {
+                            props.push(prop.prop);
+                        }
+                        record['[3] apply each prop'].push({
+                            ['Applying prop']: prop.prop,
+                            ['[1] definitions']: defs,
+                            ['[2] before' ]: fromPool,
+                            ['[3] after']: pool
+                        });
+                        record['[4] after'] = pool;
+                    }
 
                     if(pool.length == 0) {
                         if(ef.counter.min > 0 || ef.isElemArray) {
@@ -791,6 +852,10 @@ class ElementFinder {
                         }
                         break;
                     }
+                }
+
+                if(isDebug) {
+                    searchRecord.push(record);
                 }
 
                 return pool;
@@ -905,7 +970,7 @@ class ElementFinder {
                     }
                 }
             }
-        }, this.serializeJSON(), parentElem);
+        }, this.serializeJSON(), parentElem, ElementFinder.isDebug);
 
         return {
             ef: obj.ef,
@@ -1346,3 +1411,5 @@ class ElementFinder {
     }
 }
 module.exports = ElementFinder;
+
+ElementFinder.isDebug = false;

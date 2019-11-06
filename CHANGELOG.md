@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.5
+
+- Fixed bug that was removing 'visible' prop
+- Logs now outputted to console in REPL
+- Cleaned up EF browser console output
+- EF outputs to browser console only in debug mode
+- Fixed REPL not being able to take indented code blocks (usually happens when pasting)
+- Better quoting in function call logs
+- Fixed console output for express debug mode
+
 ## 1.6.4
 
 - Fixed 'textbox' prop in IE

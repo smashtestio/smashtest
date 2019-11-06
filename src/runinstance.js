@@ -361,10 +361,23 @@ class RunInstance {
         if(this.runner.consoleOutput) {
             let seconds = step.elapsed/1000 || 0;
 
+            const darkGray = chalk.hex("#303030");
+            const brightGray = chalk.hex("#B6B6B6");
+
+            // Output logs
+            if(step.log && step.log.length > 0) {
+                for(let logObj of step.log) {
+                    if(logObj.text) {
+                        console.log(darkGray(`   ${logObj.text}`));
+                    }
+                }
+            }
+
+            // Output step
             let chalkToUse = null;
             let isGray = !this.tree.hasCodeBlock(step);
             if(isGray) {
-                chalkToUse = chalk.hex("#B6B6B6"); // light gray
+                chalkToUse = brightGray;
             }
             else if(step.isPassed) {
                 chalkToUse = chalk.green;
@@ -584,7 +597,7 @@ class RunInstance {
      * @throws {Error} Any errors that may occur during a branchify() of the given step
      */
     async inject(text) {
-        this.tree.parseIn(text);
+        this.tree.parseIn(text, undefined, undefined, true);
         let keys = Object.keys(this.tree.stepNodeIndex);
         let stepNode = this.tree.stepNodeIndex[keys[keys.length - 1]];
 
@@ -1295,7 +1308,7 @@ class RunInstance {
      */
     getLogValue(value) {
         if(typeof value == 'string') {
-            return `'${utils.escape(value)}'`;
+            return `\`${value}\``;
         }
         else {
             return value;

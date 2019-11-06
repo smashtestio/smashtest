@@ -60,6 +60,11 @@
     g('VERIFY_TIMEOUT', 2000);
     g('WAITUNTIL_TIMEOUT', 15000);
 
+    // If debug, activate EF debug
+    if(runInstance.tree.isDebug) {
+        ElementFinder.isDebug = true;
+    }
+
     // Checks if current browser is Chrome (for network throttling steps)
     g('isChrome', function() {
         if(browser.params.name.toLowerCase() != 'chrome') {
@@ -78,12 +83,32 @@
     *** Before Every Step {
         if(typeof browser != 'undefined') {
             await browser.takeScreenshot(false);
+
+            // Print out step text to console
+            if(runInstance.tree.isDebug) {
+                let currStepNode = runInstance.tree.stepNodeIndex[runInstance.currStep.id];
+                if(currStepNode) {
+                    let loc = runInstance.currStep.locString(runInstance.tree.stepNodeIndex);
+                    let stepText = `%cStep: %c${currStepNode.text}   %c${loc}`;
+
+                    await executeScript(function(stepText) {
+                        console.log("%c――――――――――――――――――――――――――――――――――――――――――", "color: #C0C0C0");
+                        console.log(stepText, "", "font-weight: bold", "color: rgb(75,75,75)");
+                    }, stepText);
+                }
+            }
         }
     }
 
     *** After Every Step {
         if(typeof browser != 'undefined') {
             await browser.takeScreenshot(true);
+
+            if(runInstance.tree.isDebug) {
+                await executeScript(function() {
+                    console.log("");
+                });
+            }
         }
     }
 
