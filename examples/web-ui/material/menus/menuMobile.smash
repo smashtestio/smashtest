@@ -1,4 +1,4 @@
-* Set Mobile
+* On Mobile
     * Click first level page button {{page}}
         Log "Mobile click"
             Scroll to top

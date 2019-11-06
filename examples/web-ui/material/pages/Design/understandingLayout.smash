@@ -8,8 +8,12 @@
 * On understanding layout page
     setUnderstandingDesignPage +? {
         props({
-            'understandingLayoutH1': `h1, "Understanding layout"`
+            'understandingLayoutH1': `h1, "Understanding layout"`,
+            'principleCollapse': `.collapsible__toggle-button.toggle-button.js-collabsible-arrow, 1st`
         })
 
         await $(`understandingLayoutH1`);
     }
+
+* When I click on principle collapse
+    ~ Click 'principleCollapse'

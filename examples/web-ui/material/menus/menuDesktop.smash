@@ -1,4 +1,4 @@
-* Set Desktop
+* On Desktop
     * Click first level page button {{page}}
         Log "Desktop click"
             Click '{{page}}Button'

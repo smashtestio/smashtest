@@ -6,8 +6,8 @@
 
 Open Chrome
 
-    Set Desktop
-    Set Mobile
+    On Desktop
+    On Mobile
 
         - Can navigate to home page
 
@@ -18,3 +18,5 @@ Open Chrome
             Given I am on design page
                 Given I am on layout page 
                     Given I am on understanding layout page
+                        When I click on principle collapse
+
