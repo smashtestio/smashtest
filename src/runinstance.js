@@ -5,6 +5,9 @@ const utils = require('./utils.js');
 const chalk = require('chalk');
 const path = require('path');
 
+const darkGray = chalk.hex("#303030");
+const brightGray = chalk.hex("#B6B6B6");
+
 /**
  * Represents a running test instance. Kind of like a "thread".
  */
@@ -361,19 +364,6 @@ class RunInstance {
         if(this.runner.consoleOutput) {
             let seconds = step.elapsed/1000 || 0;
 
-            const darkGray = chalk.hex("#303030");
-            const brightGray = chalk.hex("#B6B6B6");
-
-            // Output logs
-            if(step.log && step.log.length > 0) {
-                for(let logObj of step.log) {
-                    if(logObj.text) {
-                        console.log(darkGray(`   ${logObj.text}`));
-                    }
-                }
-            }
-
-            // Output step
             let chalkToUse = null;
             let isGray = !this.tree.hasCodeBlock(step);
             if(isGray) {
@@ -1100,6 +1090,9 @@ class RunInstance {
     appendToLog(text, logHere) {
         if(logHere && !this.isStopped) {
             logHere.appendToLog(text);
+            if(this.runner.consoleOutput && typeof text == 'string') {
+                console.log(darkGray(`   ${text}`));
+            }
         }
     }
 

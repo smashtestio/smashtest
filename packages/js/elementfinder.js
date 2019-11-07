@@ -516,7 +516,7 @@ class ElementFinder {
      * @throws {Error} If an element array wasn't properly matched
      */
     async getAll(driver, parentElem) {
-        let obj = await driver.executeScript(function(payload, parentElem, isDebug) {
+        let obj = await driver.executeScript(function(payload, parentElem, browserConsoleOutput) {
             payload = JSON.parse(payload);
             let ef = payload.ef;
             let definedProps = payload.definedProps;
@@ -532,7 +532,7 @@ class ElementFinder {
             );
             let matches = (ef.matchMeElems && ef.matchMeElems.length > 0) ? ef.matchMeElems : ef.matchedElems;
 
-            if(isDebug) {
+            if(browserConsoleOutput) {
                 console.log("");
                 console.log("%c-- Finding ElementFinder --", "color: blueviolet");
                 console.log(ef.fullStr);
@@ -784,7 +784,7 @@ class ElementFinder {
             function findTopEF(ef, pool) {
                 let record = {};
                 let propRecord = [];
-                if(isDebug) {
+                if(browserConsoleOutput) {
                     let props = [];
                     for(let prop of ef.props) {
                         props.push(prop.prop);
@@ -824,7 +824,7 @@ class ElementFinder {
                     }
 
                     let fromPool = null;
-                    if(isDebug) {
+                    if(browserConsoleOutput) {
                         fromPool = [];
                         for(let elem of pool) {
                             fromPool.push(elem);
@@ -833,7 +833,7 @@ class ElementFinder {
 
                     pool = prop.not ? intersectArrNot(pool, approvedElems) : intersectArr(pool, approvedElems);
 
-                    if(isDebug) {
+                    if(browserConsoleOutput) {
                         let props = [];
                         for(let prop of ef.props) {
                             props.push(prop.prop);
@@ -967,7 +967,7 @@ class ElementFinder {
                     }
                 }
             }
-        }, this.serializeJSON(), parentElem, ElementFinder.isDebug);
+        }, this.serializeJSON(), parentElem, ElementFinder.browserConsoleOutput);
 
         return {
             ef: obj.ef,
@@ -1409,4 +1409,4 @@ class ElementFinder {
 }
 module.exports = ElementFinder;
 
-ElementFinder.isDebug = false;
+ElementFinder.browserConsoleOutput = false;

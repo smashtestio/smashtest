@@ -61,8 +61,8 @@
     g('WAITUNTIL_TIMEOUT', 15000);
 
     // If debug, activate EF debug
-    if(runInstance.tree.isDebug || runInstance.runner.isRepl) {
-        ElementFinder.isDebug = true;
+    if(runInstance.runner.consoleOutput) {
+        ElementFinder.browserConsoleOutput = true;
     }
 
     // Checks if current browser is Chrome (for network throttling steps)

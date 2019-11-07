@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.8
+
+- Logs to console now come out when logged, not at the end of the step
+- Refactoring and cleanup
+
 ## 1.6.7
 
 - Fix for EF browser console output not coming out in non-debug REPLs
