@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.6.8
+
+- Logs to console now come out when logged, not at the end of the step
+- Refactoring and cleanup
+
+## 1.6.7
+
+- Fix for EF browser console output not coming out in non-debug REPLs
+
+## 1.6.6
+
+- Fixed ordering in browser console of EFs that are defined by other EFs
+
+## 1.6.5
+
+- Fixed bug that was removing 'visible' prop
+- Logs now outputted to console in REPL
+- Cleaned up EF browser console output
+- EF outputs to browser console only in debug mode
+- Fixed REPL not being able to take indented code blocks (usually happens when pasting)
+- Better quoting in function call logs
+- Fixed console output for express debug mode
+
 ## 1.6.4
 
 - Fixed 'textbox' prop in IE

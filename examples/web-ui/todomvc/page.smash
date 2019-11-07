@@ -17,7 +17,7 @@
         Navigate to 'todomvc.com/examples/vanillajs/#/'
             On todomvc page
 
-    * On todomvc page + {
+    * On todomvc page {
         props({
             'item': `.todo-list li`,
             'crossed out': `.completed`,
@@ -49,12 +49,14 @@
                 Click 'delete button'
 
         * Toggle completed on {{nth}} note {
-            let checkbox = await $(`
-                ${nth} item
-                    [checkbox, any visibility]
-            `);
-            await checkbox.click();
+            props({
+                [`checkbox to the left of the ${nth} note`]: `
+                    ${nth} item
+                        [checkbox, any visibility]
+                `
+            });
         }
+            Click 'checkbox to the left of the {{nth}} note, any visibility' // checkbox is invisible in the DOM, so `any visibility` prop needs to be applied in every EF that uses it
 
         * Edit {{nth}} note
             Double click '{{nth}} item'
