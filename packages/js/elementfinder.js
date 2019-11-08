@@ -521,9 +521,6 @@ class ElementFinder {
             let ef = payload.ef;
             let definedProps = payload.definedProps;
 
-            const SEPARATOR_STYLE = "color: #D0D0D0";
-            const HEADING_STYLE = "font-weight: bold";
-
             let searchRecord = [];
 
             findEF(ef, parentElem ?
@@ -786,17 +783,16 @@ class ElementFinder {
                 let propRecord = [];
                 if(browserConsoleOutput) {
                     let props = [];
-                    for(let prop of ef.props) {
-                        props.push(prop.prop);
+                    for(let i = 0; i < ef.props.length; i++) {
+                        props.push(ef.props[i].prop);
                     }
-                    searchRecord.push({
-                        ['Searching for EF']: ef.line,
-                        ['[1] divide into props']: props,
-                        ['[2] before']: pool,
-                        ['[3] apply each prop']: [],
-                        ['[4] after']: []
-                    });
-                    record = searchRecord[searchRecord.length - 1];
+                    record['Searching for EF'] = ef.line;
+                    record['[1] divide into props'] = props;
+                    record['[2] before'] = pool;
+                    record['[3] apply each prop'] = [];
+                    record['[4] after'] = [];
+
+                    searchRecord.push(record);
                 }
 
                 for(let i = 0; i < ef.props.length; i++) {
@@ -826,8 +822,8 @@ class ElementFinder {
                     let fromPool = null;
                     if(browserConsoleOutput) {
                         fromPool = [];
-                        for(let elem of pool) {
-                            fromPool.push(elem);
+                        for(let i = 0; i < pool.length; i++) {
+                            fromPool.push(pool[i]);
                         }
                     }
 
@@ -835,15 +831,16 @@ class ElementFinder {
 
                     if(browserConsoleOutput) {
                         let props = [];
-                        for(let prop of ef.props) {
-                            props.push(prop.prop);
+                        for(let i = 0; i < ef.props.length; i++) {
+                            props.push(ef.props[i].prop);
                         }
-                        record['[3] apply each prop'].push({
-                            ['Applying prop']: prop.prop,
-                            ['[1] definitions']: defs,
-                            ['[2] before' ]: fromPool,
-                            ['[3] after']: pool
-                        });
+                        let propApplication = {};
+                        propApplication['Applying prop'] = prop.prop;
+                        propApplication['[1] definitions'] = defs;
+                        propApplication['[2] before' ] = fromPool;
+                        propApplication['[3] after'] = pool;
+
+                        record['[3] apply each prop'].push(propApplication);
                         record['[4] after'] = pool;
                     }
 
