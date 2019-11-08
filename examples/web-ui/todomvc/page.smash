@@ -33,12 +33,12 @@
         });
     }
 
-        * Verify page is empty +
+        * Verify page is empty
             Verify 'empty page' is visible
                 Verify list is empty
                     Verify 'footer' is not visible
 
-        * Verify list is empty +
+        * Verify list is empty
             Verify 'item' is not visible
 
         * Create note {{text}}
