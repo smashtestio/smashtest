@@ -4,7 +4,6 @@
 
 * Navigate to design page
     Navigate to 'https://material.io/design'
-        On design page
 
 * On design page
     setDesignPage +? {
@@ -13,5 +12,4 @@
         })
 
         await $(`designH1`);
-
     }

@@ -1,9 +1,7 @@
 * On Desktop
     * Click first level page button {{page}}
-        Log "Desktop click"
-            Click '{{page}}Button'
+        Click '{{page}}Button'
 
     * Click second level page button {{page}}
-        Log "Desktop click"
-            Wait '2' secs
-                Click '{{page}}Button'
+        Wait '2' secs
+            Click '{{page}}Button'
