@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.9
+
+- Polyfilled EF injected js to work with IE11/Edge
+
 ## 1.6.8
 
 - Logs to console now come out when logged, not at the end of the step
