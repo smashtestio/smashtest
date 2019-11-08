@@ -9,9 +9,9 @@
 * On home page
     setHomePage +? {
         props({
-            'hero': `.header-show.page--homepage_hero`
+            'mainHeader': `h1, 'Build beautiful products, faster.'`
         })
 
-        await $(`hero`);
+        await $(`mainHeader`);
 
     }

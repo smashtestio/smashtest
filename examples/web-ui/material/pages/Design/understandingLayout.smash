@@ -13,7 +13,11 @@
         })
 
         await $(`understandingLayoutH1`);
+        await $(`principleCollapse`);
     }
 
 * When I click on principle collapse
-    ~ Click 'principleCollapse'
+    Scroll to 'principleCollapse' align bottom
+        Click 'principleCollapse'
+
+* Then principle icons should disapear
