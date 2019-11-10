@@ -51,7 +51,7 @@
     Create note 'one'
 
     * When the X next to a note is clicked
-        Hover over 'item, 1st'
+        Hover over '1st item'
             Click 'delete button'
 
         * Then it will be deleted
@@ -84,7 +84,7 @@
             Create note 'three'
 
     * When the X next to a note is clicked
-        Hover over 'item, 2nd'
+        Hover over '2nd item'
             Click 'delete button'
 
         * Then it will be deleted {
@@ -113,7 +113,7 @@
             Create note 'one'
 
     * When the X next to a note is clicked
-        Hover over 'item, 2nd'
+        Hover over '2nd item'
             Click 'delete button'
 
         * Then it will be deleted {
