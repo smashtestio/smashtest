@@ -1231,7 +1231,7 @@ class ElementFinder {
                         let labelText = '';
                         if(elem.id) {
                             let escape = function(s) { return s; }
-                            if(CSS.escape) {
+                            if(CSS && CSS.escape) {
                                 escape = CSS.escape;
                             }
                             let labelElem = document.querySelector('label[for="' + escape(elem.id) + '"]');
@@ -1270,7 +1270,7 @@ class ElementFinder {
                     return elems.filter(function(elem) {
                         let labelText = '';
                         let escape = function(s) { return s; }
-                        if(CSS.escape) {
+                        if(CSS && CSS.escape) {
                             escape = CSS.escape;
                         }
                         let labelElem = document.querySelector('label[for="' + escape(elem.id) + '"]');

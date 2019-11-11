@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.12
+
+- Further fix for CSS.escape() failing in IE/Edge
+
 ## 1.6.11
 
 - Fix for CSS.escape() failing in IE/Edge
