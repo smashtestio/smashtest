@@ -1,6 +1,6 @@
 // Declarations (implementations) of functions called in main.smash
 
-* Given no notes exist +
+* Given no notes exist
 
     * When a note is created
 
@@ -21,7 +21,7 @@
             `);
         }
 
-* Given notes exist +
+* Given notes exist
     Given multiple notes exist
 
     * When a note is created
@@ -47,11 +47,11 @@
 * Then no note is created
     Verify list is empty
 
-* Given one note exists +
+* Given one note exists
     Create note 'one'
 
     * When the X next to a note is clicked
-        Hover over 'item, 1st'
+        Hover over '1st item'
             Click 'delete button'
 
         * Then it will be deleted
@@ -78,13 +78,13 @@
             * Then it is no longer displayed
                 Verify list is empty
 
-* Given multiple notes exist +
+* Given multiple notes exist
     Create note 'one'
         Create note 'two'
             Create note 'three'
 
     * When the X next to a note is clicked
-        Hover over 'item, 2nd'
+        Hover over '2nd item'
             Click 'delete button'
 
         * Then it will be deleted {
@@ -107,13 +107,13 @@
             `);
         }
 
-* Given multiple identical notes exist +
+* Given multiple identical notes exist
     Create note 'one'
         Create note 'one'
             Create note 'one'
 
     * When the X next to a note is clicked
-        Hover over 'item, 2nd'
+        Hover over '2nd item'
             Click 'delete button'
 
         * Then it will be deleted {
@@ -124,7 +124,7 @@
             `);
         }
 
-* Given one completed note exists +
+* Given one completed note exists
 
     Create note 'one'
         Create note 'two'
@@ -153,7 +153,7 @@
                         `);
                     }
 
-* Given multiple completed notes exist +
+* Given multiple completed notes exist
 
     Create note 'one'
         Create note 'two'
@@ -172,7 +172,7 @@
             `);
         }
 
-* Given a non-completed note exists +
+* Given a non-completed note exists
     - Fresh note
         Create note 'one'
 
@@ -203,7 +203,7 @@
             `);
         }
 
-* Given a completed note exists +
+* Given a completed note exists
     Create note 'one'
         Toggle completed on '1st' note
 
@@ -229,7 +229,7 @@
             `);
         }
 
-* Given multiple notes exist, some completed and some not +
+* Given multiple notes exist, some completed and some not
     Create note 'one'
         Create note 'two'
             Create note 'three'
@@ -343,7 +343,7 @@
             `);
         }
 
-* Given multiple notes exist, all of which are non-completed +
+* Given multiple notes exist, all of which are non-completed
     Create note 'one'
         Create note 'two'
             Create note 'three'
@@ -366,7 +366,7 @@
         * Then no notes are displayed
             Verify list is empty
 
-* Given multiple notes exist, all of which are completed +
+* Given multiple notes exist, all of which are completed
     Create note 'one'
         Create note 'two'
             Create note 'three'
@@ -401,13 +401,13 @@
         * Then no notes are displayed
             Verify list is empty
 
-* Given one note exists, and it is non-completed +
+* Given one note exists, and it is non-completed
     Create note 'one'
 
     * Then an item count of 1 is displayed
         Verify ['1 item left'] is visible
 
-* Given one note exists, and it is completed +
+* Given one note exists, and it is completed
     Create note 'one'
         Toggle completed on '1st' note
 

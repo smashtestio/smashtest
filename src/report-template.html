@@ -104,7 +104,7 @@
             }
 
             .runner-status-msg {
-                color: #ffb347;
+                color: #f5b70c;
             }
 
             .debug-mode {
@@ -194,13 +194,13 @@
             }
 
             .updates-live .branch-indicator.running {
-                background-color: orange;
+                background-color: #f5b70c;
                 animation: blinker 2s linear infinite;
             }
 
             .updates-paused .branch-indicator.running,
             .updates-disconnected .branch-indicator.running {
-                background-color: orange;
+                background-color: #f5b70c;
             }
 
             @keyframes blinker {
@@ -291,7 +291,7 @@
             }
 
             .pill.running {
-                background-color: orange;
+                background-color: #f5b70c;
             }
 
             .tooltip-text {
@@ -323,17 +323,13 @@
             }
 
             .progress-bar .filled-bar {
-                background-color: rgb(245,155,0);
+                background-color: #f5b70c;
                 color: white;
                 text-align: center;
                 height: 100%;
                 border-radius: 4px;
                 overflow-x: hidden;
             }
-
-            /*.progress-bar .filled-bar.paused {
-                background-color: rgb(70,70,70);
-            }*/
 
             .progress-bar .filled-bar-text {
                 position: relative;
@@ -363,7 +359,7 @@
             }
 
             .updates-live .running-item {
-                color: orange;
+                color: #f5b70c;
                 animation: blinker 2s linear infinite;
             }
 
@@ -371,7 +367,7 @@
             .updates-disconnected .running-item,
             .running-item-no-anim,
             .orange-item {
-                color: orange;
+                color: #f5b70c;
             }
 
             .passed-item {
@@ -1545,8 +1541,8 @@ c     = copy text of branch
 
                 render() {
                     let elapsedText = "";
-                    let elapsed = this.props.data.tree.elapsed;
-                    if(typeof elapsed != undefined && elapsed != -1) {
+                    let elapsed = this.props.data.tree.elapsed || -1;
+                    if(elapsed != -1) {
                         elapsedText = `(${formatElapsed(elapsed)})`;
                     }
 

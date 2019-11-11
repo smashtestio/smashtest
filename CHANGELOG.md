@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.6.12
+
+- Further fix for CSS.escape() failing in IE/Edge
+
+## 1.6.11
+
+- Fix for CSS.escape() failing in IE/Edge
+
+## 1.6.10
+
+- Fixed blank elapsed counter in a stopped run's report
+- Updated colors in report
+
 ## 1.6.9
 
 - Polyfilled EF injected js to work with IE11/Edge
