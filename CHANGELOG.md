@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.11
+
+- Fix for CSS.escape() failing in IE/Edge
+
 ## 1.6.10
 
 - Fixed blank elapsed counter in a stopped run's report
