@@ -547,6 +547,7 @@ class BrowserInstance {
 
     /**
      * Finds the first matching element. Waits up to timeout ms.
+     * Scrolls to the matching element, if found.
      * @param {String, ElementFinder, or WebElement} element - A string or EF representing the EF to use. If set to a WebElement, returns that WebElement.
      * @param {Boolean} [tryClickable] - If true, first try searching among clickable elements only (see 'clickable' in ElementFinder's defaultProps()). If no elements are found, searches among non-clickable elements.
      * @param {WebElement} [parentElem] - If set, only searches at or within this parent element
