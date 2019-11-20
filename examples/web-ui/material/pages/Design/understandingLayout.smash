@@ -10,7 +10,8 @@
 * On understanding layout page {
         props({
             'understandingLayoutHeading': `h1, "Understanding layout"`,
-            'principleCollapse': `.collapsible__toggle-button.toggle-button.js-collabsible-arrow, 1st`
+            'principleCollapse': `.collapsible__toggle-button.toggle-button.js-collabsible-arrow, 1st`,
+            'collapsedPrinciple': `.collapsed`
         })
 
         await $(`understandingLayoutHeading`);
@@ -22,6 +23,7 @@
         Click 'principleCollapse'
 
 * Then principle icons should disappear
+    Verify 'collapsedPrinciple' is visible
 
 * Scroll to {{element}} align bottom {
     await executeScript(function(element) {

@@ -6,7 +6,7 @@
         Click [button, '{{pageTitle}}']
 
     * Navigate to 2nd level page with title {{pageTitle}}
-        Click [a, '{{pageTitle}}']
+        Native Click [a, '{{pageTitle}}']
 
 * On Mobile {
     props({
@@ -17,13 +17,11 @@
     Mobile 
 
     * Navigate to 1st level page with title {{pageTitle}}
-        Wait until 'hamburger' is visible
-            Click 'hamburger'
-                Click [button, '{{pageTitle}}']
+        Click 'hamburger'
+            Native Click [button, '{{pageTitle}}']
 
     * Navigate to 2nd level page with title {{pageTitle}}
-        Wait until [a, '{{pageTitle}}'] is visible
-            Click [a, '{{pageTitle}}']
+        Native Click [a, '{{pageTitle}}']
 
     * Scroll to top {
         await executeScript(function() {
