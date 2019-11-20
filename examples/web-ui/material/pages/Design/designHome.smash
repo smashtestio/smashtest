@@ -7,8 +7,8 @@
 
 * On design page {
         props({
-            'designH1': `h1, "Design"`
+            'designHeader': `h1, "Design"`
         })
 
-        await $(`designH1`);
+        await $(`designHeader`);
 }
