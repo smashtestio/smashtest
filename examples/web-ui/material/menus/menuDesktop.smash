@@ -1,7 +1,0 @@
-* On Desktop
-    * Click first level page button {{page}}
-        Click '{{page}}Button'
-
-    * Click second level page button {{page}}
-        Wait '2' secs
-            Click '{{page}}Button'

@@ -1,8 +1,32 @@
 * On Desktop
-    Desktop // calls `Desktop` step exposed by `Open Chrome`
 
-* On Mobile
-    Mobile
-    Mobile Landscape
-    Tablet
-    iPhone 6/7/8
+    Desktop
+
+    * Navigate to 1st level page with title {{pageTitle}}
+        Click [button, '{{pageTitle}}']
+
+    * Navigate to 2nd level page with title {{pageTitle}}
+        Click [a, '{{pageTitle}}']
+
+* On Mobile {
+    props({
+        'hamburger': `i, 'menu'`,
+    })
+}
+
+    Mobile 
+
+    * Navigate to 1st level page with title {{pageTitle}}
+        Wait until 'hamburger' is visible
+            Click 'hamburger'
+                Click [button, '{{pageTitle}}']
+
+    * Navigate to 2nd level page with title {{pageTitle}}
+        Wait until [a, '{{pageTitle}}'] is visible
+            Click [a, '{{pageTitle}}']
+
+    * Scroll to top {
+        await executeScript(function() {
+            window.scrollTo(0, 0);
+        });
+    }

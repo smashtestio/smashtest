@@ -1,23 +1,30 @@
 * Given I am on understanding layout page
-    Navigate to understanding layout page
-        On understanding layout page
+    Navigate to design page
+        Navigate to layout page
+            Navigate to understanding layout page
+                On understanding layout page
 
 * Navigate to understanding layout page
-    Navigate to second level page "understandingLayout"
+    Navigate to 2nd level page with title "Understanding layout"
 
-* On understanding layout page
-    setUnderstandingDesignPage +? {
+* On understanding layout page {
         props({
-            'understandingLayoutH1': `h1, "Understanding layout"`,
+            'understandingLayoutHeading': `h1, "Understanding layout"`,
             'principleCollapse': `.collapsible__toggle-button.toggle-button.js-collabsible-arrow, 1st`
         })
 
-        await $(`understandingLayoutH1`);
+        await $(`understandingLayoutHeading`);
         await $(`principleCollapse`);
-    }
+}
 
 * When I click on principle collapse
     Scroll to 'principleCollapse' align bottom
         Click 'principleCollapse'
 
-* Then principle icons should disapear
+* Then principle icons should disappear
+
+* Scroll to {{element}} align bottom {
+    await executeScript(function(element) {
+        element.scrollIntoView(false);
+    }, await $(element));
+}

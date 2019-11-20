@@ -6,12 +6,10 @@
     Navigate to 'https://material.io/'
         On home page
 
-* On home page
-    setHomePage +? {
+* On home page {
         props({
             'mainHeader': `h1, 'Build beautiful products, faster.'`
         })
 
         await $(`mainHeader`);
-
-    }
+}

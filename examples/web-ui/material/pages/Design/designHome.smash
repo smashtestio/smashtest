@@ -5,11 +5,10 @@
 * Navigate to design page
     Navigate to 'https://material.io/design'
 
-* On design page
-    setDesignPage +? {
+* On design page {
         props({
             'designH1': `h1, "Design"`
         })
 
         await $(`designH1`);
-    }
+}

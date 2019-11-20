@@ -3,20 +3,13 @@
 // Steps are implemented in other .smash files
 
 // Run these tests by running `smashtest --recursive` in this directory
-
 Open Chrome
 
     On Desktop
     On Mobile
+      
+        - Can navigate to understanding layout page via desktop and mobile menu
 
-        - Can navigate to home page
-
-            Given I am on home page
-        
-        - Can navigate to understanding layout page
-
-            Given I am on design page
-                Given I am on layout page 
-                    Given I am on understanding layout page
-                        When I click on principle collapse
-
+            Given I am on understanding layout page
+                When I click on principle collapse
+                    Then principle icons should disappear
