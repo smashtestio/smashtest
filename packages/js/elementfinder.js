@@ -845,7 +845,7 @@ class ElementFinder {
                     }
 
                     if(pool.length == 0) {
-                        if(ef.counter.min > 0 || ef.isElemArray) {
+                        if(ef.counter.min > 0) {
                             ef.error = 'not found (zero matches after `' + prop.prop + '` applied)';
                         }
                         break;

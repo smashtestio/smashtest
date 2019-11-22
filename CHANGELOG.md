@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.13
+
+- Fixed bug where correctly empty element arrays threw an error
+
 ## 1.6.12
 
 - Further fix for CSS.escape() failing in IE/Edge
