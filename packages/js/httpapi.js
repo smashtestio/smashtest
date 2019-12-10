@@ -168,18 +168,18 @@ HttpApi.Response = class Response {
             responseObj: response
         };
 
+        // If body is json, parse it
+        try {
+            this.response.body = JSON.parse(this.response.body);
+        }
+        catch(e) {}
+
         this.statusCode = this.response.statusCode;
         this.headers = this.response.headers;
         this.error = this.response.error;
         this.body = this.response.body;
         this.rawBody = this.response.rawBody;
         this.responseObj = this.response.responseObj;
-
-        // If body is json, parse it
-        try {
-            this.response.body = JSON.parse(this.response.body);
-        }
-        catch(e) {}
     }
 
     /**
