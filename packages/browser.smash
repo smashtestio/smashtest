@@ -85,7 +85,7 @@
             await browser.takeScreenshot(false);
 
             // Print out step text to console
-            if(runInstance.tree.isDebug && runInstance.currStep) {
+            if(runInstance.tree.isDebug && runInstance.currStep && !browser.isAlertOpen()) {
                 let currStepNode = runInstance.tree.stepNodeIndex[runInstance.currStep.id];
                 if(currStepNode) {
                     let loc = runInstance.currStep.locString(runInstance.tree.stepNodeIndex);

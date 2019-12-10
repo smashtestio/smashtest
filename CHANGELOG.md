@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.16
+
+- Fixed UnexpectedAlertOpenError exception before a step completes with an alert being open
+
 ## 1.6.15
 
 - Fixed parsing of body in API response

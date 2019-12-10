@@ -390,6 +390,21 @@ class BrowserInstance {
         await element.click();
     }
 
+    /**
+     * @return {Boolean} True if an alert is open, false otherwise
+     */
+    async isAlertOpen() {
+        let alertOpen = true;
+        try {
+            await browser.driver.switchTo().alert();
+        }
+        catch(e) {
+            alertOpen = false;
+        }
+
+        return alertOpen;
+    }
+
     // ***************************************
     //  Execute script in browser
     // ***************************************
