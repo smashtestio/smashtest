@@ -165,8 +165,15 @@ HttpApi.Response = class Response {
             error: error,
             body: body,
             rawBody: body,
-            response: response
+            responseObj: response
         };
+
+        this.statusCode = this.response.statusCode;
+        this.headers = this.response.headers;
+        this.error = this.response.error;
+        this.body = this.response.body;
+        this.rawBody = this.response.rawBody;
+        this.responseObj = this.response.responseObj;
 
         // If body is json, parse it
         try {

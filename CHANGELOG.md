@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.14
+
+- Fixed UnexpectedAlertOpenError exception after a step completes with an alert being open
+- Fixed bug related to repeating the previous step in the REPL
+- Simplified way to access the response object in API tests
+- Increased wait time for iframe switching
+
 ## 1.6.13
 
 - Fixed bug where correctly empty element arrays threw an error

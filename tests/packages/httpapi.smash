@@ -108,7 +108,7 @@
                         error: null,
                         body: "get response",
                         rawBody: "get response",
-                        response: {}
+                        responseObj: {}
                     });
                 }
 
@@ -146,7 +146,7 @@
                         error: null,
                         body: "post response",
                         rawBody: "post response",
-                        response: {}
+                        responseObj: {}
                     });
                 }
 
@@ -181,7 +181,7 @@
                         error: null,
                         body: 'put response',
                         rawBody: 'put response',
-                        response: {}
+                        responseObj: {}
                     });
                 }
 
@@ -219,7 +219,7 @@
                         error: null,
                         body: "patch response",
                         rawBody: "patch response",
-                        response: {}
+                        responseObj: {}
                     });
                 }
 
@@ -257,7 +257,7 @@
                         error: null,
                         body: "delete response",
                         rawBody: "delete response",
-                        response: {}
+                        responseObj: {}
                     });
                 }
 
@@ -286,7 +286,7 @@
                         error: null,
                         body: "",
                         rawBody: "",
-                        response: {}
+                        responseObj: {}
                     });
                 }
 
@@ -315,7 +315,7 @@
                         error: null,
                         body: "options response",
                         rawBody: "options response",
-                        response: {}
+                        responseObj: {}
                     });
                 }
 
@@ -373,7 +373,7 @@
                                 one: 'two'
                             },
                             rawBody: '{"one":"two"}',
-                            response: {}
+                            responseObj: {}
                         });
                     }
 
@@ -394,7 +394,7 @@
                             error: null,
                             body: { $typeof: 'string' },
                             rawBody: { $typeof: 'string' },
-                            response: {}
+                            responseObj: {}
                         });
                     }
 
