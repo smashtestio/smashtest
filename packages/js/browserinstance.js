@@ -254,7 +254,7 @@ class BrowserInstance {
         // Resize to dimensions
         // NOTE: Options.windowSize() wasn't working properly
         if(params.width && params.height && !(params.name == 'chrome' && params.deviceEmulation)) {
-            this.driver.manage().window().setRect({width: params.width, height: params.height});
+            await this.driver.manage().window().setRect({width: params.width, height: params.height});
         }
 
         // Set timeouts

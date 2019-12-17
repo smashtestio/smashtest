@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.17
+
+- Added await to setting viewport rect
+
 ## 1.6.16
 
 - Fixed UnexpectedAlertOpenError exception before a step completes with an alert being open
