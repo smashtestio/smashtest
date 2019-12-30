@@ -8997,6 +8997,34 @@ B -
                     }
                 ]);
             });
+
+            it("branchifies a .. step block where one step exposes a function and the next one calls it", () => {
+                let tree = new Tree();
+                tree.parseIn(`
+..
+A
+B
+
+* A
+    - C
+
+    * B
+        - D
+                `);
+                let branches = tree.branchify(tree.root);
+                mergeStepNodesInBranches(tree, branches);
+
+                Comparer.expect(branches).to.match([
+                    {
+                        steps: [
+                            { text: "A", level: 0 },
+                            { text: "C", level: 1 },
+                            { text: "B", level: 0 },
+                            { text: "D", level: 1 }
+                        ]
+                    }
+                ]);
+            });
         });
 
         context("*** Before Every Branch hook", () => {

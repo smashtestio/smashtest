@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.18
+
+- Fixed bug in branchifying .. step blocks
+
 ## 1.6.17
 
 - Added await to setting viewport rect

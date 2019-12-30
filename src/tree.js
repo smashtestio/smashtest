@@ -719,27 +719,19 @@ ${branchAbove.output(this.stepNodeIndex)}
             }
         }
         else if(stepNode instanceof StepBlockNode && stepNode.isSequential) { // sequential step block (with a .. on top)
-            // Branches from each step block member are cross joined sequentially to each other
-            let branchesInThisStepBlock = [];
-            stepNode.steps.forEach(s => {
-                let branchesFromThisStepBlockMember = this.branchify(s, branchAbove, level, true); // there's no isSequential because isSequential does not extend into function calls
+            // Flatten the sequential step block node
+            for(let i = 0; i < stepNode.steps.length; i++) {
+                let s = stepNode.steps[i];
 
-                if(branchesInThisStepBlock.length == 0) {
-                    branchesInThisStepBlock = branchesFromThisStepBlockMember;
+                if(i == stepNode.steps.length - 1) { // last step in block
+                    s.children = stepNode.children;
                 }
                 else {
-                    let newBranchesInThisStepBlock = [];
-                    branchesInThisStepBlock.forEach(branchInThisStepBlock => {
-                        branchesFromThisStepBlockMember.forEach(branchBelowBlockMember => {
-                            newBranchesInThisStepBlock.push(branchInThisStepBlock.clone().mergeToEnd(branchBelowBlockMember.clone()));
-                        });
-                    });
-                    branchesInThisStepBlock = newBranchesInThisStepBlock;
+                    s.children = [stepNode.steps[i+1]];
                 }
-            });
-            branchesFromThisStepNode = branchesInThisStepBlock;
+            }
 
-            // NOTE: branchify() is not called on step blocks unless they are sequential
+            return this.branchify(stepNode.steps[0], branchAbove, level, false, isSequential);
         }
         else if(stepNode.isFunctionDeclaration) {
             // Skip over function declarations. Only function calls go into a branch.
