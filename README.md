@@ -1,4 +1,4 @@
-# Smashtest • Test 10x Faster
+# Smashtest • Generate tests fast
 
 [![npm version](https://badge.fury.io/js/smashtest.svg)](https://badge.fury.io/js/smashtest)
 [![Join the chat at https://gitter.im/smashtestio/community](https://badges.gitter.im/smashtestio/community.svg)](https://gitter.im/smashtestio/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -7,7 +7,7 @@
 
 [Smashtest](https://smashtest.io) is an open-source tool and language for rapidly generating tests.
 
-Greatly speed up your automated testing by writing tests in a tree-like format.
+Greatly speed up your web automated testing by writing tests in a tree-like format.
 
 Trees represent how we think when we're testing. They allow us to list all the permutations that branch off from any given point.
 
