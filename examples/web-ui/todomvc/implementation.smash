@@ -12,6 +12,7 @@
             {text} = '\'\"\\ 日本語'
 
                 Type '[enter]' into ['What needs to be done?']
+
                 Click 'body'
 
         * Then it is properly displayed {
@@ -22,20 +23,21 @@
         }
 
 * Given notes exist
-    Given multiple notes exist
+    ..
+    Create note 'one'
+    Create note 'two'
+    Create note 'three'
 
-    * When a note is created
-        Create note 'four'
+        * When a note is created
+            Create note 'four'
 
-        * Then it is properly displayed {
-            await $(`
-                * item
-                    'one'
-                    'two'
-                    'three'
-                    'four'
-            `);
-        }
+                * Then it is properly displayed {
+                    await $(`
+                        * item
+                            3 x item
+                            'four'
+                    `);
+                }
 
 * When a note is created with an empty string
     Create note ''
@@ -51,8 +53,9 @@
     Create note 'one'
 
     * When the X next to a note is clicked
+        ..
         Hover over '1st item'
-            Click 'delete button'
+        Click 'delete button'
 
         * Then it will be deleted
             Verify list is empty
@@ -69,8 +72,9 @@
             Verify list is empty
 
     * and that note has been edited
+        ..
         Edit '1st' note
-            and set text to 'something else'
+        and set text to 'something else'
 
         * When that note is deleted
             Delete '1st' note
@@ -79,206 +83,202 @@
                 Verify list is empty
 
 * Given multiple notes exist
+    ..
     Create note 'one'
-        Create note 'two'
-            Create note 'three'
+    Create note 'two'
+    Create note 'three'
 
-    * When the X next to a note is clicked
-        Hover over '2nd item'
+        * When the X next to a note is clicked
+            ..
+            Hover over '2nd item'
             Click 'delete button'
 
-        * Then it will be deleted {
-            await $(`
-                * item
-                    'one'
-                    'three'
-            `);
-        }
+                * Then it will be deleted {
+                    await $(`
+                        * item
+                            'one'
+                            'three'
+                    `);
+                }
 
-    * When a note is edited to a blank string
-        Edit '2nd' note
+        * When a note is edited to a blank string
+            ..
+            Edit '2nd' note
             and set text to ''
 
-        * Then it will be deleted {
-            await $(`
-                * item
-                    'one'
-                    'three'
-            `);
-        }
+            * Then it will be deleted {
+                await $(`
+                    * item
+                        'one'
+                        'three'
+                `);
+            }
 
 * Given multiple identical notes exist
+    ..
     Create note 'one'
-        Create note 'one'
-            Create note 'one'
+    Create note 'one'
+    Create note 'one'
 
-    * When the X next to a note is clicked
-        Hover over '2nd item'
+        * When the X next to a note is clicked
+            ..
+            Hover over '2nd item'
             Click 'delete button'
 
-        * Then it will be deleted {
-            await $(`
-                * item
-                    'one'
-                    'one'
-            `);
-        }
+                * Then it will be deleted {
+                    await $(`
+                        * item
+                            2 x 'one'
+                    `);
+                }
 
 * Given one completed note exists
-
+    ..
     Create note 'one'
-        Create note 'two'
+    Create note 'two'
 
-            Toggle completed on '1st' note
+        Toggle completed on '1st' note
 
-                * When Clear completed is clicked
-                    Click ['Clear Completed']
+            * When Clear completed is clicked
+                Click ['Clear Completed']
 
-                    * Then all completed notes will be deleted {
-                        await $(`
-                            * item
-                                'two'
-                        `);
-                    }
+                * Then all completed notes will be deleted {
+                    await $(`
+                        * item
+                            'two'
+                    `);
+                }
 
-            Toggle completed on '2nd' note
+        Toggle completed on '2nd' note
 
-                * When Clear completed is clicked
-                    Click ['Clear Completed']
+            * When Clear completed is clicked
+                Click ['Clear Completed']
 
-                    * Then all completed notes will be deleted {
-                        await $(`
-                            * item
-                                'one'
-                        `);
-                    }
+                * Then all completed notes will be deleted {
+                    await $(`
+                        * item
+                            'one'
+                    `);
+                }
 
 * Given multiple completed notes exist
-
+    ..
     Create note 'one'
-        Create note 'two'
-            Create note 'three'
+    Create note 'two'
+    Create note 'three'
+    Toggle completed on '2nd' note
+    Toggle completed on '3rd' note
 
-                Toggle completed on '2nd' note
-                    Toggle completed on '3rd' note
+        * When Clear completed is clicked
+            Click ['Clear Completed']
 
-    * When Clear completed is clicked
-        Click ['Clear Completed']
-
-        * Then all completed notes will be deleted {
-            await $(`
-                * item
-                    'one'
-            `);
-        }
+            * Then all completed notes will be deleted {
+                await $(`
+                    * item
+                        'one'
+                `);
+            }
 
 * Given a non-completed note exists
-    - Fresh note
-        Create note 'one'
+    Create note 'one'
 
-    - Note that's been toggled
-        Create note 'one'
+        - Fresh note
+
+        - Note that's been toggled
+            ..
             Toggle completed on '1st' note
-                Toggle completed on '1st' note
+            Toggle completed on '1st' note
 
-    * When that note is edited
-        Edit '1st' note
+        * When that note is edited
+            ..
+            Edit '1st' note
             and set text to 'two'
 
-        * Then it is properly updated
-            * and remains non-completed {
+                * Then it is properly updated
+                    * and remains non-completed {
+                        await $(`
+                            * item
+                                'two', not crossed out
+                        `);
+                    }
+
+        * When its checkbox is clicked
+            Toggle completed on '1st' note
+
+            * Then it will be marked as complete {
                 await $(`
                     * item
-                        'two', not crossed out
+                        'one', crossed out
                 `);
             }
-
-    * When its checkbox is clicked
-        Toggle completed on '1st' note
-
-        * Then it will be marked as complete {
-            await $(`
-                * item
-                    'one', crossed out
-            `);
-        }
 
 * Given a completed note exists
+    ..
     Create note 'one'
-        Toggle completed on '1st' note
+    Toggle completed on '1st' note
 
-    * When that note is edited
-        Edit '1st' note
+        * When that note is edited
+            ..
+            Edit '1st' note
             and set text to 'two'
 
-        * Then it is properly updated
-            * and remains completed {
-                await $(`
-                    * item
-                        'two', crossed out
-                `);
-            }
+                * Then it is properly updated
+                    * and remains completed {
+                        await $(`
+                            * item
+                                'two', crossed out
+                        `);
+                    }
 
-    * When its checkbox is clicked
-        Toggle completed on '1st' note
+        * When its checkbox is clicked
+            Toggle completed on '1st' note
 
-        * Then it will be marked as non-complete {
-            await $(`
-                * item
-                    'one', not crossed out
-            `);
-        }
+                * Then it will be marked as non-complete {
+                    await $(`
+                        * item
+                            'one', not crossed out
+                    `);
+                }
 
 * Given multiple notes exist, some completed and some not
+    ..
     Create note 'one'
-        Create note 'two'
-            Create note 'three'
-                Create note 'four'
+    Create note 'two'
+    Create note 'three'
+    Create note 'four'
+    Toggle completed on '1st' note
+    Toggle completed on '3rd' note
 
-                    Toggle completed on '1st' note
-                        Toggle completed on '3rd' note
+        * When the chevron to the left of the new note textbox is clicked
+            Click 'chevron'
 
-    * When the chevron to the left of the new note textbox is clicked
-        Click 'chevron'
+            * Then all notes will be marked as complete {
+                await $(`
+                    * item
+                        'one', crossed out
+                        'two', crossed out
+                        'three', crossed out
+                        'four', crossed out
+                `);
+            }
 
-        * Then all notes will be marked as complete {
-            await $(`
-                * item
-                    'one', crossed out
-                    'two', crossed out
-                    'three', crossed out
-                    'four', crossed out
-            `);
-        }
+        * When the All filter is selected
+            Click ['All' filter]
 
-    * When the All filter is selected
-        Click ['All' filter]
+            * Then all notes are displayed {
+                await $(`
+                    * item
+                        'one', crossed out
+                        'two', not crossed out
+                        'three', crossed out
+                        'four', not crossed out
+                `);
+            }
 
-        * Then all notes are displayed {
-            await $(`
-                * item
-                    'one', crossed out
-                    'two', not crossed out
-                    'three', crossed out
-                    'four', not crossed out
-            `);
-        }
+        * the Active filter is selected
+            Click ['Active' filter]
 
-    * the Active filter is selected
-        Click ['Active' filter]
-
-        * Then only non-completed notes are displayed {
-            await $(`
-                * item
-                    'two', not crossed out
-                    'four', not crossed out
-            `);
-        }
-
-        * When Clear completed is clicked
-            Click ['Clear Completed']
-
-            * Then the same notes are displayed {
+            * Then only non-completed notes are displayed {
                 await $(`
                     * item
                         'two', not crossed out
@@ -286,39 +286,33 @@
                 `);
             }
 
-        * When a note is created
-            Create note 'five'
+            * When Clear completed is clicked
+                Click ['Clear Completed']
 
-            * Then that note will be displayed {
-                await $(`
-                    * item
-                        'two', not crossed out
-                        'four', not crossed out
-                        'five', not crossed out
-                `);
-            }
+                * Then the same notes are displayed {
+                    await $(`
+                        * item
+                            'two', not crossed out
+                            'four', not crossed out
+                    `);
+                }
 
-    * the Completed filter is selected
-        Click ['Completed' filter]
+            * When a note is created
+                Create note 'five'
 
-        * Then only completed notes are displayed {
-            await $(`
-                * item
-                    'one', crossed out
-                    'three', crossed out
-            `);
-        }
+                * Then that note will be displayed {
+                    await $(`
+                        * item
+                            'two', not crossed out
+                            'four', not crossed out
+                            'five', not crossed out
+                    `);
+                }
 
-        * When Clear completed is clicked
-            Click ['Clear Completed']
+        * the Completed filter is selected
+            Click ['Completed' filter]
 
-            * Then no notes are displayed
-                Verify list is empty
-
-        * When a note is created
-            Create note 'five'
-
-            * Then that note won't be displayed {
+            * Then only completed notes are displayed {
                 await $(`
                     * item
                         'one', crossed out
@@ -326,74 +320,95 @@
                 `);
             }
 
-    * Then an item count equal to the number of non-completed notes is displayed
-        Verify ['2 items left'] is visible
+            * When Clear completed is clicked
+                Click ['Clear Completed']
 
-    * When todomvc is opened in another tab
-        Open new tab
+                * Then no notes are displayed
+                    Verify list is empty
+
+            * When a note is created
+                Create note 'five'
+
+                * Then that note won't be displayed {
+                    await $(`
+                        * item
+                            'one', crossed out
+                            'three', crossed out
+                    `);
+                }
+
+        * Then an item count equal to the number of non-completed notes is displayed
+            Verify ['2 items left'] is visible
+
+        * When todomvc is opened in another tab
+            ..
+            Open new tab
             Navigate to todomvc
 
-        * Then the same notes will be displayed {
-            await $(`
-                * item
-                    'one', crossed out
-                    'two', not crossed out
-                    'three', crossed out
-                    'four', not crossed out
-            `);
-        }
+            * Then the same notes will be displayed {
+                await $(`
+                    * item
+                        'one', crossed out
+                        'two', not crossed out
+                        'three', crossed out
+                        'four', not crossed out
+                `);
+            }
 
 * Given multiple notes exist, all of which are non-completed
+    ..
     Create note 'one'
-        Create note 'two'
-            Create note 'three'
+    Create note 'two'
+    Create note 'three'
 
-    * When the chevron to the left of the new note textbox is clicked
-        Click 'chevron'
+        * When the chevron to the left of the new note textbox is clicked
+            Click 'chevron'
 
-        * Then all notes will be marked as complete {
-            await $(`
-                * item
-                    'one', crossed out
-                    'two', crossed out
-                    'three', crossed out
-            `);
-        }
+            * Then all notes will be marked as complete {
+                await $(`
+                    * item
+                        'one', crossed out
+                        'two', crossed out
+                        'three', crossed out
+                `);
+            }
 
-    * When the Completed filter is selected
-        Click ['Completed' filter]
+        * When the Completed filter is selected
+            Click ['Completed' filter]
 
-        * Then no notes are displayed
-            Verify list is empty
+            * Then no notes are displayed
+                Verify list is empty
 
 * Given multiple notes exist, all of which are completed
+    ..
     Create note 'one'
-        Create note 'two'
-            Create note 'three'
+    Create note 'two'
+    Create note 'three'
 
-                Toggle completed on '1st' note
-                    Toggle completed on '2nd' note
-                        Toggle completed on '3rd' note
+        ..
+        Toggle completed on '1st' note
+        Toggle completed on '2nd' note
+        Toggle completed on '3rd' note
 
-                Click 'chevron'
+        Click 'chevron'
+
+        * When the chevron to the left of the new note textbox is clicked
+            Click 'chevron'
+
+            * Then all notes will be marked as non-complete {
+                await $(`
+                    * item
+                        'one', not crossed out
+                        'two', not crossed out
+                        'three', not crossed out
+                `);
+            }
 
     * When Clear completed is clicked
         Click ['Clear Completed']
 
         * Then all completed notes will be deleted
             Verify list is empty
-
-    * When the chevron to the left of the new note textbox is clicked
-        Click 'chevron'
-
-        * Then all notes will be marked as non-complete {
-            await $(`
-                * item
-                    'one', not crossed out
-                    'two', not crossed out
-                    'three', not crossed out
-            `);
-        }
 
     * When the Active filter is selected
         Click ['Active' filter]
@@ -408,8 +423,9 @@
         Verify ['1 item left'] is visible
 
 * Given one note exists, and it is completed
+    ..
     Create note 'one'
-        Toggle completed on '1st' note
+    Toggle completed on '1st' note
 
     * Then an item count of 0 is displayed
         Verify ['0 items left'] is visible
