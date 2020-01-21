@@ -552,6 +552,14 @@
         await not$(element, undefined, VERIFY_TIMEOUT, true);
     }
 
+    * Verify {{element}} is {{state}} {
+        await browser.verifyState(element, state, VERIFY_TIMEOUT);
+    }
+
+    * Verify every {{element}} is {{state}} {
+        await browser.verifyEveryState(element, state, VERIFY_TIMEOUT);
+    }
+
     // ***************************************
     //  Wait until
     // ***************************************
@@ -586,6 +594,22 @@
 
     * Wait until {{element}} is not visible (up to {{n}} secs) {
         await not$(element, undefined, n * 1000, true);
+    }
+
+    * Wait until {{element}} is {{state}} {
+        await browser.verifyState(element, state, WAITUNTIL_TIMEOUT);
+    }
+
+    * Wait until every {{element}} is {{state}} {
+        await browser.verifyEveryState(element, state, WAITUNTIL_TIMEOUT);
+    }
+
+    * Wait until {{element}} is {{state}} (up to {{n}} secs) {
+        await browser.verifyState(element, state, n * 1000);
+    }
+
+    * Wait until every {{element}} is {{state}} (up to {{n}} secs) {
+        await browser.verifyEveryState(element, state, n * 1000);
     }
 
     // ***************************************

@@ -1203,6 +1203,41 @@ Open test page
                     Verify [#one] is not visible
                         - Verify error $s #manual
 
+        - Verify element is state
+
+            Generate page {
+                await setPageBody(`
+                    <div id="one">foobar</div>
+                `);
+            }
+
+                - and element really is visible
+
+                    Verify [#one] is ['foobar']
+
+                - and element is not visible
+
+                    Verify [#one] is ['badtext']
+                        - Verify error $s #manual
+
+        - Verify every element is state
+
+            Generate page {
+                await setPageBody(`
+                    <div class="one">one two</div>
+                    <div class="one">one three</div>
+                `);
+            }
+
+                - and element really is visible
+
+                    Verify every [.one] is ['one']
+
+                - and element is not visible
+
+                    Verify every [.one] is ['two']
+                        - Verify error $s #manual
+
     - Category: Wait until
 
         - Wait until at page
@@ -1377,6 +1412,76 @@ Open test page
                 - and element is visible
 
                     Wait until [#one] is not visible (up to '5' secs)
+                        - Verify error $s #manual
+
+        - Wait until element is state
+
+            Generate page {
+                await setPageBody(`
+                    <div id="one">foobar</div>
+                `);
+            }
+
+                - and element really is visible
+
+                    Wait until [#one] is ['foobar']
+
+                - and element is not visible
+
+                    Wait until [#one] is ['badtext']
+                        - Verify error $s #manual
+
+        - Wait until every element is state
+
+            Generate page {
+                await setPageBody(`
+                    <div class="one">one two</div>
+                    <div class="one">one three</div>
+                `);
+            }
+
+                - and element really is visible
+
+                    Wait until every [.one] is ['one']
+
+                - and element is not visible
+
+                    Wait until every [.one] is ['two']
+                        - Verify error $s #manual
+
+        - Wait until element is state (up to n secs)
+
+            Generate page {
+                await setPageBody(`
+                    <div id="one">foobar</div>
+                `);
+            }
+
+                - and element really is visible
+
+                    Wait until [#one] is ['foobar'] (up to '5' secs)
+
+                - and element is not visible
+
+                    Wait until [#one] is ['badtext'] (up to '5' secs)
+                        - Verify error $s #manual
+
+        - Wait until every element is state (up to n secs)
+
+            Generate page {
+                await setPageBody(`
+                    <div class="one">one two</div>
+                    <div class="one">one three</div>
+                `);
+            }
+
+                - and element really is visible
+
+                    Wait until every [.one] is ['one'] (up to '5' secs)
+
+                - and element is not visible
+
+                    Wait until every [.one] is ['two'] (up to '5' secs)
                         - Verify error $s #manual
 
     - Category: Wait

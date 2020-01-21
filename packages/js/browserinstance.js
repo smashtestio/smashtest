@@ -819,6 +819,55 @@ class BrowserInstance {
         }
     }
 
+    /**
+     * Verifies that element also matches state
+     * @param {String, ElementFinder, or WebElement} element - A string or EF representing the EF to use. If set to a WebElement, returns that WebElement.
+     * @param {String, ElementFinder, or WebElement} state - A string or EF representing the EF to use. If set to a WebElement, returns that WebElement.
+     * @param {Number} [timeout] - How many ms to wait before giving up (2000 ms if omitted)
+     * @throws {Error} If element doesn't match state within the given time
+     */
+    async verifyState(element, state, timeout) {
+        let elem = await this.$(element, undefined, undefined, timeout, true);
+        let stateElems = [];
+        const ERR = `The given element doesn't match the given state`;
+
+        try {
+            stateElems = await this.$$(state, elem, timeout, true);
+        }
+        catch(e) {
+            throw new Error(ERR);
+        }
+
+        if(stateElems.length == 0 || (await stateElems[0].getId() != await elem.getId())) {
+            throw new Error(ERR);
+        }
+    }
+
+    /**
+     * Verifies that every element that matches element also matches state
+     * See verifyState() for param details
+     */
+    async verifyEveryState(element, state, timeout) {
+        let elems = await this.$$(element, undefined, timeout, true);
+
+        for(let i = 0; i < elems.length; i++) {
+            let elem = elems[i];
+            let stateElems = [];
+            const ERR = `Matched element number ${i+1} doesn't match the given state`;
+
+            try {
+                stateElems = await this.$$(state, elem, timeout, true);
+            }
+            catch(e) {
+                throw new Error(ERR);
+            }
+
+            if(stateElems.length == 0 || (await stateElems[0].getId() != await elem.getId())) {
+                throw new Error(ERR);
+            }
+        }
+    }
+
     // ***************************************
     //  Mocks
     // ***************************************

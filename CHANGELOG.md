@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.0
+
+- New 'Verify element is state' and 'Verify every element is state' steps
+
 ## 1.6.18
 
 - Fixed bug in branchifying .. step blocks
