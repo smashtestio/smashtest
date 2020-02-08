@@ -9,8 +9,9 @@ RUN apt-get -y update && \
 	npm install && \
 	npm install -g webdriver-manager && \
 	npm install -g smashtest && \
-	apt-get -y install chromium snapd && \
-	snap install firefox
+	apt-get -y install chromium 
+	#snapd && \
+	#snap install firefox
 
 
 EXPOSE	8080
