@@ -1,0 +1,8 @@
+version: '3.7'
+
+services:
+        SmashTest:
+                image: smashtestio
+                ports: 
+                        - "8080:8080"
+
