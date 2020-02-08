@@ -10,3 +10,5 @@ kill: ## Stop and remove all containers
 build: ## Rebuild the image
 	docker image build -t smashtestio .
 
+shell: ## Connect a shell to the docker
+	docker-compose run bash
