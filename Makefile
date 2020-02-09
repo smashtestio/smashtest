@@ -10,5 +10,9 @@ kill: ## Stop and remove all containers
 build: ## Rebuild the image
 	docker image build -t smashtestio .
 
-shell: ## Connect a shell to the docker
-	docker-compose run bash
+shell: ## Start the container with a command prompt
+	docker-compose -P SmashTest run bash
+
+devel: ## Start up a new container from the image and open a shell
+	docker run --entrypoint bash -it smashtestio
+
