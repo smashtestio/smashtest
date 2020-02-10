@@ -5,7 +5,7 @@ WORKDIR /
 	# apt-get -y install ./google-chrome-stable_current_amd64.deb && \
 
 RUN apt-get -y update && \
-	apt-get -y install npm curl openjdk-11-jre openjdk-11-jdk && \	
+	apt-get -y install npm curl openjdk-11-jre openjdk-11-jdk procps openssh-server && \	
 	curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.4/install.sh > install.sh && \
 	echo '972c2b83fb0db7c3a1481bc982db7b1bfe7deae620514b94598b061b6a864baf  install.sh' | /usr/bin/sha256sum -c - && \
 	bash ./install.sh && \
@@ -19,9 +19,16 @@ RUN apt-get -y update && \
 	printf "\ndeb http://downloads.sourceforge.net/project/ubuntuzilla/mozilla/apt all main" >> /etc/apt/sources.list && \
 	apt-key adv --keyserver keyserver.ubuntu.com --recv-keys CCC158AFC1289A29 && \
 	apt-get update && \
-	apt-get -y install firefox-mozilla-build
+	env && \
+	apt-get -y install firefox-mozilla-build && \
+	printf "#!/bin/bash \n. /root/.bashrc \n/etc/init.d/ssh start && \nwebdriver-manager start \n" > /start.sh && \
+	chmod 755 /start.sh && \
+	echo /sbin/chkconfig --add ssh && \
+	echo /sbin/chkconfig ssh on && \
+	ssh-keygen -t ecdsa -b 521 -f /root/.ssh/id_ecdsa -q -N "" && \
+	cp -a /root/.ssh/id_ecdsa.pub /root/.ssh/authorized_keys 
 
-EXPOSE	8080
+EXPOSE	8022 8080
 
-ENTRYPOINT [ "webdriver-manager start & npm", "start" ]
+ENTRYPOINT [ "/start.sh" ]
 
