@@ -21,12 +21,13 @@ RUN apt-get -y update && \
 	apt-get update && \
 	env && \
 	apt-get -y install firefox-mozilla-build && \
-	printf "#!/bin/bash \n. /root/.bashrc \n/etc/init.d/ssh start && \nwebdriver-manager start \n" > /start.sh && \
 	chmod 755 /start.sh && \
 	echo /sbin/chkconfig --add ssh && \
 	echo /sbin/chkconfig ssh on && \
 	ssh-keygen -t ecdsa -b 521 -f /root/.ssh/id_ecdsa -q -N "" && \
 	cp -a /root/.ssh/id_ecdsa.pub /root/.ssh/authorized_keys 
+
+COPY *sh /
 
 EXPOSE	8022 8080
 
