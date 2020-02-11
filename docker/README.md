@@ -9,6 +9,7 @@ These files require that the following programs be installed.
 ## Makefile
 Contains the Docker commands to build and use the container with little or no Docker experience.
 
+The following **make recipes** are used as arguments given when running the **make** command.
  - ``build`` Builds the Docker image and installs SmashTest, Chrome, Firefox and webdriver-manager
  - ``up`` Starts a container built from the image
  - ``get_key`` Copy the new private SSH key out of the container. Use this to setup a build server to do automatic testing.
@@ -38,6 +39,9 @@ You are here!
 
 ## sample.smash
 Ultra simple 
+
+## start.sh
+Start the services for SSH and webdriver-manager.
 
 ## test.sh
 A simple smashtest command to run ``sample.smash``
