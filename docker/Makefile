@@ -11,10 +11,10 @@ kill: ## Stop and remove all containers
 build: ## Rebuild the image
 	docker image build -t smashtestio .
 
-get_key: up
+get_key: up ## Copy out the private key
 	docker cp $(shell docker-compose -p SmashTest ps -q):/root/.ssh/id_ecdsa ./docker-private-key-id_ecdsa
 
-shell: ## Start the container with a command prompt
+shell: up ## Start the container with a command prompt
 	docker exec -it $(shell docker-compose -p SmashTest ps -q) bash
 
 devel: ## Start up a new container from the image and open a shell

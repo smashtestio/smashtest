@@ -1,10 +1,7 @@
 FROM debian:buster
 WORKDIR /
 
-	# wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-	# apt-get -y install ./google-chrome-stable_current_amd64.deb && \
-
-RUN apt-get -y update && \
+RUN 	apt-get -y update && \
 	apt-get -y install npm curl openjdk-11-jre openjdk-11-jdk procps openssh-server bash && \	
 	curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.4/install.sh > install.sh && \
 	echo '972c2b83fb0db7c3a1481bc982db7b1bfe7deae620514b94598b061b6a864baf  install.sh' | /usr/bin/sha256sum -c - && \
