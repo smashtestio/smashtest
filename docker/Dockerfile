@@ -11,7 +11,7 @@ RUN apt-get -y update && \
 	bash ./install.sh && \
 	export NVM_DIR="$HOME/.nvm" && \
 	[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
-	nvm install 9 && \
+	nvm install 10 && \
 	npm install -g webdriver-manager && \
 	webdriver-manager update && \
 	npm install -g smashtest && \
@@ -21,7 +21,6 @@ RUN apt-get -y update && \
 	apt-get update && \
 	env && \
 	apt-get -y install firefox-mozilla-build && \
-	chmod 755 /start.sh && \
 	echo /sbin/chkconfig --add ssh && \
 	echo /sbin/chkconfig ssh on && \
 	ssh-keygen -t ecdsa -b 521 -f /root/.ssh/id_ecdsa -q -N "" && \
