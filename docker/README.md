@@ -25,7 +25,7 @@ Quickly get up and running my running this command in the same directory as ``do
 ```make
 make build test
 ```
-In the Makefile ``test`` calls ``get_key`` and it calls ``up``.
+In the Makefile ``test`` calls ``get_key`` and it calls ``up`` so ``make build test`` is all that is needed.
 
 An automated build server will use the private SSH key to upload ``smash`` files and run a smashtest command to test a target web site.
 
