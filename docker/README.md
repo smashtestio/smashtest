@@ -23,8 +23,9 @@ The following **make recipes** are used as arguments given when running the **ma
 
 Quickly get up and running my running this command in the same directory as ``docker-compose.yml``
 ```make
-make build up test
+make build test
 ```
+In the Make file ``test`` calls ``get_key`` and it calls ``up``.
 
 An automated build server will use the private SSH key to upload ``smash`` files and run a smashtest command to test a target web site.
 
