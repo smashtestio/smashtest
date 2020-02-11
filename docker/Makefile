@@ -1,5 +1,6 @@
 up: ## Spin up the container
 	docker-compose -p SmashTest up -d
+	docker ps -a
 
 stop: ## Stop running containers
 	docker-compose -p SmashTest stop
@@ -10,7 +11,7 @@ kill: ## Stop and remove all containers
 build: ## Rebuild the image
 	docker image build -t smashtestio .
 
-get_key:
+get_key: up
 	docker cp $(shell docker-compose -p SmashTest ps -q):/root/.ssh/id_ecdsa ./docker-private-key-id_ecdsa
 
 shell: ## Start the container with a command prompt
@@ -19,12 +20,12 @@ shell: ## Start the container with a command prompt
 devel: ## Start up a new container from the image and open a shell
 	docker run --entrypoint bash -it smashtestio
 
-status:## Show status of containers and images
+status: ## Show status of containers and images
 	docker ps -a
 	docker images -a	
 
-test:
-	ssh root@localhost -p 8022 -i ./docker-private-key-id_ecdsa -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null /test.sh
+test: get_key
+	ssh -tt root@localhost -p 8022 -i ./docker-private-key-id_ecdsa -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null /test.sh
 
 flush: ## Remove local images and containers !!!DANGER!!! everything gets deleted
 	-$(MAKE) kill	
