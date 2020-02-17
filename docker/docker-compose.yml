@@ -4,8 +4,10 @@ services:
 
   SmashTest:
     image: smashtestio
-  
+
     ports: 
       - "8080:8080"
       - "8022:22"
 
+    volumes:
+      - /dev/shm:/dev/shm
