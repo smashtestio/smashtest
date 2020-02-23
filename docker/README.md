@@ -51,3 +51,8 @@ A simple smashtest command to run ``sample.smash``
 This Docker setup was contributed by [RoyceTheBiker](https://gitlab.com/RoyceTheBiker) and is publicly hosted on [GitLab.com](https://gitlab.com/SiliconTao-DevOps/DockerForSmashtest)
 
 A big thank you to the helpful people in the [Smashtest community](https://gitter.im/smashtestio/community) for all their help. If you have questions, join the group, get help and then help out others.
+
+# Links
+
+[Running webdriverio tests using headless chrome in Docker](https://www.intricatecloud.io/2019/05/running-webdriverio-tests-using-headless-chrome-inside-a-container/)
+
