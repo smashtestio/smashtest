@@ -56,3 +56,4 @@ A big thank you to the helpful people in the [Smashtest community](https://gitte
 
 [Running webdriverio tests using headless chrome in Docker](https://www.intricatecloud.io/2019/05/running-webdriverio-tests-using-headless-chrome-inside-a-container/)
 
+[Issue 2473: Error "DevToolsActivePort file doesn't exist" always appears in Docker](https://bugs.chromium.org/p/chromedriver/issues/detail?id=2473)
