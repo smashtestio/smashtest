@@ -24,8 +24,8 @@ RUN apt-get -y update && \
 	npm install -g webdriver-manager && \
 	webdriver-manager update && \
 	npm install -g smashtest && \
-	CHROME_CONF=\".nvm/versions/node/*/lib/node_modules/smashtest/node_modules/selenium-webdriver/chrome.js\" \
-	sed -i \$CHROME_CONF -e \"/return.*addArguments.*headless/{s/\();$\)/, 'disable-dev-shm-usage', 'no-sandbox'\1/}\" \
+	CHROME_CONF=\".nvm/versions/node/*/lib/node_modules/smashtest/node_modules/selenium-webdriver/chrome.js\" && \
+	sed -i \$CHROME_CONF -e \"/return.*addArguments.*headless/{s/);/, 'disable-dev-shm-usage', 'no-sandbox');/}\" && \
 	mkdir .ssh && \
 	chmod 700 .ssh && \
 	ssh-keygen -t ecdsa -b 521 -f .ssh/id_ecdsa -q -N \"\" && \
