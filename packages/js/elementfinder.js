@@ -1301,9 +1301,12 @@ class ElementFinder {
             'innertext': [
                 function(elems, input) {
                     return elems.filter(function(elem) {
+                        let text = elem.innerText;
                         // SVG elements have undefined .innerText, so we fall back to
                         // .textContent in that case
-                        let text = elem.innerText ?? elem.textContent;
+                        if (typeof text == 'undefined') {
+                            text = elem.textContent;
+                        }
                         return (text || '').indexOf(input) != -1;
                     });
                 }
