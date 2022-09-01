@@ -3046,7 +3046,7 @@ My 'foobar' function
 
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-                expect(tree.branches[0].steps[0].error.message).to.contain("Unexpected token ;");
+                expect(tree.branches[0].steps[0].error.message).to.contain("Unexpected token ';'");
                 expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
                 expect(tree.branches[0].steps[0].error.lineNumber).to.equal(4);
 
@@ -3069,7 +3069,7 @@ My 'foobar' function
 
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-                expect(tree.branches[0].steps[0].error.message).to.contain("Unexpected token for");
+                expect(tree.branches[0].steps[0].error.message).to.contain("Unexpected token 'for'");
                 expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
                 expect(tree.branches[0].steps[0].error.lineNumber).to.equal(4);
 
@@ -3222,7 +3222,7 @@ My 'foobar' function
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
                 await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
-                expect(tree.branches[0].steps[1].error.message).to.contain("Unexpected token ;");
+                expect(tree.branches[0].steps[1].error.message).to.contain("Unexpected token ';'");
                 expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
                 expect(tree.branches[0].steps[1].error.lineNumber).to.equal(5);
 
@@ -3248,7 +3248,7 @@ My 'foobar' function
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
                 await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
-                expect(tree.branches[0].steps[1].error.message).to.contain("Unexpected token for");
+                expect(tree.branches[0].steps[1].error.message).to.contain("Unexpected token 'for'");
                 expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
                 expect(tree.branches[0].steps[1].error.lineNumber).to.equal(5);
 
@@ -4212,7 +4212,7 @@ Something {
 
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-                expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
+                expect(tree.branches[0].steps[0].error.message).to.contain("cc is not defined");
                 expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
                 expect(tree.branches[0].steps[0].error.lineNumber).to.equal(5);
 
@@ -4243,11 +4243,11 @@ Something {
 
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-                expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
+                expect(tree.branches[0].steps[0].error.message).to.contain("cc is not defined");
                 expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
                 expect(tree.branches[0].steps[0].error.lineNumber).to.equal(5);
 
-                expect(!!tree.branches[0].steps[0].error.stack.match(/at RunInstance\.runInstance\.badFunc/)).to.equal(true);
+                expect(!!tree.branches[0].steps[0].error.stack.match(/at runInstance\.badFunc/)).to.equal(true);
                 expect(!!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:5:17\)/)).to.equal(true);
 
                 expect(tree.branches[0].error).to.equal(undefined);
@@ -4280,11 +4280,11 @@ First {
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
                 await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
 
-                expect(tree.branches[0].steps[1].error.message).to.contain("c is not defined");
+                expect(tree.branches[0].steps[1].error.message).to.contain("cc is not defined");
                 expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
                 expect(tree.branches[0].steps[1].error.lineNumber).to.equal(14);
 
-                expect(!!tree.branches[0].steps[1].error.stack.match(/at RunInstance\.runInstance\.badFunc[^\n]+<anonymous>:6:9\)/)).to.equal(true);
+                expect(!!tree.branches[0].steps[1].error.stack.match(/at runInstance\.badFunc[^\n]+<anonymous>:6:9\)/)).to.equal(true);
                 expect(!!tree.branches[0].steps[1].error.stack.match(/at CodeBlock_for_Second[^\n]+<anonymous>:14:21\)/)).to.equal(true);
 
                 expect(tree.branches[0].error).to.equal(undefined);
@@ -4311,7 +4311,7 @@ Something {
 
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-                expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
+                expect(tree.branches[0].steps[0].error.message).to.contain("badFunc is not defined");
                 expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
                 expect(tree.branches[0].steps[0].error.lineNumber).to.equal(10);
 
@@ -4342,7 +4342,7 @@ tree.parseIn(`
 
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-                expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
+                expect(tree.branches[0].steps[0].error.message).to.contain("cc is not defined");
                 expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
                 expect(tree.branches[0].steps[0].error.lineNumber).to.equal(2);
 
@@ -4368,7 +4368,7 @@ Something {
 
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-                expect(tree.branches[0].steps[0].error.message).to.contain("c is not defined");
+                expect(tree.branches[0].steps[0].error.message).to.contain("cc is not defined");
                 expect(tree.branches[0].steps[0].error.filename).to.equal("file.txt");
                 expect(tree.branches[0].steps[0].error.lineNumber).to.equal(4);
 
@@ -4499,7 +4499,7 @@ A -
                 await runInstance.runStep(tree.branches[0].steps[1], tree.branches[0], false);
                 await runInstance.runStep(tree.branches[0].steps[2], tree.branches[0], false);
 
-                expect(tree.branches[0].steps[1].error.message).to.contain("c is not defined");
+                expect(tree.branches[0].steps[1].error.message).to.contain("cc is not defined");
                 expect(tree.branches[0].steps[1].error.filename).to.equal("file.txt");
                 expect(tree.branches[0].steps[1].error.lineNumber).to.equal(6);
 
@@ -5888,7 +5888,7 @@ Step {
 
             expect(tree.branches[0].isFailed).to.be.true;
             expect(tree.branches[0].steps[0].isFailed).to.be.true;
-            expect(tree.branches[0].steps[0].error.message).to.equal(`Cannot find module '/bad/path/chalk'`);
+            expect(tree.branches[0].steps[0].error.message).to.contain(`Cannot find module '/bad/path/chalk'`);
         });
 
         it("rejects a file with a relative path that cannot be found", async () => {
@@ -5908,7 +5908,7 @@ Step {
 
             expect(tree.branches[0].isFailed).to.be.true;
             expect(tree.branches[0].steps[0].isFailed).to.be.true;
-            expect(tree.branches[0].steps[0].error.message).to.equal(`Cannot find module './../bad/path/chalk'`);
+            expect(tree.branches[0].steps[0].error.message).to.contain(`Cannot find module './../bad/path/chalk'`);
         });
 
         it("rejects a file with a module name that cannot be found", async () => {
@@ -5928,7 +5928,7 @@ Step {
 
             expect(tree.branches[0].isFailed).to.be.true;
             expect(tree.branches[0].steps[0].isFailed).to.be.true;
-            expect(tree.branches[0].steps[0].error.message).to.equal(`Cannot find module 'node_modules/bad-module'`);
+            expect(tree.branches[0].steps[0].error.message).to.contain(`Cannot find module 'node_modules/bad-module'`);
         });
     });
 
