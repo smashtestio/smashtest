@@ -1176,6 +1176,10 @@ class ElementFinder {
                         return str ? str.trim().toLowerCase().replace(/\s+/g, ' ') : '';
                     }
 
+                    function innerTextCanon(el) {
+                        return el.innerText != undefined ? el.innerText : el.textContent;
+                    }
+
                     input = canon(input);
 
                     let containers = elems;
@@ -1192,7 +1196,7 @@ class ElementFinder {
                         let matchedElems = [];
 
                         containers.forEach(function(container, index) {
-                            if(canon(container.innerText).indexOf(input) != -1) {
+                            if(canon(innerTextCanon(container)).indexOf(input) != -1) {
                                 matchedElems.push(elems[index]);
                             }
                         });
@@ -1223,11 +1227,16 @@ class ElementFinder {
 
                     input = canon(input);
 
+                    function innerTextCanon(el) {
+                        return el.innerText != undefined ? el.innerText : el.textContent;
+                    }
+
                     function isMatch(str) {
                         return canon(str).indexOf(input) != -1;
                     }
 
                     return elems.filter(function(elem) {
+                        let innerText = innerTextCanon(elem);
                         let labelText = '';
                         if(elem.id) {
                             let escape = function(s) { return s; }
@@ -1250,7 +1259,7 @@ class ElementFinder {
                                 isMatch(dropdownText);
                         }
                         else {
-                            return isMatch(elem.innerText) ||
+                            return isMatch(innerText) ||
                                 isMatch(elem.value) ||
                                 isMatch(elem.placeholder) ||
                                 isMatch(labelText) ||
@@ -1267,7 +1276,12 @@ class ElementFinder {
                         return str == input;
                     }
 
+                    function innerTextCanon(el) {
+                        return el.innerText != undefined ? el.innerText : el.textContent;
+                    }
+
                     return elems.filter(function(elem) {
+                        let innerText = innerTextCanon(elem);
                         let labelText = '';
                         let escape = function(s) { return s; }
                         if(CSS && CSS.escape) {
@@ -1288,7 +1302,7 @@ class ElementFinder {
                                 isMatch(dropdownText);
                         }
                         else {
-                            return isMatch(elem.innerText) ||
+                            return isMatch(innerText) ||
                                 isMatch(elem.value) ||
                                 isMatch(elem.placeholder) ||
                                 isMatch(labelText) ||
@@ -1300,13 +1314,12 @@ class ElementFinder {
 
             'innertext': [
                 function(elems, input) {
+                    function innerTextCanon(el) {
+                        return el.innerText != undefined ? el.innerText : el.textContent;
+                    }
+
                     return elems.filter(function(elem) {
-                        let text = elem.innerText;
-                        // SVG elements have undefined .innerText, so we fall back to
-                        // .textContent in that case
-                        if (typeof text == 'undefined') {
-                            text = elem.textContent;
-                        }
+                        let text = innerTextCanon(elem);
                         return (text || '').indexOf(input) != -1;
                     });
                 }
