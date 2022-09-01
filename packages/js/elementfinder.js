@@ -1236,7 +1236,7 @@ class ElementFinder {
                     }
 
                     return elems.filter(function(elem) {
-                        let innerText = innerTextCanon(elem)
+                        let innerText = innerTextCanon(elem);
                         let labelText = '';
                         if(elem.id) {
                             let escape = function(s) { return s; }
@@ -1281,7 +1281,7 @@ class ElementFinder {
                     }
 
                     return elems.filter(function(elem) {
-                        let innerText = innerTextCanon(elem)
+                        let innerText = innerTextCanon(elem);
                         let labelText = '';
                         let escape = function(s) { return s; }
                         if(CSS && CSS.escape) {
