@@ -65,10 +65,12 @@ class RunInstance {
             this.currBranch.timeStarted = new Date();
 
             // Reset variable state
-            this.global = {};
-            Object.assign(this.global, this.runner.globalInit);
-            this.local = {};
-            this.localStack = [];
+            if(!wasPaused) {
+                this.global = {};
+                Object.assign(this.global, this.runner.globalInit);
+                this.local = {};
+                this.localStack = [];
+            }
 
             // Execute Before Every Branch steps, if they didn't run already
             // NOTE: pauses can only happen if there's one branch in total
