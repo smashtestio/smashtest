@@ -364,6 +364,97 @@ function plural(count) {
 (async() => {
     const clipboardy = (await clipboardyModule).default;
     const passedReplCommands = [];
+    let isBranchComplete;
+    let replServer;
+
+    /**
+     * Outputs info to the console that comes before the REPL prompt
+     */
+    function prePrompt() {
+        nextStep = runner.getNextReadyStep();
+        prevStep = runner.getLastStep();
+
+        if(nextStep) {
+            console.log(`Next step: [ ${chalk.gray(tree.stepNodeIndex[nextStep.id].text.trim())} ]`);
+            console.log(chalk.gray("enter = run next, p = run previous, s = skip, r = resume, x = exit, or enter step to run it"));
+        }
+        else if(prevStep) {
+            console.log(chalk.gray("Passed the very last step"));
+            console.log(chalk.gray("enter or x = exit, p = run previous, or enter step to run it"));
+        }
+        else {
+            console.log(chalk.gray("enter step to run it, enter or x = exit"));
+        }
+
+        console.log("");
+    }
+
+    const wrapAction = (action) => {
+        return async function() {
+            console.log("");
+            await action.call(this);
+        }
+    }
+
+    const commandsMap = {
+        '': {
+            action: wrapAction(async () => {
+                if(runner.isRepl && (isBranchComplete || tree.branches == 0)) {
+                    // this is an empty repl, so exit
+                    exit(false);
+                }
+                else {
+                    isBranchComplete = await runner.runOneStep();
+                }
+            })
+        },
+        s: {
+            name: 'skip',
+            help: '(s) Skip next step',
+            action: wrapAction(async () => {
+                isBranchComplete = await runner.skipOneStep();
+            })
+        },
+        p: {
+            name: 'repeat',
+            help: '(p) Repeat previous step',
+            action: wrapAction(async () => {
+                await runner.runLastStep();
+            })
+        },
+        r: {
+            name: 'resume',
+            help: '(r) Resume running',
+            action: wrapAction(async () => {
+                isBranchComplete = await runner.run();
+            })
+        },
+        x: {
+            name: 'exit',
+            help: '(x) Exit',
+            action: wrapAction(async () => {
+                exit(true);
+            })
+        },
+        cp: {
+            name: 'copy-passed',
+            help: '(cp) Copy all evaluated passed commands to the clipboard',
+            action: wrapAction(async () => {
+                clipboardy.writeSync(passedReplCommands.join('\n') + '\n');
+                console.log('Copied passed commands to clipboard');
+                console.log('');
+                replServer.displayPrompt();
+            })
+        },
+        h: {
+            name: 'help',
+            help: '(h) Print this help message'
+        },
+        e: {
+            name: 'editor',
+            help: '(e) Enter editor mode'
+        }
+    }
 
     try {
         // ***************************************
@@ -582,7 +673,7 @@ function plural(count) {
             // ***************************************
             //  REPL
             // ***************************************
-            let isBranchComplete = false;
+            isBranchComplete = false;
             restoreCursor();
 
             if(runner.isRepl) {
@@ -609,29 +700,7 @@ function plural(count) {
 
                 prePrompt();
 
-                /**
-                 * Outputs info to the console that comes before the REPL prompt
-                 */
-                function prePrompt() {
-                    nextStep = runner.getNextReadyStep();
-                    prevStep = runner.getLastStep();
-
-                    if(nextStep) {
-                        console.log(`Next step: [ ${chalk.gray(tree.stepNodeIndex[nextStep.id].text.trim())} ]`);
-                        console.log(chalk.gray("enter = run next, p = run previous, s = skip, r = resume, x = exit, or enter step to run it"));
-                    }
-                    else if(prevStep) {
-                        console.log(chalk.gray("Passed the very last step"));
-                        console.log(chalk.gray("enter or x = exit, p = run previous, or enter step to run it"));
-                    }
-                    else {
-                        console.log(chalk.gray("enter step to run it, enter or x = exit"));
-                    }
-
-                    console.log("");
-                }
-
-                let replServer = repl.start({
+                replServer = repl.start({
                     prompt: chalk.gray("> "),
                     completer: line => {
                         process.stdout.write("    "); // enter a tab made up of 4 spaces
@@ -644,11 +713,11 @@ function plural(count) {
                                 let line = linesToEval[i];
                                 await evalLine(line);
 
-                                if(runner.getLastStep().isPassed && line.length) {
+                                if(runner.getLastStep().isPassed && !commandsMap[line.trim()]) {
                                     passedReplCommands.push(line);
                                 }
 
-                                if(i == linesToEval.length - 1 && codeBlockStep === null && !runner.isStopped && !runner.isComplete) {
+                                if(i == linesToEval.length - 1 && codeBlockStep === null && !runner.isStopped && !runner.isComplete && line.trim() != 'e') {
                                     prePrompt(); // include prompt after last line, and only if we're not in the middle of inputting a code block
                                 }
                             }
@@ -667,14 +736,36 @@ function plural(count) {
                     }
                 });
 
-                replServer.defineCommand('cp', {
-                    help: 'Copy the passed commands to the clipboard',
-                    action(name) {
-                        clipboardy.writeSync(passedReplCommands.join('\n') + '\n');
-                        console.log('Copied passed commands to clipboard');
-                        this.displayPrompt();
+                const commands = Object.entries(commandsMap)
+                for (let [shortcut, obj] of commands) {
+                    if (obj.name) {
+                        // Is built-in command? (e.g. 'help')
+                        if (replServer.commands[obj.name]) {
+                            // Reuse built-in command properties
+                            Object.assign(replServer.commands[obj.name], obj);
+                            // Write it back to our command store
+                            Object.assign(commandsMap[shortcut], replServer.commands[obj.name]);
+
+                            commandsMap[shortcut].action = wrapAction(commandsMap[shortcut].action);
+                        }
+                        else {
+                            replServer.defineCommand(obj.name, {
+                                help: obj.help,
+                                async action(name) {
+                                    await obj.action();
+                                    prePrompt();
+                                    replServer.displayPrompt();
+                                }
+                            });
+                        }
                     }
-                });
+                }
+
+                // Remove unnecessary built-in commands
+                delete replServer.commands.load;
+                delete replServer.commands.break;
+                delete replServer.commands.clear;
+                delete replServer.commands.save;
 
                 replServer.on('exit', () => {
                     exit(true);
@@ -728,71 +819,44 @@ function plural(count) {
                         }
                     }
 
-                    let isBranchComplete = false;
-                    switch(input.toLowerCase().trim()) {
-                        case "":
-                            console.log("");
-                            if(runner.isRepl && (isBranchComplete || tree.branches == 0)) {
-                                // this is an empty repl, so exit
-                                exit(false);
+                    isBranchComplete = false;
+
+                    let command = commandsMap[input.trim()];
+
+                    if (command) {
+                        // Pass correct 'this' for the built-in commands
+                        await command.action.call(replServer);
+                    }
+                    else {
+                        if(codeBlockStep === null) {
+                            if(input.trim() == '{') {
+                                // A code block has started. Continue inputting lines until a } is inputted.
+                                codeBlockStep = '(anon step) ' + input;
+                                return;
                             }
                             else {
-                                isBranchComplete = await runner.runOneStep();
-                            }
-                            break;
-
-                        case "s":
-                            console.log("");
-                            isBranchComplete = await runner.skipOneStep();
-                            break;
-
-                        case "p":
-                            console.log("");
-                            await runner.runLastStep();
-                            break;
-
-                        case "r":
-                            console.log("");
-                            isBranchComplete = await runner.run();
-                            break;
-
-                        case "x":
-                            console.log("");
-                            exit(true);
-                            return;
-
-                        default:
-                            if(codeBlockStep === null) {
-                                if(input.trim() == '{') {
+                                let stepNode = new StepNode(0);
+                                stepNode.parseLine(input);
+                                if(stepNode.isMultiBlockFunctionDeclaration || stepNode.isMultiBlockFunctionCall) {
+                                    utils.error(`Cannot use step block brackets ([, ]) here`);
+                                }
+                                else if(stepNode.isFunctionDeclaration) {
+                                    utils.error(`Cannot define a function declaration or hook here`);
+                                }
+                                else if(stepNode.hasCodeBlock()) {
                                     // A code block has started. Continue inputting lines until a } is inputted.
-                                    codeBlockStep = '(anon step) ' + input;
+                                    codeBlockStep = input;
                                     return;
                                 }
-                                else {
-                                    let stepNode = new StepNode(0);
-                                    stepNode.parseLine(input);
-                                    if(stepNode.isMultiBlockFunctionDeclaration || stepNode.isMultiBlockFunctionCall) {
-                                        utils.error(`Cannot use step block brackets ([, ]) here`);
-                                    }
-                                    else if(stepNode.isFunctionDeclaration) {
-                                        utils.error(`Cannot define a function declaration or hook here`);
-                                    }
-                                    else if(stepNode.hasCodeBlock()) {
-                                        // A code block has started. Continue inputting lines until a } is inputted.
-                                        codeBlockStep = input;
-                                        return;
-                                    }
-                                }
                             }
-                            else {
-                                input = codeBlockStep;
-                                codeBlockStep = null;
-                            }
+                        }
+                        else {
+                            input = codeBlockStep;
+                            codeBlockStep = null;
+                        }
 
-                            console.log("");
-                            await runner.inject(input);
-
-                            break;
+                        console.log("");
+                        await runner.inject(input);
                     }
 
                     if(isBranchComplete && runner.isComplete) {
