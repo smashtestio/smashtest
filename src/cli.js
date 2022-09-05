@@ -9,6 +9,8 @@ const chalk = require('chalk');
 const progress = require('cli-progress');
 const repl = require('repl');
 const readline = require('readline');
+// clipboardy is ESM only, so we have to use import() here
+const clipboardyModule = import('clipboardy');
 
 const {runner, tree, reporter} = require('./instances.js');
 const StepNode = require('./stepnode.js');
@@ -29,8 +31,10 @@ const CONFIG_FILENAME = 'smashtest.json';
 const PROGRESS_BAR_ON = true;
 let fullRun = false;
 
+const version = require('../package.json').version;
+
 console.log(hRule);
-console.log(yellowChalk.bold("Smashtest 1.7.0"));
+console.log(yellowChalk.bold("Smashtest " + version));
 console.log("");
 
 // ***************************************
@@ -358,6 +362,9 @@ function plural(count) {
 }
 
 (async() => {
+    const clipboardy = (await clipboardyModule).default;
+    const passedReplCommands = [];
+
     try {
         // ***************************************
         //  Parse inputs
@@ -637,6 +644,10 @@ function plural(count) {
                                 let line = linesToEval[i];
                                 await evalLine(line);
 
+                                if(runner.getLastStep().isPassed && line.length) {
+                                    passedReplCommands.push(line);
+                                }
+
                                 if(i == linesToEval.length - 1 && codeBlockStep === null && !runner.isStopped && !runner.isComplete) {
                                     prePrompt(); // include prompt after last line, and only if we're not in the middle of inputting a code block
                                 }
@@ -653,6 +664,15 @@ function plural(count) {
                             prePrompt();
                             callback(null);
                         }
+                    }
+                });
+
+                replServer.defineCommand('cp', {
+                    help: 'Copy the passed commands to the clipboard',
+                    action(name) {
+                        clipboardy.writeSync(passedReplCommands.join('\n') + '\n');
+                        console.log('Copied passed commands to clipboard');
+                        this.displayPrompt();
                     }
                 });
 
