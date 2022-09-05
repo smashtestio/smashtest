@@ -436,9 +436,9 @@ function plural(count) {
                 exit(true);
             })
         },
-        cp: {
-            name: 'copy-passed',
-            help: '(cp) Copy all evaluated passed commands to the clipboard',
+        c: {
+            name: 'copy',
+            help: '(c) Copy all evaluated passed commands to the clipboard',
             action: wrapAction(async () => {
                 clipboardy.writeSync(passedReplCommands.join('\n') + '\n');
                 console.log('Copied passed commands to clipboard');
