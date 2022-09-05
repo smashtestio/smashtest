@@ -52,6 +52,7 @@
   },
   "devDependencies": {
     "body-parser": "^1.19.0",
+    "chromedriver": "^105.0.0",
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
     "mocha": "^10.0.0",
@@ -67,7 +68,8 @@
     "packages/**"
   ],
   "scripts": {
-    "test": "nyc --reporter=lcov mocha tests/core/*.js tests/packages/*.js"
+    "test": "nyc --reporter=lcov mocha tests/core/*.js tests/packages/*.js",
+    "test:browser:chrome": "PATH=$PATH:node_modules/chromedriver/lib/chromedriver node ./src/cli.js tests/packages/*.smash --groups=chrome"
   },
   "bin": {
     "smashtest": "./src/cli.js"
