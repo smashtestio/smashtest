@@ -638,7 +638,7 @@ class RunInstance {
      */
     getLocal(varname) {
         varname = utils.keepCaseCanonicalize(varname);
-        if(this.localsPassedIntoFunc.hasOwnProperty(varname)) {
+        if(Object.prototype.hasOwnProperty.call(this.localsPassedIntoFunc, varname)) {
             return this.localsPassedIntoFunc[varname];
         }
         else {
@@ -946,7 +946,7 @@ class RunInstance {
          */
         function loadIntoJsVars(header, arr, getter) {
             for(let varname in arr) {
-                if(arr.hasOwnProperty(varname)) {
+                if(Object.prototype.hasOwnProperty.call(arr, varname)) {
                     varname = utils.keepCaseCanonicalize(varname);
                     if(varname.match(JS_VARNAME_WHITELIST) &&
                         !varname.toLowerCase().match(JS_VARNAME_BLACKLIST) &&

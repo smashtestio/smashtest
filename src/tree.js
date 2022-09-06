@@ -83,7 +83,7 @@ class Tree {
         if(stepNode[modifierName]) {
             return true;
         }
-        else if(step.hasOwnProperty('fid') && this.stepNodeIndex[step.fid][modifierName]) {
+        else if(Object.prototype.hasOwnProperty.call(step, 'fid') && this.stepNodeIndex[step.fid][modifierName]) {
             return true;
         }
 
@@ -100,7 +100,7 @@ class Tree {
         if(stepNode.hasCodeBlock()) {
             return stepNode.codeBlock;
         }
-        else if(step.hasOwnProperty('fid')) {
+        else if(Object.prototype.hasOwnProperty.call(step, 'fid')) {
             let functionDeclarationNode = this.stepNodeIndex[step.fid];
             if(functionDeclarationNode.hasCodeBlock()) {
                 return functionDeclarationNode.codeBlock;
@@ -119,7 +119,7 @@ class Tree {
         if(stepNode.hasCodeBlock()) {
             return true;
         }
-        else if(step.hasOwnProperty('fid')) {
+        else if(Object.prototype.hasOwnProperty.call(step, 'fid')) {
             let functionDeclarationNode = this.stepNodeIndex[step.fid];
             if(functionDeclarationNode.hasCodeBlock()) {
                 return true;
@@ -1402,7 +1402,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         function serializeUsedStepNodes(stepNodeIndex) {
             let o = {};
             for(let key in stepNodeIndex) {
-                if(stepNodeIndex.hasOwnProperty(key)) {
+                if(Object.prototype.hasOwnProperty.call(stepNodeIndex, key)) {
                     let stepNode = stepNodeIndex[key];
                     if(stepNode.used) {
                         o[key] = stepNode.serialize();

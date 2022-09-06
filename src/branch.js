@@ -151,8 +151,8 @@ class Branch {
          * Copies the given hook type from branch to newBranch
          */
         function copyHooks(name, toBeginning) {
-            if(branch.hasOwnProperty(name)) {
-                if(!self.hasOwnProperty(name)) {
+            if(Object.prototype.hasOwnProperty.call(branch, name)) {
+                if(!Object.prototype.hasOwnProperty.call(self, name)) {
                     self[name] = [];
                 }
 
@@ -269,7 +269,7 @@ class Branch {
             if(stepNode.hasCodeBlock()) {
                 codeBlock = stepNode.codeBlock;
             }
-            else if(step.hasOwnProperty('fid')) {
+            else if(Object.prototype.hasOwnProperty.call(step, 'fid')) {
                 let functionDeclarationNode = stepNodeIndex[step.fid];
                 if(functionDeclarationNode.hasCodeBlock()) {
                     codeBlock = functionDeclarationNode.codeBlock;
