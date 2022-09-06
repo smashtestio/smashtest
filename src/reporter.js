@@ -7,11 +7,12 @@ const getPort = require('get-port');
 const WebSocket = require('ws');
 const date = require('date-and-time');
 
+// prettier-ignore
 let reportFilename,
     reportDataFilename,            // absolute path of report-data.js file
     passedDataFilename,            // absolute path of passed-data file
     passedDataFilenameHistory,     // absolute path of passed-data file inside history, if report-history is on
-    smashtestSSDir;                // absolute path of screenshots directory
+    smashtestSSDir; // absolute path of screenshots directory
 
 const now = new Date();
 const dateFormat = date.format(now, 'YYYY-MM-DDTHH-mm-ss');
@@ -20,6 +21,7 @@ const dateFormat = date.format(now, 'YYYY-MM-DDTHH-mm-ss');
  * Generates a report on the status of the tree and runner
  */
 class Reporter {
+    // prettier-ignore
     constructor(tree, runner) {
         this.tree = tree;               // the Tree object to report on
         this.runner = runner;           // the Runner object to report on
@@ -47,8 +49,12 @@ class Reporter {
      */
     getPathFolder() {
         const initialFolder = this.history ? path.join('smashtest', 'reports', `smashtest-${dateFormat}`) : 'smashtest';
-        const smashtestFolder = this.reportPath === '' ? path.join(process.cwd(), 'smashtest') : path.join(this.reportPath, 'smashtest');
-        const folder = this.reportPath === '' ? path.join(process.cwd(), initialFolder) : path.join(this.reportPath, initialFolder);
+        const smashtestFolder =
+            this.reportPath === '' ? path.join(process.cwd(), 'smashtest') : path.join(this.reportPath, 'smashtest');
+        const folder =
+            this.reportPath === ''
+                ? path.join(process.cwd(), initialFolder)
+                : path.join(this.reportPath, initialFolder);
 
         reportFilename = path.join(folder, 'report.html');
         reportDataFilename = path.join(folder, 'report-data.js');
@@ -80,36 +86,42 @@ class Reporter {
         // Clear out existing screenshots (one by one)
         try {
             const files = fs.readdirSync(smashtestSSDir);
-            for(const file of files) {
+            for (const file of files) {
                 const match = file.match(/[^_]+/);
                 const hash = match ? match[0] : null;
                 // If we're doing --skip-passed, delete a screenshot only if the branch didn't pass last time
-                if(!this.runner.skipPassed || !this.tree.branches.find(branch => branch.hash == hash && branch.passedLastTime)) {
+                if (
+                    !this.runner.skipPassed ||
+                    !this.tree.branches.find((branch) => branch.hash == hash && branch.passedLastTime)
+                ) {
                     fs.unlinkSync(path.join(smashtestSSDir, file));
                 }
             }
         }
-        catch(e) {
-            if(!e.message.includes('no such file or directory, scandir')) { // not finding the dir is ok
+        catch (e) {
+            if (!e.message.includes('no such file or directory, scandir')) {
+                // not finding the dir is ok
                 throw e;
             }
         }
 
         // Load template
-        const buffers = await readFiles([path.join(path.dirname(require.main.filename), 'report-template.html')] , {encoding: 'utf8'});
-        if(!buffers || !buffers[0]) {
+        const buffers = await readFiles([path.join(path.dirname(require.main.filename), 'report-template.html')], {
+            encoding: 'utf8'
+        });
+        if (!buffers || !buffers[0]) {
             utils.error('report-template.html not found');
         }
         this.reportTemplate = buffers[0];
 
         // Start server
-        if(this.isReportServer) {
+        if (this.isReportServer) {
             await this.startServer();
         }
 
         // Kick off write functions
         await this.writeFull();
-        if(this.isReportServer) {
+        if (this.isReportServer) {
             await this.writeSnapshot();
         }
     }
@@ -118,20 +130,20 @@ class Reporter {
      * Stops the timer set by start()
      */
     async stop() {
-        if(!this.stopped) {
+        if (!this.stopped) {
             this.stopped = true;
 
-            if(this.timerFull) {
+            if (this.timerFull) {
                 clearTimeout(this.timerFull);
                 this.timerFull = null;
             }
-            if(this.timerSnapshot) {
+            if (this.timerSnapshot) {
                 clearTimeout(this.timerSnapshot);
                 this.timerSnapshot = null;
             }
 
             // Send updates one final time, to encompass the last batch of changes
-            if(this.isReportServer) {
+            if (this.isReportServer) {
                 await this.writeSnapshot();
             }
             await this.writeFull();
@@ -144,18 +156,21 @@ class Reporter {
     async startServer() {
         // Set port and fill reportDomain
         let port = null;
-        const portConfig = {port: getPort.makeRange(9000,9999)}; // avoid 8000's, since that's where localhost apps tend to be run
-        if(this.reportDomain) {
+        const portConfig = { port: getPort.makeRange(9000, 9999) }; // avoid 8000's, since that's where localhost apps tend to be run
+        if (this.reportDomain) {
             const matches = this.reportDomain.match(/:([0-9]+)/);
-            if(matches && matches[1]) { // reportDomain has a domain and port
+            if (matches && matches[1]) {
+                // reportDomain has a domain and port
                 port = parseInt(matches[1]);
             }
-            else { // reportDomain only has a domain
+            else {
+                // reportDomain only has a domain
                 port = await getPort(portConfig);
                 this.reportDomain += ':' + port;
             }
         }
-        else { // reportDomain has nothing
+        else {
+            // reportDomain has nothing
             port = await getPort(portConfig);
             this.reportDomain = `localhost:${port}`;
         }
@@ -172,30 +187,32 @@ class Reporter {
                     try {
                         message = JSON.parse(message);
                     }
-                    catch(e) {
+                    catch (e) {
                         throw new Error(ERR_MSG);
                     }
 
-                    if(!message.origin) {
+                    if (!message.origin) {
                         throw new Error(ERR_MSG);
                     }
 
                     // Validate that the client is either the current report html file or a page on the reportDomain origin
-                    const canonFilenameOrigin = function(origin) {
+                    const canonFilenameOrigin = function (origin) {
                         return decodeURI(origin).replace(/^\//, '').replace(/\\/g, '/');
                     };
-                    if(canonFilenameOrigin(message.origin) != canonFilenameOrigin(this.getFullReportPath()) &&
-                        !message.origin.startsWith(this.reportDomain)) {
+                    if (
+                        canonFilenameOrigin(message.origin) != canonFilenameOrigin(this.getFullReportPath()) &&
+                        !message.origin.startsWith(this.reportDomain)
+                    ) {
                         throw new Error(ERR_MSG);
                     }
                 }
-                catch(e) {
+                catch (e) {
                     ws.send(JSON.stringify({ error: e.toString() }));
                     ws.close();
                     isError = true;
                 }
 
-                if(!isError) {
+                if (!isError) {
                     ws.send('{ "dataUpdate": true }');
                 }
             });
@@ -212,33 +229,44 @@ class Reporter {
         this.reportTime = new Date();
 
         // Generate report data file
-        const reportData = 'onReportData(String.raw`' + utils.escapeBackticks(JSON.stringify({
-            tree: this.tree.serialize(MAX_BRANCHES_PER_TYPE, MAX_BRANCHES_PER_FAILED),
-            runner: this.runner.serialize(),
-            reportTime: this.reportTime,
-            reportDomain: this.reportDomain
-        })) + '`);';
+        const reportData =
+            'onReportData(String.raw`' +
+            utils.escapeBackticks(
+                JSON.stringify({
+                    tree: this.tree.serialize(MAX_BRANCHES_PER_TYPE, MAX_BRANCHES_PER_FAILED),
+                    runner: this.runner.serialize(),
+                    reportTime: this.reportTime,
+                    reportDomain: this.reportDomain
+                })
+            ) +
+            '`);';
 
         // Generate passed data file
         const passedData = this.tree.serializePassed();
 
         // Write report, report data, and passed data to disk
         await Promise.all([
-            new Promise((res, rej) => fs.writeFile(reportFilename, this.reportTemplate, err => err ? rej(err) : res())),
-            new Promise((res, rej) => fs.writeFile(reportDataFilename, reportData, err => err ? rej(err) : res())),
-            new Promise((res, rej) => fs.writeFile(passedDataFilename, passedData, err => err ? rej(err) : res())),
-            this.history ? new Promise((res, rej) => fs.writeFile(passedDataFilenameHistory, passedData, err => err ? rej(err) : res())): undefined
+            new Promise((res, rej) =>
+                fs.writeFile(reportFilename, this.reportTemplate, (err) => (err ? rej(err) : res()))
+            ),
+            new Promise((res, rej) => fs.writeFile(reportDataFilename, reportData, (err) => (err ? rej(err) : res()))),
+            new Promise((res, rej) => fs.writeFile(passedDataFilename, passedData, (err) => (err ? rej(err) : res()))),
+            this.history
+                ? new Promise((res, rej) =>
+                    fs.writeFile(passedDataFilenameHistory, passedData, (err) => (err ? rej(err) : res()))
+                )
+                : undefined
         ]);
 
         // Notify all connected websockets that new data is available on disk
-        if(this.isReportServer && this.wsServer) {
-            this.wsServer.clients.forEach(client => {
+        if (this.isReportServer && this.wsServer) {
+            this.wsServer.clients.forEach((client) => {
                 client.send('{ "dataUpdate": true }');
             });
         }
 
         // Have this function get called again in a certain period of time
-        if(!this.stopped) {
+        if (!this.stopped) {
             // The more branches there are, the longer it takes to serialize, the less often this function should get called
             const timeout = this.tree.branches.length <= 100000 ? 30000 : 300000; // every 30 secs or 5 mins
             this.timerFull = setTimeout(() => this.writeFull(), timeout);
@@ -249,25 +277,28 @@ class Reporter {
      * Sends a snapshot of the tree to all connected websockets. Continues doing so periodically.
      */
     async writeSnapshot() {
-        if(this.wsServer && this.wsServer.clients.size > 0) {
+        if (this.wsServer && this.wsServer.clients.size > 0) {
             const MAX_CURRENTLY_RUNNING_IN_SNAPSHOT = 20;
 
             // Send snapshot to all connected websockets
             const snapshot = JSON.stringify({
                 snapshot: true,
-                tree: this.tree.serializeSnapshot(MAX_CURRENTLY_RUNNING_IN_SNAPSHOT, this.prevSnapshot ? this.prevSnapshot.tree : undefined),
+                tree: this.tree.serializeSnapshot(
+                    MAX_CURRENTLY_RUNNING_IN_SNAPSHOT,
+                    this.prevSnapshot ? this.prevSnapshot.tree : undefined
+                ),
                 runner: this.runner.serialize()
             });
 
             this.prevSnapshot = JSON.parse(snapshot);
 
-            this.wsServer.clients.forEach(client => {
+            this.wsServer.clients.forEach((client) => {
                 client.send(snapshot);
             });
         }
 
         // Have this function get called again in a certain period of time
-        if(!this.stopped) {
+        if (!this.stopped) {
             // The more branches there are, the longer it takes to serialize, the less often this function should get called
             const timeout = this.tree.branches.length <= 100000 ? 1000 : 5000; // every 1 or 5 secs
             this.timerSnapshot = setTimeout(() => this.writeSnapshot(), timeout);
@@ -285,9 +316,9 @@ class Reporter {
 
         let fileBuffers = null;
         try {
-            fileBuffers = await readFiles([ filename ], {encoding: 'utf8'});
+            fileBuffers = await readFiles([filename], { encoding: 'utf8' });
         }
-        catch(e) {
+        catch (e) {
             utils.error(`The file '${filename}' could not be found`);
         }
 

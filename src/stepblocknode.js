@@ -8,7 +8,7 @@ class StepBlockNode extends StepNode {
     constructor() {
         super();
 
-        this.steps = [];         // array of StepNode that are part of this StepBlockNode
+        this.steps = []; // array of StepNode that are part of this StepBlockNode
 
         /*
         OPTIONAL

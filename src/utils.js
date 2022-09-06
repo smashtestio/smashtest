@@ -5,7 +5,7 @@ const Constants = require('./constants.js');
  * @return {String} str but without leading whitespace and quotes ('', "", []), returns str if there are no quotes
  */
 exports.stripQuotes = (str) => {
-    if(exports.hasQuotes(str)) {
+    if (exports.hasQuotes(str)) {
         return str.trim().replace(/^'|^"|'$|"$|^\[|\]$/g, '');
     }
     else {
@@ -32,7 +32,7 @@ exports.hasQuotes = (str) => {
  * @throws {Error}
  */
 exports.error = (msg, filename, lineNumber) => {
-    if(filename || lineNumber) {
+    if (filename || lineNumber) {
         throw new Error(`${msg} [${filename || ''}:${lineNumber || ''}]`);
     }
     else {
@@ -44,25 +44,21 @@ exports.error = (msg, filename, lineNumber) => {
  * Logs the given object to console
  */
 exports.log = (obj) => {
-    console.log(util.inspect(obj, {depth: null}));
+    console.log(util.inspect(obj, { depth: null }));
 };
 
 /**
  * @return {String} str, but with ` and & escaped to &#96; and &amp;
  */
 exports.escapeBackticks = (str) => {
-    return str
-        .replace(/&/g, '&amp;')
-        .replace(/`/g, '&#96;');
+    return str.replace(/&/g, '&amp;').replace(/`/g, '&#96;');
 };
 
 /**
  * @return {String} str, but with &#96; and &amp; unescaped to ` and &
  */
 exports.unescapeBackticks = (str) => {
-    return str
-        .replace(/&#96;/g, '`')
-        .replace(/&amp;/g, '&');
+    return str.replace(/&#96;/g, '`').replace(/&amp;/g, '&');
 };
 
 /**
@@ -70,33 +66,45 @@ exports.unescapeBackticks = (str) => {
  */
 exports.escape = (str) => {
     let newStr = '';
-    for(let i = 0; i < str.length; i++) {
+    for (let i = 0; i < str.length; i++) {
         const c = str[i];
-        switch(c) {
+        switch (c) {
         case '\\':
-            newStr += '\\\\'; break;
+            newStr += '\\\\';
+            break;
         case '"':
-            newStr += '\\"'; break;
+            newStr += '\\"';
+            break;
         case '\'':
-            newStr += '\\\''; break;
+            newStr += '\\\'';
+            break;
         case '[':
-            newStr += '\\['; break;
+            newStr += '\\[';
+            break;
         case ']':
-            newStr += '\\]'; break;
+            newStr += '\\]';
+            break;
         case '\n':
-            newStr += '\\n'; break;
+            newStr += '\\n';
+            break;
         case '\r':
-            newStr += '\\r'; break;
+            newStr += '\\r';
+            break;
         case '\t':
-            newStr += '\\t'; break;
+            newStr += '\\t';
+            break;
         case '\b':
-            newStr += '\\b'; break;
+            newStr += '\\b';
+            break;
         case '\f':
-            newStr += '\\f'; break;
+            newStr += '\\f';
+            break;
         case '\v':
-            newStr += '\\v'; break;
+            newStr += '\\v';
+            break;
         case '\0':
-            newStr += '\\0'; break;
+            newStr += '\\0';
+            break;
         default:
             newStr += c;
         }
@@ -110,7 +118,7 @@ exports.escape = (str) => {
  */
 exports.unescape = (str) => {
     return str.replace(/\\(.)/g, (match, p1) => {
-        switch(match) {
+        switch (match) {
         case '\\\\':
             return '\\';
         case '\\"':
@@ -174,25 +182,37 @@ exports.keepCaseCanonicalize = (text) => {
  * @throws {Error} If there are an invalid number of spaces, or invalid whitespace chars, at the beginning of the step
  */
 exports.numIndents = (line, filename, lineNumber) => {
-    if(line.match(/^\s*$/)) { // empty string or all whitespace
+    if (line.match(/^\s*$/)) {
+        // empty string or all whitespace
         return 0;
     }
-    if(line.match(Constants.FULL_LINE_COMMENT)) { // comment
+    if (line.match(Constants.FULL_LINE_COMMENT)) {
+        // comment
         return 0;
     }
 
     const spacesAtFront = line.match(/^( *)([^ ]|$)/);
     const whitespaceAtFront = line.match(/^(\s*)([^\s]|$)/);
 
-    if(spacesAtFront[1] != whitespaceAtFront[1]) {
-        exports.error('Spaces are the only type of whitespace allowed at the beginning of a step', filename, lineNumber);
+    if (spacesAtFront[1] != whitespaceAtFront[1]) {
+        exports.error(
+            'Spaces are the only type of whitespace allowed at the beginning of a step',
+            filename,
+            lineNumber
+        );
     }
     else {
         const numSpaces = spacesAtFront[1].length;
         const numIndents = numSpaces / Constants.SPACES_PER_INDENT;
 
-        if(numIndents - Math.floor(numIndents) != 0) {
-            exports.error(`The number of spaces at the beginning of a line must be a multiple of ${Constants.SPACES_PER_INDENT}. You have ${numSpaces} space${numSpaces != 1 ? 's' : ''}.`, filename, lineNumber);
+        if (numIndents - Math.floor(numIndents) != 0) {
+            exports.error(
+                `The number of spaces at the beginning of a line must be a multiple of ${
+                    Constants.SPACES_PER_INDENT
+                }. You have ${numSpaces} space${numSpaces != 1 ? 's' : ''}.`,
+                filename,
+                lineNumber
+            );
         }
         else {
             return numIndents;
@@ -207,7 +227,7 @@ exports.numIndents = (line, filename, lineNumber) => {
  */
 exports.getIndents = (n, s) => {
     let spaces = '';
-    for(let i = 0; i < (s || Constants.SPACES_PER_INDENT) * n; i++) {
+    for (let i = 0; i < (s || Constants.SPACES_PER_INDENT) * n; i++) {
         spaces += ' ';
     }
     return spaces;
@@ -217,7 +237,7 @@ exports.getIndents = (n, s) => {
  * Call during big tasks in async code so as not to hog the event loop
  */
 exports.breather = async () => {
-    await new Promise(r => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
 };
 
 /**
@@ -226,8 +246,8 @@ exports.breather = async () => {
  * @param {Array of String} props - The properties to copy over
  */
 exports.copyProps = (destination, source, props) => {
-    props.forEach(prop => {
-        if(typeof source[prop] != 'undefined') {
+    props.forEach((prop) => {
+        if (typeof source[prop] != 'undefined') {
             destination[prop] = source[prop];
         }
     });
@@ -253,7 +273,7 @@ exports.serializeError = (error) => {
  * @return {String} The string s, with spaces added to the end to make it length len (only if the string's length is < len)
  */
 exports.addWhitespaceToEnd = (s, len) => {
-    while(s.length < len) {
+    while (s.length < len) {
         s += ' ';
     }
     return s;

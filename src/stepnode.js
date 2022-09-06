@@ -5,6 +5,7 @@ const Constants = require('./constants.js');
  * Represents a step node within a Tree or StepBlock
  */
 class StepNode {
+    // prettier-ignore
     constructor(id) {
         this.id = id;                         // number that uniquely identifiers this step node (must be > 0)
 
@@ -82,18 +83,18 @@ class StepNode {
         this.filename = filename;
         this.lineNumber = lineNumber;
 
-        if(line.trim() == '') {
+        if (line.trim() == '') {
             this.text = '';
             return this;
         }
 
-        if(line.match(Constants.SEQ_MODIFIER_LINE)) {
+        if (line.match(Constants.SEQ_MODIFIER_LINE)) {
             this.text = '..';
             return this;
         }
 
         const matches = line.match(Constants.LINE_WHOLE);
-        if(!matches) {
+        if (!matches) {
             utils.error('This step is not written correctly', filename, lineNumber); // NOTE: probably unreachable (LINE_WHOLE can match anything)
         }
 
@@ -108,131 +109,140 @@ class StepNode {
         //   '[' is a multi-level-step-block function declaration
         //   ']' is a multi-level-step-block function call to the last multi-level-step-block function declaration
         this.isOpeningBracket = (matches[5] && matches[5].trim() == '[') || (matches[20] && matches[20].trim() == '[');
-        if(matches[4] || this.isOpeningBracket) {
-            if(this.isOpeningBracket && (!matches[4] || matches[4].trim() != '*')) {
+        if (matches[4] || this.isOpeningBracket) {
+            if (this.isOpeningBracket && (!matches[4] || matches[4].trim() != '*')) {
                 this.isFunctionDeclaration = true;
                 this.isPrivateFunctionDeclaration = true;
                 this.isMultiBlockFunctionDeclaration = true;
-                if(!this.text) {
+                if (!this.text) {
                     this.text = ' ';
                 }
             }
-            if(matches[4]) {
-                if(matches[4].trim() == '*') {
+            if (matches[4]) {
+                if (matches[4].trim() == '*') {
                     this.isFunctionDeclaration = true;
                 }
-                if(matches[4].trim() == '**') {
+                if (matches[4].trim() == '**') {
                     this.isFunctionDeclaration = true;
                     this.isPrivateFunctionDeclaration = true;
                 }
-                if(matches[4].trim() == '***') {
+                if (matches[4].trim() == '***') {
                     this.isFunctionDeclaration = true;
                     this.isHook = true;
                 }
             }
-            if(matches[5] && matches[5].trim() == ']') {
+            if (matches[5] && matches[5].trim() == ']') {
                 this.isFunctionCall = true;
                 this.isMultiBlockFunctionCall = true;
                 this.text = ' ';
             }
         }
 
-        if(matches[1]) {
+        if (matches[1]) {
             this.frontModifiers = matches[1].trim().split(/\s+/);
             this.modifiers = (this.modifiers || []).concat(this.frontModifiers);
         }
-        if(matches[15]) {
+        if (matches[15]) {
             this.backModifiers = matches[15].trim().split(/\s+/);
             this.modifiers = (this.modifiers || []).concat(this.backModifiers);
         }
-        if(matches[19] && matches[19].trim().startsWith('{')) {
+        if (matches[19] && matches[19].trim().startsWith('{')) {
             this.codeBlock = matches[19].replace(/^\{/, '');
         }
-        if(matches[22]) {
+        if (matches[22]) {
             this.comment = matches[22];
         }
 
         // Validation against prohibited step texts
-        if(this.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
+        if (this.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
             utils.error('Invalid step name', filename, lineNumber);
         }
 
         // Function Declaration
-        if(this.isFunctionDeclaration) {
-            if(this.text.match(Constants.STRING_LITERAL)) {
-                utils.error('A function declaration cannot have \'strings\', "strings", or [strings] inside of it', filename, lineNumber);
+        if (this.isFunctionDeclaration) {
+            if (this.text.match(Constants.STRING_LITERAL)) {
+                utils.error(
+                    'A function declaration cannot have \'strings\', "strings", or [strings] inside of it',
+                    filename,
+                    lineNumber
+                );
             }
         }
-        else { // not a function declaration
+        else {
+            // not a function declaration
             // Validate that a non-function declaration isn't using a hook step name
-            if(Constants.HOOK_NAMES.indexOf(utils.canonicalize(this.text)) != -1) {
-                utils.error('You cannot have a function call with that name. That\'s reserved for hook function declarations.', filename, lineNumber);
+            if (Constants.HOOK_NAMES.indexOf(utils.canonicalize(this.text)) != -1) {
+                utils.error(
+                    'You cannot have a function call with that name. That\'s reserved for hook function declarations.',
+                    filename,
+                    lineNumber
+                );
             }
         }
 
         // Set modifier booleans and perform related validations
-        if(this.frontModifiers) {
-            if(this.frontModifiers.includes('~')) {
+        if (this.frontModifiers) {
+            if (this.frontModifiers.includes('~')) {
                 this.isDebug = true;
                 this.isBeforeDebug = true;
             }
         }
-        if(this.backModifiers) {
-            if(this.backModifiers.includes('~')) {
+        if (this.backModifiers) {
+            if (this.backModifiers.includes('~')) {
                 this.isDebug = true;
                 this.isAfterDebug = true;
             }
         }
-        if(this.modifiers) {
-            if(this.modifiers.includes('-s')) {
+        if (this.modifiers) {
+            if (this.modifiers.includes('-s')) {
                 this.isSkip = true;
                 this.isTextualStep = true;
             }
-            if(this.modifiers.includes('.s')) {
+            if (this.modifiers.includes('.s')) {
                 this.isSkipBelow = true;
             }
-            if(this.modifiers.includes('$s')) {
+            if (this.modifiers.includes('$s')) {
                 this.isSkipBranch = true;
             }
-            if(this.modifiers.includes('-')) {
+            if (this.modifiers.includes('-')) {
                 this.isTextualStep = true;
 
-                if(this.isMultiBlockFunctionDeclaration) {
+                if (this.isMultiBlockFunctionDeclaration) {
                     utils.error('A named step block ([) cannot be a textual step (-) as well', filename, lineNumber);
                 }
-                else if(this.isFunctionDeclaration) {
+                else if (this.isFunctionDeclaration) {
                     utils.error('A function declaration cannot be a textual step (-) as well', filename, lineNumber);
                 }
-                else if(this.hasCodeBlock()) {
+                else if (this.hasCodeBlock()) {
                     utils.error('A step with a code block cannot be a textual step (-) as well', filename, lineNumber);
                 }
             }
-            if(this.modifiers.includes('~~')) {
+            if (this.modifiers.includes('~~')) {
                 this.isDebug = true;
                 this.isExpressDebug = true;
             }
-            if(this.modifiers.includes('$')) {
+            if (this.modifiers.includes('$')) {
                 this.isOnly = true;
             }
-            if(this.modifiers.includes('!')) {
+            if (this.modifiers.includes('!')) {
                 this.isNonParallel = true;
             }
-            if(this.modifiers.includes('!!')) {
+            if (this.modifiers.includes('!!')) {
                 this.isNonParallelCond = true;
             }
-            if(this.modifiers.includes('..')) {
+            if (this.modifiers.includes('..')) {
                 this.isSequential = true;
             }
-            if(this.modifiers.includes('+')) {
+            if (this.modifiers.includes('+')) {
                 this.isCollapsed = true;
             }
-            if(this.modifiers.includes('+?')) {
+            if (this.modifiers.includes('+?')) {
                 this.isHidden = true;
             }
 
-            this.modifiers.forEach(mod => {
-                if(mod.startsWith('#')) {
-                    if(!this.groups) {
+            this.modifiers.forEach((mod) => {
+                if (mod.startsWith('#')) {
+                    if (!this.groups) {
                         this.groups = [];
                     }
                     this.groups.push(mod.slice(1));
@@ -241,58 +251,62 @@ class StepNode {
         }
 
         // Validate hook steps
-        if(this.isHook) {
+        if (this.isHook) {
             const canStepText = utils.canonicalize(this.text);
             const index = Constants.HOOK_NAMES.indexOf(canStepText);
-            if(index == -1) {
+            if (index == -1) {
                 utils.error('Invalid hook name', filename, lineNumber);
             }
             else {
-                if(!this.hasCodeBlock()) {
+                if (!this.hasCodeBlock()) {
                     utils.error('A hook must have a code block', filename, lineNumber);
                 }
-                if(this.modifiers && this.modifiers.length > 0) {
+                if (this.modifiers && this.modifiers.length > 0) {
                     utils.error(`A hook cannot have any modifiers (${this.modifiers[0]})`, filename, lineNumber);
                 }
             }
         }
 
         // Steps that set variables
-        if(this.text.match(Constants.VARS_SET_WHOLE)) {
+        if (this.text.match(Constants.VARS_SET_WHOLE)) {
             // This step is a {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (one or more vars)
 
-            if(this.isFunctionDeclaration) {
+            if (this.isFunctionDeclaration) {
                 utils.error('A step setting {variables} cannot start with a *', filename, lineNumber);
             }
 
             const varsBeingSet = this.getVarsBeingSet();
 
-            for(let i = 0; i < varsBeingSet.length; i++) {
+            for (let i = 0; i < varsBeingSet.length; i++) {
                 const varBeingSet = varsBeingSet[i];
 
                 // Generate variable name validations
-                if(varBeingSet.name.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
+                if (varBeingSet.name.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
                     utils.error('A {variable name} cannot be just numbers', filename, lineNumber);
                 }
 
                 // Variable names cannot end in a * (that's reserved for lookahead vars)
-                if(varBeingSet.name.match(/\*\s*$/)) {
+                if (varBeingSet.name.match(/\*\s*$/)) {
                     utils.error('A variable name to the left of an = cannot end in a *', filename, lineNumber);
                 }
             }
 
-            if(varsBeingSet.length > 1) {
+            if (varsBeingSet.length > 1) {
                 // This step is {var1}='str1', {var2}='str2', etc. (two or more vars)
 
                 // Validations
-                for(let i = 0; i < varsBeingSet.length; i++) {
+                for (let i = 0; i < varsBeingSet.length; i++) {
                     const varBeingSet = varsBeingSet[i];
 
-                    if(varBeingSet.value.trim() == '') {
+                    if (varBeingSet.value.trim() == '') {
                         utils.error('A {variable} must be set to something', filename, lineNumber);
                     }
-                    if(!varBeingSet.value.match(Constants.STRING_LITERAL_WHOLE)) {
-                        utils.error('When multiple {variables} are being set on a single line, those {variables} can only be set to \'strings\', "strings", or [strings]', filename, lineNumber);
+                    if (!varBeingSet.value.match(Constants.STRING_LITERAL_WHOLE)) {
+                        utils.error(
+                            'When multiple {variables} are being set on a single line, those {variables} can only be set to \'strings\', "strings", or [strings]',
+                            filename,
+                            lineNumber
+                        );
                     }
                 }
             }
@@ -300,42 +314,53 @@ class StepNode {
                 // This step is {var}=Func or {var}='str' (only one var being set)
 
                 const varBeingSet = varsBeingSet[0];
-                if(!varBeingSet.value.match(Constants.STRING_LITERAL_WHOLE)) {
+                if (!varBeingSet.value.match(Constants.STRING_LITERAL_WHOLE)) {
                     // This step is {var}=Func
 
                     this.isFunctionCall = true;
-                    if(this.hasCodeBlock()) { // In {var} = Text {, the Text is not considered a function call
+                    if (this.hasCodeBlock()) {
+                        // In {var} = Text {, the Text is not considered a function call
                         delete this.isFunctionCall;
                     }
 
                     // Validations
-                    if(varBeingSet.value.trim() == '') {
+                    if (varBeingSet.value.trim() == '') {
                         utils.error('A {variable} must be set to something', filename, lineNumber);
                     }
-                    if(varBeingSet.value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
-                        utils.error('{vars} can only be set to \'strings\', "strings", or [strings]', filename, lineNumber);
+                    if (varBeingSet.value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
+                        utils.error(
+                            '{vars} can only be set to \'strings\', "strings", or [strings]',
+                            filename,
+                            lineNumber
+                        );
                     }
-                    if(this.isTextualStep) {
-                        utils.error('A textual step (ending in -) cannot also start with a {variable} assignment', filename, lineNumber);
+                    if (this.isTextualStep) {
+                        utils.error(
+                            'A textual step (ending in -) cannot also start with a {variable} assignment',
+                            filename,
+                            lineNumber
+                        );
                     }
                 }
             }
         }
-        else { // this step is not a {var}= step
+        else {
+            // this step is not a {var}= step
             // Set isFunctionCall
-            if(!this.isTextualStep && !this.isFunctionDeclaration) {
+            if (!this.isTextualStep && !this.isFunctionDeclaration) {
                 this.isFunctionCall = true;
-                if(this.hasCodeBlock()) { // In Text {, the Text is not considered a function call
+                if (this.hasCodeBlock()) {
+                    // In Text {, the Text is not considered a function call
                     delete this.isFunctionCall;
                 }
             }
         }
 
         // Set canon
-        if(this.isFunctionDeclaration) {
+        if (this.isFunctionDeclaration) {
             this.canon = this.canonicalizeFunctionDeclarationText();
         }
-        else if(this.isFunctionCall) {
+        else if (this.isFunctionCall) {
             this.canon = this.canonicalizeFunctionCallText();
         }
 
@@ -351,7 +376,7 @@ class StepNode {
         let textCopy = this.text + '';
         let matches = textCopy.match(Constants.VARS_SET_WHOLE);
 
-        while(matches) {
+        while (matches) {
             varsBeingSet.push({
                 name: utils.stripBrackets(matches[2]),
                 value: matches[6],
@@ -370,12 +395,14 @@ class StepNode {
      * @return {String} The text of the function call (without the leading {var}=, if one exists), null if step isn't a function call
      */
     getFunctionCallText() {
-        if(this.isFunctionCall) {
+        if (this.isFunctionCall) {
             const varsBeingSet = this.getVarsBeingSet();
-            if(varsBeingSet && varsBeingSet.length == 1) { // {var} = Func
+            if (varsBeingSet && varsBeingSet.length == 1) {
+                // {var} = Func
                 return varsBeingSet[0].value;
             }
-            else { // Func
+            else {
+                // Func
                 return this.text;
             }
         }
@@ -393,7 +420,7 @@ class StepNode {
     isFunctionMatch(functionDeclarationNode) {
         let functionCallText = this.canon;
         const functionDeclarationText = functionDeclarationNode.canon;
-        if(functionCallText == functionDeclarationText) {
+        if (functionCallText == functionDeclarationText) {
             return true;
         }
         else {
@@ -409,8 +436,7 @@ class StepNode {
         let functionDeclarationText = this.text;
 
         // Canonicalize by replacing {vars} with {}'s
-        functionDeclarationText = functionDeclarationText
-            .replace(Constants.VAR, '{}');
+        functionDeclarationText = functionDeclarationText.replace(Constants.VAR, '{}');
         functionDeclarationText = utils.unescape(functionDeclarationText);
         functionDeclarationText = utils.canonicalize(functionDeclarationText);
 
@@ -424,9 +450,7 @@ class StepNode {
         let functionCallText = this.getFunctionCallText();
 
         // Canonicalize by replacing {vars} and 'strings' with {}'s
-        functionCallText = functionCallText
-            .replace(Constants.STRING_LITERAL, '{}')
-            .replace(Constants.VAR, '{}');
+        functionCallText = functionCallText.replace(Constants.STRING_LITERAL, '{}').replace(Constants.VAR, '{}');
         functionCallText = utils.unescape(functionCallText);
         functionCallText = utils.canonicalize(functionCallText);
 

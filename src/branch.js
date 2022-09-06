@@ -8,7 +8,7 @@ const utils = require('./utils.js');
  */
 class Branch {
     constructor() {
-        this.steps = [];                    // array of Step that are part of this Branch
+        this.steps = []; // array of Step that are part of this Branch
 
         /*
         OPTIONAL
@@ -74,21 +74,21 @@ class Branch {
         const stepNode = stepNodeIndex[step.id];
         const functionDeclarationNode = stepNodeIndex[step.fid] || {};
 
-        if(stepNode.isSkipBranch || functionDeclarationNode.isSkipBranch) {
+        if (stepNode.isSkipBranch || functionDeclarationNode.isSkipBranch) {
             this.isSkipBranch = true;
         }
-        if(stepNode.isOnly || functionDeclarationNode.isOnly) {
+        if (stepNode.isOnly || functionDeclarationNode.isOnly) {
             this.isOnly = true;
         }
-        if(stepNode.isDebug || functionDeclarationNode.isDebug) {
+        if (stepNode.isDebug || functionDeclarationNode.isDebug) {
             this.isDebug = true;
         }
-        if(stepNode.groups || functionDeclarationNode.groups) {
+        if (stepNode.groups || functionDeclarationNode.groups) {
             const incomingGroups = (stepNode.groups || []).concat(functionDeclarationNode.groups || []);
-            incomingGroups.forEach(g => {
-                if(Constants.FREQUENCIES.includes(g)) {
-                    if(toFront) {
-                        if(!this.frequency) {
+            incomingGroups.forEach((g) => {
+                if (Constants.FREQUENCIES.includes(g)) {
+                    if (toFront) {
+                        if (!this.frequency) {
                             this.frequency = g;
                         }
                     }
@@ -97,10 +97,10 @@ class Branch {
                     }
                 }
                 else {
-                    if(!this.groups) {
+                    if (!this.groups) {
                         this.groups = [];
                     }
-                    if(!this.groups.includes(g)) {
+                    if (!this.groups.includes(g)) {
                         this.groups.push(g);
                     }
                 }
@@ -123,15 +123,16 @@ class Branch {
     mergeToEnd(branch) {
         this.steps = this.steps.concat(branch.steps);
 
-        branch.nonParallelIds && (this.nonParallelIds = [].concat(this.nonParallelIds || []).concat(branch.nonParallelIds));
+        branch.nonParallelIds &&
+            (this.nonParallelIds = [].concat(this.nonParallelIds || []).concat(branch.nonParallelIds));
         branch.frequency && (this.frequency = branch.frequency);
 
-        if(branch.groups) {
-            if(typeof this.groups == 'undefined') {
+        if (branch.groups) {
+            if (typeof this.groups == 'undefined') {
                 this.groups = [];
             }
 
-            branch.groups.forEach(group => {
+            branch.groups.forEach((group) => {
                 this.groups.push(group);
             });
         }
@@ -151,12 +152,12 @@ class Branch {
          * Copies the given hook type from branch to newBranch
          */
         function copyHooks(name, toBeginning) {
-            if(Object.prototype.hasOwnProperty.call(branch, name)) {
-                if(!Object.prototype.hasOwnProperty.call(self, name)) {
+            if (Object.prototype.hasOwnProperty.call(branch, name)) {
+                if (!Object.prototype.hasOwnProperty.call(self, name)) {
                     self[name] = [];
                 }
 
-                if(toBeginning) {
+                if (toBeginning) {
                     self[name] = branch[name].concat(self[name]);
                 }
                 else {
@@ -175,12 +176,12 @@ class Branch {
      */
     output(stepNodeIndex, spaces) {
         let beginSpace = '   ';
-        if(typeof spaces != 'undefined') {
+        if (typeof spaces != 'undefined') {
             beginSpace = utils.getIndents(spaces, ' ');
         }
 
         let str = '';
-        this.steps.forEach(s => {
+        this.steps.forEach((s) => {
             const sn = stepNodeIndex[s.id];
             const indentedText = utils.addWhitespaceToEnd(`${utils.getIndents(s.level, 2)}${sn.text || ''}`, 50);
 
@@ -200,34 +201,34 @@ class Branch {
     equals(branch, stepNodeIndex, n) {
         let thisLen = this.steps.length;
         let branchLen = branch.steps.length;
-        if(typeof n != 'undefined') {
-            if(n < thisLen) {
+        if (typeof n != 'undefined') {
+            if (n < thisLen) {
                 thisLen = n;
             }
-            if(n < branchLen) {
+            if (n < branchLen) {
                 branchLen = n;
             }
         }
 
-        if(thisLen != branchLen) {
+        if (thisLen != branchLen) {
             return false;
         }
 
-        for(let i = 0; i < thisLen; i++) {
+        for (let i = 0; i < thisLen; i++) {
             const stepNodeA = stepNodeIndex[this.steps[i].id];
             const stepNodeB = stepNodeIndex[branch.steps[i].id];
 
-            if(getCanonicalStepText(stepNodeA) != getCanonicalStepText(stepNodeB)) {
+            if (getCanonicalStepText(stepNodeA) != getCanonicalStepText(stepNodeB)) {
                 return false;
             }
 
-            if(stepNodeA.hasCodeBlock()) {
-                if(stepNodeA.codeBlock != stepNodeB.codeBlock) {
+            if (stepNodeA.hasCodeBlock()) {
+                if (stepNodeA.codeBlock != stepNodeB.codeBlock) {
                     return false;
                 }
             }
             else {
-                if(this.steps[i].fid != branch.steps[i].fid) {
+                if (this.steps[i].fid != branch.steps[i].fid) {
                     return false;
                 }
             }
@@ -237,9 +238,9 @@ class Branch {
 
         function getCanonicalStepText(stepNode) {
             let text = stepNode.text.replace(/\s+/g, ' ');
-            if(stepNode.modifiers) {
-                stepNode.modifiers.forEach(modifier => {
-                    if(modifier != '~' && modifier != '$' && modifier != '$s') {
+            if (stepNode.modifiers) {
+                stepNode.modifiers.forEach((modifier) => {
+                    if (modifier != '~' && modifier != '$' && modifier != '$s') {
                         text += ' ' + modifier;
                     }
                 });
@@ -250,28 +251,28 @@ class Branch {
     }
 
     /**
-      * @return {Boolean} True if the hash matches this branch, false otherwise
-      */
+     * @return {Boolean} True if the hash matches this branch, false otherwise
+     */
     equalsHash(hash) {
         return hash == this.hash;
     }
 
     /**
-      * Updates the hash of this branch
-      * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
-      */
+     * Updates the hash of this branch
+     * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
+     */
     updateHash(stepNodeIndex) {
         let combinedStr = '';
-        this.steps.forEach(step => {
+        this.steps.forEach((step) => {
             const stepNode = stepNodeIndex[step.id];
             let codeBlock = '';
 
-            if(stepNode.hasCodeBlock()) {
+            if (stepNode.hasCodeBlock()) {
                 codeBlock = stepNode.codeBlock;
             }
-            else if(Object.prototype.hasOwnProperty.call(step, 'fid')) {
+            else if (Object.prototype.hasOwnProperty.call(step, 'fid')) {
                 const functionDeclarationNode = stepNodeIndex[step.fid];
-                if(functionDeclarationNode.hasCodeBlock()) {
+                if (functionDeclarationNode.hasCodeBlock()) {
                     codeBlock = functionDeclarationNode.codeBlock;
                 }
             }
@@ -282,24 +283,24 @@ class Branch {
     }
 
     /**
-      * @return {Boolean} True if this branch completed already
-      */
+     * @return {Boolean} True if this branch completed already
+     */
     isComplete() {
         return this.isPassed || this.isFailed || this.isSkipped || this.passedLastTime;
     }
 
     /**
-      * @return {Boolean} True if this branch completed already or is still running
-      */
+     * @return {Boolean} True if this branch completed already or is still running
+     */
     isCompleteOrRunning() {
         return this.isRunning || this.isComplete();
     }
 
     /**
-      * Marks all steps not running
-      */
+     * Marks all steps not running
+     */
     stop() {
-        this.steps.forEach(step => {
+        this.steps.forEach((step) => {
             delete step.isRunning;
         });
 
@@ -307,42 +308,42 @@ class Branch {
     }
 
     /**
-      * Marks this branch as passed or failed
-      * @param {String} state - 'pass' to pass, 'fail' to fail, 'skip' to skip
-      * @param {Error} [error] - The Error object that caused the branch to fail (if an error occurred in a Step, that error should go into that Step, not here)
-      * @param {String} [stepDataMode] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
-      */
+     * Marks this branch as passed or failed
+     * @param {String} state - 'pass' to pass, 'fail' to fail, 'skip' to skip
+     * @param {Error} [error] - The Error object that caused the branch to fail (if an error occurred in a Step, that error should go into that Step, not here)
+     * @param {String} [stepDataMode] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
+     */
     markBranch(state, error, stepDataMode) {
         // Reset state
         delete this.isPassed;
         delete this.isFailed;
         delete this.isSkipped;
 
-        if(state == 'pass') {
+        if (state == 'pass') {
             this.isPassed = true;
         }
-        else if(state == 'fail') {
+        else if (state == 'fail') {
             this.isFailed = true;
         }
-        else if(state == 'skip') {
+        else if (state == 'skip') {
             this.isSkipped = true;
         }
 
-        if(error) {
+        if (error) {
             this.error = utils.serializeError(error);
         }
 
-        if(stepDataMode == 'none') {
+        if (stepDataMode == 'none') {
             clearDataOfSteps(this);
         }
-        else if(stepDataMode == 'fail') {
-            if(state != 'fail') {
+        else if (stepDataMode == 'fail') {
+            if (state != 'fail') {
                 clearDataOfSteps(this);
             }
         }
 
         function clearDataOfSteps(self) {
-            for(let i = 0; i < self.steps.length; i++) {
+            for (let i = 0; i < self.steps.length; i++) {
                 const step = self.steps[i];
 
                 // Save the properties of step we want to keep
@@ -353,12 +354,13 @@ class Branch {
                 const isSkipped = step.isSkipped;
                 const isRunning = step.isRunning;
                 let isPassed = undefined;
-                if(!self.isPassed) { // omit step.isPassed when the branch passes (it will be implied by the branch passing)
+                if (!self.isPassed) {
+                    // omit step.isPassed when the branch passes (it will be implied by the branch passing)
                     isPassed = step.isPassed;
                 }
 
                 // Clear out step
-                for(const key in step) {
+                for (const key in step) {
                     delete step[key];
                 }
 
@@ -376,48 +378,48 @@ class Branch {
     }
 
     /**
-      * Marks the given step as passed or failed (but does not clear step.isRunning)
-      * Passes or fails the branch if step is the last step, or if finishBranchNow is set
-      * @param {String} state - 'pass' to pass, 'fail' to fail, 'skip' to skip
-      * @param {Step} step - The Step to mark
-      * @param {Error} [error] - The Error object thrown during the execution of the step, if any
-      * @param {Boolean} [finishBranchNow] - If true, marks the whole branch as passed or failed immediately
-      * @param {String} [stepDataMode] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
-      */
+     * Marks the given step as passed or failed (but does not clear step.isRunning)
+     * Passes or fails the branch if step is the last step, or if finishBranchNow is set
+     * @param {String} state - 'pass' to pass, 'fail' to fail, 'skip' to skip
+     * @param {Step} step - The Step to mark
+     * @param {Error} [error] - The Error object thrown during the execution of the step, if any
+     * @param {Boolean} [finishBranchNow] - If true, marks the whole branch as passed or failed immediately
+     * @param {String} [stepDataMode] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
+     */
     markStep(state, step, error, finishBranchNow, stepDataMode) {
         // Reset state
         delete step.isPassed;
         delete step.isFailed;
         delete step.isSkipped;
 
-        if(state == 'pass') {
+        if (state == 'pass') {
             step.isPassed = true;
         }
-        else if(state == 'fail') {
+        else if (state == 'fail') {
             step.isFailed = true;
         }
-        else if(state == 'skip') {
+        else if (state == 'skip') {
             step.isSkipped = true;
         }
 
-        if(error) {
+        if (error) {
             step.error = utils.serializeError(error);
         }
 
         // If this is the very last step in this branch, mark this branch as passed/failed
-        if(finishBranchNow || this.steps.indexOf(step) + 1 == this.steps.length) {
+        if (finishBranchNow || this.steps.indexOf(step) + 1 == this.steps.length) {
             this.finishOffBranch(stepDataMode);
         }
     }
 
     /**
-      * Marks this branch passed if all steps passed, failed if at least one step failed
-      * @param {String} [stepDataMode] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
-      */
+     * Marks this branch passed if all steps passed, failed if at least one step failed
+     * @param {String} [stepDataMode] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
+     */
     finishOffBranch(stepDataMode) {
-        for(let i = 0; i < this.steps.length; i++) {
+        for (let i = 0; i < this.steps.length; i++) {
             const step = this.steps[i];
-            if(step.isFailed) {
+            if (step.isFailed) {
                 this.markBranch('fail', undefined, stepDataMode);
                 return;
             }
@@ -427,16 +429,16 @@ class Branch {
     }
 
     /**
-      * Logs the given item to this Branch
-      * @param {Object or String} item - The item to log
-      */
+     * Logs the given item to this Branch
+     * @param {Object or String} item - The item to log
+     */
     appendToLog(item) {
-        if(!this.log) {
+        if (!this.log) {
             this.log = [];
         }
 
-        if(typeof item == 'string') {
-            this.log.push( { text: item } );
+        if (typeof item == 'string') {
+            this.log.push({ text: item });
         }
         else {
             this.log.push(item);
@@ -444,27 +446,16 @@ class Branch {
     }
 
     /**
-      * @return {Object} An Object representing this branch, but able to be converted to JSON and only containing the most necessary stuff for a report
-      */
+     * @return {Object} An Object representing this branch, but able to be converted to JSON and only containing the most necessary stuff for a report
+     */
     serialize() {
         const o = {
-            steps: this.steps.map(step => step.serialize())
+            steps: this.steps.map((step) => step.serialize())
         };
 
         (this.isPassed || this.passedLastTime) && (o.isPassed = true);
 
-        utils.copyProps(o, this, [
-            'isFailed',
-            'isSkipped',
-            'isRunning',
-
-            'error',
-            'log',
-
-            'elapsed',
-
-            'hash'
-        ]);
+        utils.copyProps(o, this, ['isFailed', 'isSkipped', 'isRunning', 'error', 'log', 'elapsed', 'hash']);
 
         return o;
     }

@@ -6,7 +6,7 @@ const utils = require('./utils.js');
  */
 class Step {
     constructor(id) {
-        this.id = id;                         // id of the corresponding StepNode
+        this.id = id; // id of the corresponding StepNode
 
         /*
         OPTIONAL
@@ -51,12 +51,12 @@ class Step {
      * @param {Object or String} item - The item to log
      */
     appendToLog(item) {
-        if(!this.log) {
+        if (!this.log) {
             this.log = [];
         }
 
-        if(typeof item == 'string') {
-            this.log.push( { text: item } );
+        if (typeof item == 'string') {
+            this.log.push({ text: item });
         }
         else {
             this.log.push(item);
@@ -68,12 +68,12 @@ class Step {
      * @return {String} A string in the format [this step's filename:linenumber] --> [this step's function declaration's filename:linenumber]
      */
     locString(stepNodeIndex) {
-        const removePath = s => s ? s.replace(/^.*[/\\]/, '') : '';
+        const removePath = (s) => (s ? s.replace(/^.*[/\\]/, '') : '');
 
         const sn = stepNodeIndex[this.id];
         let loc = sn.filename ? `${removePath(sn.filename)}:${sn.lineNumber}` : '';
         const fsn = this.fid ? stepNodeIndex[this.fid] : null; // function declaration step node
-        if(fsn) {
+        if (fsn) {
             loc += `${loc ? ' ' : ''}--> ${removePath(fsn.filename)}:${fsn.lineNumber}`;
         }
 

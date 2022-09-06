@@ -9,6 +9,7 @@ class Runner {
     /**
      * Generates the runner
      */
+    // prettier-ignore
     constructor() {
         this.tree = null;                // The tree to run (just parsed in)
         this.reporter = null;            // The Reporter to use
@@ -61,7 +62,7 @@ class Runner {
         this.tree.generateBranches();
 
         // If headless not set, set it to true, unless we're debugging with ~
-        if(typeof this.headless == 'undefined') {
+        if (typeof this.headless == 'undefined') {
             this.headless = (!this.tree.isDebug || this.tree.isExpressDebug) && !this.isRepl;
         }
     }
@@ -78,24 +79,27 @@ class Runner {
         const numInstances = Math.min(this.maxParallel, this.tree.branches.length);
 
         // If ~ is set on any step, pauseOnFail will be set
-        if(this.tree.isDebug && !this.tree.isExpressDebug) {
+        if (this.tree.isDebug && !this.tree.isExpressDebug) {
             this.pauseOnFail = true;
         }
 
-        if(this.isStopped) { // starting from a stop
+        if (this.isStopped) {
+            // starting from a stop
             utils.error('Cannot run a stopped runner');
         }
-        else if(this.isPaused) { // starting from a pause
+        else if (this.isPaused) {
+            // starting from a pause
             await this.runInstances[0].run(); // resume that one branch that was paused
-            if(this.isPaused) {
+            if (this.isPaused) {
                 this.tree.elapsed = -1;
             }
             else {
                 await this.end();
             }
         }
-        else { // starting from the beginning
-            if(await this.runBeforeEverything()) {
+        else {
+            // starting from the beginning
+            if (await this.runBeforeEverything()) {
                 // Before Everythings passed
                 await this.runBranches(numInstances);
                 await this.end();
@@ -115,9 +119,9 @@ class Runner {
      * @return {Promise} Promise that resolves when stopping is complete
      */
     async stop() {
-        if(!this.isStopped && !this.isComplete) {
+        if (!this.isStopped && !this.isComplete) {
             this.isStopped = true;
-            this.runInstances.forEach(runInstance => {
+            this.runInstances.forEach((runInstance) => {
                 runInstance.stop();
             });
 
@@ -132,12 +136,12 @@ class Runner {
      * @return {Promise} Promise that resolves once the execution finishes, resolves to true if the branch is complete (including After Every Branch hooks), false otherwise
      */
     async runOneStep() {
-        if(!this.isPaused) {
+        if (!this.isPaused) {
             utils.error('Must be paused to run a step');
         }
 
         const isBranchComplete = await this.runInstances[0].runOneStep();
-        if(isBranchComplete) {
+        if (isBranchComplete) {
             await this.runAfterEverything();
         }
 
@@ -150,12 +154,12 @@ class Runner {
      * @return {Promise} Promise that resolves once the execution finishes, resolves to true if the branch is complete (including After Every Branch hooks), false otherwise
      */
     async skipOneStep() {
-        if(!this.isPaused) {
+        if (!this.isPaused) {
             utils.error('Must be paused to skip a step');
         }
 
         const isBranchComplete = await this.runInstances[0].skipOneStep();
-        if(isBranchComplete) {
+        if (isBranchComplete) {
             await this.runAfterEverything();
         }
 
@@ -167,7 +171,7 @@ class Runner {
      * @return {Promise} Promise that resolves once the execution finishes
      */
     async runLastStep() {
-        if(!this.isPaused) {
+        if (!this.isPaused) {
             utils.error('Must be paused to run a step');
         }
 
@@ -182,7 +186,7 @@ class Runner {
      * @throws {Error} If a parse error of text occurs, or if this Runner isn't paused
      */
     async inject(text) {
-        if(!this.isPaused) {
+        if (!this.isPaused) {
             utils.error('Must be paused to run a step');
         }
 
@@ -195,7 +199,7 @@ class Runner {
      * @return {Step} The next not-yet-completed step in the first RunInstance, or null if the first RunInstance's branch is done
      */
     getNextReadyStep() {
-        if(this.runInstances.length == 0) {
+        if (this.runInstances.length == 0) {
             return null;
         }
         else {
@@ -216,7 +220,7 @@ class Runner {
      */
     createEmptyRunner(tree) {
         this.tree = tree;
-        this.runInstances = [ new RunInstance(this) ];
+        this.runInstances = [new RunInstance(this)];
         this.runInstances[0].isPaused = true;
         this.isPaused = true;
     }
@@ -251,7 +255,7 @@ class Runner {
      * Set/Get a persistent variable
      */
     p(varname, value) {
-        return (typeof value != 'undefined' ? this.setPersistent(varname, value) : this.getPersistent(varname));
+        return typeof value != 'undefined' ? this.setPersistent(varname, value) : this.getPersistent(varname);
     }
 
     // ***************************************
@@ -265,16 +269,15 @@ class Runner {
      */
     async runBeforeEverything() {
         const hookExecInstance = new RunInstance(this);
-        for(let i = 0; i < this.tree.beforeEverything.length; i++) {
-            const s = this.tree.beforeEverything[i];
+        for (const s of this.tree.beforeEverything) {
             await hookExecInstance.runHookStep(s, s, null);
-            if(this.consoleOutput && s.error) {
+            if (this.consoleOutput && s.error) {
                 console.log('');
                 console.log(chalk.red.bold('Before Everything error occurred:'));
                 console.log(this.formatStackTrace(s.error));
                 console.log('');
             }
-            if(s.error || this.isStopped) {
+            if (s.error || this.isStopped) {
                 return false;
             }
         }
@@ -290,7 +293,7 @@ class Runner {
     runBranches(numInstances) {
         // Spawn RunInstances, which will run in parallel
         const runInstancePromises = [];
-        for(let i = 0; i < numInstances; i++) {
+        for (let i = 0; i < numInstances; i++) {
             const runInstance = new RunInstance(this);
             this.runInstances.push(runInstance);
             runInstancePromises.push(runInstance.run());
@@ -305,10 +308,10 @@ class Runner {
      */
     async runAfterEverything() {
         const hookExecInstance = new RunInstance(this);
-        for(let i = 0; i < this.tree.afterEverything.length; i++) {
+        for (let i = 0; i < this.tree.afterEverything.length; i++) {
             const s = this.tree.afterEverything[i];
             await hookExecInstance.runHookStep(s, s, null);
-            if(this.consoleOutput && s.error) {
+            if (this.consoleOutput && s.error) {
                 console.log('');
                 console.log(chalk.red.bold('After Everything error occurred:'));
                 console.log(this.formatStackTrace(s.error));
@@ -317,7 +320,7 @@ class Runner {
         }
 
         this.tree.timeEnded = new Date();
-        if(this.tree.elapsed != -1) {
+        if (this.tree.elapsed != -1) {
             this.tree.elapsed = this.tree.timeEnded - this.tree.timeStarted; // only measure elapsed if we've never been paused
         }
 
@@ -332,7 +335,7 @@ class Runner {
         stack = stack.replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`);
 
         let firstLine = stack.match(/.*/);
-        if(firstLine) {
+        if (firstLine) {
             firstLine = firstLine[0];
             stack = stack.replace(firstLine, '');
             stack = chalk.gray(stack);
@@ -346,10 +349,10 @@ class Runner {
      * Ending tasks, such as Run After Everything hooks
      */
     async end() {
-        if(this.isStopped) {
+        if (this.isStopped) {
             // don't do anything, since stop() will call runAfterEverything() immediately
         }
-        else if(this.isPaused) {
+        else if (this.isPaused) {
             this.tree.elapsed = -1;
         }
         else {
@@ -361,7 +364,7 @@ class Runner {
      * Starts the reporter, if there is one
      */
     async startReporter() {
-        if(this.reporter) {
+        if (this.reporter) {
             await this.reporter.start();
         }
     }
@@ -370,7 +373,7 @@ class Runner {
      * Stops the reporter, if there is one
      */
     async stopReporter() {
-        if(this.reporter) {
+        if (this.reporter) {
             await this.reporter.stop();
         }
     }
