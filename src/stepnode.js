@@ -361,7 +361,7 @@ class StepNode {
             });
 
             textCopy = textCopy.replace(matches[1], ''); // strip the leading {var}=Step from the string
-            textCopy = textCopy.replace(/^\,/, ''); // string the leading comma, if there is one
+            textCopy = textCopy.replace(/^,/, ''); // string the leading comma, if there is one
             matches = textCopy.match(Constants.VARS_SET_WHOLE);
         }
 

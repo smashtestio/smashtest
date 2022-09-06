@@ -102,7 +102,7 @@ function processFlag(name, value) {
         }
 
         let varName = null;
-        matches = name.match(/^(g|p)\:(.*)$/);
+        matches = name.match(/^(g|p):(.*)$/);
         if(matches) {
             name = matches[1];
             varName = matches[2];
@@ -129,7 +129,7 @@ function processFlag(name, value) {
             if(!value) {
                 utils.error('groups flag must include a group expression');
             }
-            runner.groups = value.split(/\s*\,\s*/)
+            runner.groups = value.split(/\s*,\s*/)
                 .map(group =>
                     group.split(/\s*\+\s*/));
             break;
@@ -233,7 +233,7 @@ Options
             break;
 
         case 'report-domain':
-            if(!value.match(/^[^\/\: ]+(\:[0-9]+)?$/)) {
+            if(!value.match(/^[^/: ]+(:[0-9]+)?$/)) {
                 utils.error('Invalid report-domain. It must be in the format \'domain\' or \'domain:port\'.');
             }
             reporter.reportDomain = value;
@@ -488,7 +488,7 @@ function plural(count) {
         for(let i = 2; i < process.argv.length; i++) {
             let arg = process.argv[i];
             if(arg.startsWith('-')) {
-                let matches = arg.match(/\-\-?([^\=]+)(\=(.*))?/);
+                let matches = arg.match(/--?([^=]+)(=(.*))?/);
                 if(!matches) {
                     utils.error(`Invalid argument: ${arg}`);
                 }

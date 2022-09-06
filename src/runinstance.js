@@ -876,7 +876,7 @@ class RunInstance {
         }
 
         // Generate code
-        const JS_VARNAME_WHITELIST = /^[A-Za-z\_\$][A-Za-z0-9\_\$]*$/;
+        const JS_VARNAME_WHITELIST = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
         const JS_VARNAME_BLACKLIST = /^(do|if|in|for|let|new|try|var|case|else|enum|eval|null|this|true|void|with|await|break|catch|class|const|false|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$/;
 
         // Make global, local, and persistent accessible as js vars
@@ -888,7 +888,7 @@ class RunInstance {
 
         // Remove unsafe chars from funcName
         if(funcName) {
-            funcName = funcName.replace(/\s+/g, '_').replace(/[^A-Za-z0-9\_]/g, '');
+            funcName = funcName.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_]/g, '');
             if(funcName != '') {
                 funcName = '_for_' + funcName;
             }
@@ -1015,7 +1015,7 @@ class RunInstance {
         }
 
         let isLookaheadVar = varname.trim().endsWith(':');
-        varname = varname.replace(/\:\s*$/, ''); // strip the : off the end
+        varname = varname.replace(/:\s*$/, ''); // strip the : off the end
 
         if(!isLookaheadVar || lookAnywhere) { // look to the existing value
             // Return the value of the var immediately

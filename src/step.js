@@ -69,7 +69,7 @@ class Step {
      * @return {String} A string in the format [this step's filename:linenumber] --> [this step's function declaration's filename:linenumber]
      */
     locString(stepNodeIndex) {
-        const removePath = s => s ? s.replace(/^.*[\/\\]/, '') : '';
+        const removePath = s => s ? s.replace(/^.*[/\\]/, '') : '';
 
         let sn = stepNodeIndex[this.id];
         let loc = sn.filename ? `${removePath(sn.filename)}:${sn.lineNumber}` : '';

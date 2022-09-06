@@ -82,7 +82,7 @@ class Reporter {
         try {
             let files = fs.readdirSync(smashtestSSDir);
             for(let file of files) {
-                let match = file.match(/[^\_]+/);
+                let match = file.match(/[^_]+/);
                 let hash = match ? match[0] : null;
                 // If we're doing --skip-passed, delete a screenshot only if the branch didn't pass last time
                 if(!this.runner.skipPassed || !this.tree.branches.find(branch => branch.hash == hash && branch.passedLastTime)) {
@@ -147,7 +147,7 @@ class Reporter {
         let port = null;
         let portConfig = {port: getPort.makeRange(9000,9999)}; // avoid 8000's, since that's where localhost apps tend to be run
         if(this.reportDomain) {
-            let matches = this.reportDomain.match(/\:([0-9]+)/);
+            let matches = this.reportDomain.match(/:([0-9]+)/);
             if(matches && matches[1]) { // reportDomain has a domain and port
                 port = parseInt(matches[1]);
             }

@@ -75,8 +75,8 @@ exports.escape = (str) => {
         switch(c) {
         case '\\':
             newStr += '\\\\'; break;
-        case '\"':
-            newStr += '\\\"'; break;
+        case '"':
+            newStr += '\\"'; break;
         case '\'':
             newStr += '\\\''; break;
         case '[':
