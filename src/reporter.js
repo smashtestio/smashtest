@@ -181,9 +181,9 @@ class Reporter {
                     }
 
                     // Validate that the client is either the current report html file or a page on the reportDomain origin
-                    function canonFilenameOrigin(origin) {
+                    const canonFilenameOrigin = function(origin) {
                         return decodeURI(origin).replace(/^\//, '').replace(/\\/g, '/');
-                    }
+                    };
                     if(canonFilenameOrigin(message.origin) != canonFilenameOrigin(this.getFullReportPath()) &&
                         !message.origin.startsWith(this.reportDomain)) {
                         throw new Error(ERR_MSG);

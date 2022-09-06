@@ -27,7 +27,3 @@ rules:
   brace-style:
     - error
     - stroustrup
-
-  # Temporarily turn off for gradual migration
-  no-inner-declarations:
-    - off

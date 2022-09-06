@@ -576,15 +576,16 @@ ${branchAbove.output(this.stepNodeIndex)}
 
             return true;
 
-            function validateChild(child) {
-                let varsBeingSet = child.getVarsBeingSet();
-                if(!varsBeingSet || varsBeingSet.length != 1 || varsBeingSet[0].isLocal) {
-                    utils.error(`The function called at ${stepNode.filename}:${stepNode.lineNumber} must have all steps in its declaration be in format {x}='string' or {x}=Function (but ${child.filename}:${child.lineNumber} is not)`, stepNode.filename, stepNode.lineNumber);
-                }
+        }
 
-                if(child.children.length > 0) {
-                    utils.error(`The function called at ${stepNode.filename}:${stepNode.lineNumber} must not have any steps in its declaration that have children of their own (but ${child.filename}:${child.lineNumber} does)`, stepNode.filename, stepNode.lineNumber);
-                }
+        function validateChild(child) {
+            let varsBeingSet = child.getVarsBeingSet();
+            if(!varsBeingSet || varsBeingSet.length != 1 || varsBeingSet[0].isLocal) {
+                utils.error(`The function called at ${stepNode.filename}:${stepNode.lineNumber} must have all steps in its declaration be in format {x}='string' or {x}=Function (but ${child.filename}:${child.lineNumber} is not)`, stepNode.filename, stepNode.lineNumber);
+            }
+
+            if(child.children.length > 0) {
+                utils.error(`The function called at ${stepNode.filename}:${stepNode.lineNumber} must not have any steps in its declaration that have children of their own (but ${child.filename}:${child.lineNumber} does)`, stepNode.filename, stepNode.lineNumber);
             }
         }
     }
@@ -1085,6 +1086,24 @@ ${branchAbove.output(this.stepNodeIndex)}
         //    (but only for steps at the top of the tree)
         // ***************************************
         if(this.minFrequency && isRoot) {
+            /**
+             * @return {Number} The given frequency string ('high', 'med', 'low', undefined) converted into an integer
+             */
+            const freqToNum = function freqToNum(frequency) {
+                if(frequency == 'low') {
+                    return 1;
+                }
+                else if(frequency == 'med') {
+                    return 2;
+                }
+                else if(frequency == 'high') {
+                    return 3;
+                }
+                else {
+                    return 2;
+                }
+            };
+
             for(let i = 0; i < branches.length;) {
                 let branch = branches[i];
                 let freqAllowed = freqToNum(this.minFrequency);
@@ -1095,24 +1114,6 @@ ${branchAbove.output(this.stepNodeIndex)}
                 }
                 else {
                     branches.splice(i, 1); // remove this branch
-                }
-
-                /**
-                 * @return {Number} The given frequency string ('high', 'med', 'low', undefined) converted into an integer
-                 */
-                function freqToNum(frequency) {
-                    if(frequency == 'low') {
-                        return 1;
-                    }
-                    else if(frequency == 'med') {
-                        return 2;
-                    }
-                    else if(frequency == 'high') {
-                        return 3;
-                    }
-                    else {
-                        return 2;
-                    }
                 }
             }
         }
@@ -1266,12 +1267,12 @@ ${branchAbove.output(this.stepNodeIndex)}
 
         // Randomize order of branches
         if(!this.noRandom) {
-            function randomizeOrder(arr) {
+            const randomizeOrder = function (arr) {
                 for(let i = arr.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [arr[i], arr[j]] = [arr[j], arr[i]];
                 }
-            }
+            };
             randomizeOrder(this.branches);
         }
 

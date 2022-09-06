@@ -305,23 +305,23 @@ Options
 
         runner.flags[name] = value;
 
-        // Validation functions
-
-        function boolValue() {
-            if(!(['true','false'].includes(value))) {
-                utils.error(`'${name}' flag must be set to either 'true' or 'false'`);
-            }
-            return value == 'true';
-        }
-
-        function noValue() {
-            if(value) {
-                utils.error(`'${name}' flag cannot have a value`);
-            }
-        }
     }
     catch(e) {
         onError(e);
+    }
+
+    // Validation functions
+    function boolValue() {
+        if(!(['true','false'].includes(value))) {
+            utils.error(`'${name}' flag must be set to either 'true' or 'false'`);
+        }
+        return value == 'true';
+    }
+
+    function noValue() {
+        if(value) {
+            utils.error(`'${name}' flag cannot have a value`);
+        }
     }
 }
 
@@ -368,6 +368,9 @@ function plural(count) {
     const passedReplCommands = [];
     let isBranchComplete;
     let replServer;
+    let elapsed = '';
+    let progressBar = null;
+    let codeBlockStep;
 
     /**
      * Outputs info to the console that comes before the REPL prompt
@@ -614,27 +617,9 @@ function plural(count) {
         // Suppress maxlisteners warning from node
         require('events').EventEmitter.defaultMaxListeners = runner.maxParallel + 5;
 
-        let elapsed = '';
-
         // ***************************************
         //  Output initial counts and other messages
         // ***************************************
-
-        /**
-         * Outputs a message upon the completion of a run
-         */
-        function outputCompleteMessage(outputCounts) {
-            console.log('');
-            console.log(yellowChalk('Run complete'));
-            if(outputCounts) {
-                console.log(getCounts());
-            }
-            if(isReport && !reporter.history) {
-                console.log('Report at: ' + chalk.gray.italic(reporter.getFullReportPath()));
-            }
-
-            console.log('');
-        }
 
         // Output header that contains number of branches to run and live report location
         if(!runner.isRepl) {
@@ -694,7 +679,7 @@ function plural(count) {
 
             if(!isBranchComplete || runner.isPaused) {
                 // Tree not completed yet, open REPL and await user input
-                let codeBlockStep = null; // contents of a code block
+                codeBlockStep = null; // contents of a code block
 
                 prePrompt();
 
@@ -768,99 +753,6 @@ function plural(count) {
                 replServer.on('exit', () => {
                     exit(true);
                 });
-
-                /**
-                 * @return {Number} The number of spaces at the front of s
-                 */
-                function numberOfSpacesInFront(s) {
-                    return (s.match(/^( *)/) || []).length;
-                }
-
-                /**
-                 * @return {String} The first line of s, "" if empty string
-                 */
-                function firstLine(s) {
-                    let matches = s.match(/^.*/);
-                    if(matches && matches.length > 0) {
-                        return matches[0];
-                    }
-                    else {
-                        return '';
-                    }
-                }
-
-                /**
-                 * @return {String} The last line of s, "" if empty string
-                 */
-                function lastLine(s) {
-                    let matches = s.match(/.*$/);
-                    if(matches && matches.length > 0) {
-                        return matches[0];
-                    }
-                    else {
-                        return '';
-                    }
-                }
-
-                /**
-                 * Called when the REPL needs to eval input
-                 */
-                async function evalLine(input) {
-                    if(codeBlockStep !== null) { // we're currently inputting a code block
-                        codeBlockStep += '\n' + input;
-                        if(
-                            input.length == 0 ||
-                            input.trim() != '}' ||
-                            numberOfSpacesInFront(firstLine(codeBlockStep)) != numberOfSpacesInFront(lastLine(codeBlockStep))
-                        ) { // not the end of code block input
-                            return;
-                        }
-                    }
-
-                    isBranchComplete = false;
-
-                    let command = commandsMap[input.trim()];
-
-                    if (command) {
-                        // Pass correct 'this' for the built-in commands
-                        await command.action.call(replServer);
-                    }
-                    else {
-                        if(codeBlockStep === null) {
-                            if(input.trim() == '{') {
-                                // A code block has started. Continue inputting lines until a } is inputted.
-                                codeBlockStep = '(anon step) ' + input;
-                                return;
-                            }
-                            else {
-                                let stepNode = new StepNode(0);
-                                stepNode.parseLine(input);
-                                if(stepNode.isMultiBlockFunctionDeclaration || stepNode.isMultiBlockFunctionCall) {
-                                    utils.error('Cannot use step block brackets ([, ]) here');
-                                }
-                                else if(stepNode.isFunctionDeclaration) {
-                                    utils.error('Cannot define a function declaration or hook here');
-                                }
-                                else if(stepNode.hasCodeBlock()) {
-                                    // A code block has started. Continue inputting lines until a } is inputted.
-                                    codeBlockStep = input;
-                                    return;
-                                }
-                            }
-                        }
-                        else {
-                            input = codeBlockStep;
-                            codeBlockStep = null;
-                        }
-
-                        console.log('');
-                        await runner.inject(input);
-                    }
-
-                    if(isBranchComplete && runner.isComplete) {
-                        exit(false);
-                    }
-                }
             }
             else {
                 exit(false);
@@ -870,7 +762,6 @@ function plural(count) {
             // ***************************************
             //  Full run
             // ***************************************
-            let progressBar = null;
             fullRun = true;
 
             if(PROGRESS_BAR_ON) {
@@ -883,92 +774,203 @@ function plural(count) {
 
             // Run
             await runner.run();
-
-            /**
-             * Activates the progress bar timer
-             */
-            function activateProgressBarTimer() {
-                let timeout = tree.branches.length <= 100000 ? 500 : 5000; // every 500 ms or 5 secs
-                setTimeout(() => updateProgressBar(), timeout);
-            }
-
-            /**
-             * Called when the progress bar needs to be updated
-             */
-            async function updateProgressBar(forceComplete) {
-                if(runner.isStopped) {
-                    return;
-                }
-
-                updateElapsed();
-
-                readline.clearLine(process.stderr, 0);
-                readline.cursorTo(process.stderr, 0);
-
-                progressBar.start(tree.counts.totalSteps, tree.counts.totalStepsComplete);
-                outputCounts();
-
-                if(forceComplete || runner.isComplete) {
-                    console.log('');
-                    outputCompleteMessage();
-
-                    // If any branch failed, exit with 1, otherwise exit with 0
-                    for(let i = 0; i < tree.branches.length; i++) {
-                        if(tree.branches[i].isFailed) {
-                            exit(false, 1);
-                        }
-                    }
-                    exit(false, 0);
-                }
-                else {
-                    activateProgressBarTimer();
-                }
-            }
-
-            /**
-             * @return {Object} A new progress bar object
-             */
-            function generateProgressBar(clearOnComplete) {
-                return new progress.Bar({
-                    clearOnComplete: clearOnComplete,
-                    barsize: 25,
-                    hideCursor: true,
-                    linewrap: true,
-                    format: '{bar} {percentage}% | '
-                }, progress.Presets.shades_classic);
-            }
-
-            /**
-             * Outputs the given counts to the console
-             */
-            function outputCounts() {
-                tree.updateCounts();
-                process.stdout.write(
-                    (elapsed ? (`${elapsed} | `) : '') + getCounts()
-                );
-            }
-
-            /**
-             * Updates the elapsed variable
-             */
-            function updateElapsed() {
-                let d = new Date(null);
-                d.setSeconds((new Date() - tree.timeStarted)/1000);
-                elapsed = d.toISOString().substr(11, 8);
-            }
-        }
-
-        /**
-         * @return {String} The console-formatted counts in the tree
-         */
-        function getCounts() {
-            return (tree.counts.passed > 0 ? chalk.greenBright(`${tree.counts.passed} passed`) + ' | ' : '') +
-                   (tree.counts.failed > 0 ? chalk.redBright(`${tree.counts.failed} failed`) + ' | ' : '') +
-                   (tree.counts.skipped > 0 ? chalk.cyanBright(`${tree.counts.skipped} skipped`) + ' | ' : '') +
-                   (`${tree.counts.complete} branch${plural(tree.counts.complete)} complete`);
         }
     }
     catch(e) {
         onError(e, fullRun && PROGRESS_BAR_ON);
     }
+
+    /**
+     * Outputs a message upon the completion of a run
+     */
+    function outputCompleteMessage(outputCounts) {
+        console.log('');
+        console.log(yellowChalk('Run complete'));
+        if(outputCounts) {
+            console.log(getCounts());
+        }
+        if(isReport && !reporter.history) {
+            console.log('Report at: ' + chalk.gray.italic(reporter.getFullReportPath()));
+        }
+
+        console.log('');
+    }
+
+
+    /**
+     * @return {String} The console-formatted counts in the tree
+     */
+    function getCounts() {
+        return (tree.counts.passed > 0 ? chalk.greenBright(`${tree.counts.passed} passed`) + ' | ' : '') +
+                (tree.counts.failed > 0 ? chalk.redBright(`${tree.counts.failed} failed`) + ' | ' : '') +
+                (tree.counts.skipped > 0 ? chalk.cyanBright(`${tree.counts.skipped} skipped`) + ' | ' : '') +
+                (`${tree.counts.complete} branch${plural(tree.counts.complete)} complete`);
+    }
+
+    /**
+     * Activates the progress bar timer
+     */
+    function activateProgressBarTimer() {
+        let timeout = tree.branches.length <= 100000 ? 500 : 5000; // every 500 ms or 5 secs
+        setTimeout(() => updateProgressBar(), timeout);
+    }
+
+    /**
+     * Called when the progress bar needs to be updated
+     */
+    async function updateProgressBar(forceComplete) {
+        if(runner.isStopped) {
+            return;
+        }
+
+        updateElapsed();
+
+        readline.clearLine(process.stderr, 0);
+        readline.cursorTo(process.stderr, 0);
+
+        progressBar.start(tree.counts.totalSteps, tree.counts.totalStepsComplete);
+        outputCounts();
+
+        if(forceComplete || runner.isComplete) {
+            console.log('');
+            outputCompleteMessage();
+
+            // If any branch failed, exit with 1, otherwise exit with 0
+            for(let i = 0; i < tree.branches.length; i++) {
+                if(tree.branches[i].isFailed) {
+                    exit(false, 1);
+                }
+            }
+            exit(false, 0);
+        }
+        else {
+            activateProgressBarTimer();
+        }
+    }
+
+    /**
+     * @return {Object} A new progress bar object
+     */
+    function generateProgressBar(clearOnComplete) {
+        return new progress.Bar({
+            clearOnComplete: clearOnComplete,
+            barsize: 25,
+            hideCursor: true,
+            linewrap: true,
+            format: '{bar} {percentage}% | '
+        }, progress.Presets.shades_classic);
+    }
+
+    /**
+     * Outputs the given counts to the console
+     */
+    function outputCounts() {
+        tree.updateCounts();
+        process.stdout.write(
+            (elapsed ? (`${elapsed} | `) : '') + getCounts()
+        );
+    }
+
+    /**
+     * Updates the elapsed variable
+     */
+    function updateElapsed() {
+        let d = new Date(null);
+        d.setSeconds((new Date() - tree.timeStarted)/1000);
+        elapsed = d.toISOString().substr(11, 8);
+    }
+
+    /**
+     * @return {Number} The number of spaces at the front of s
+     */
+    function numberOfSpacesInFront(s) {
+        return (s.match(/^( *)/) || []).length;
+    }
+
+    /**
+     * @return {String} The first line of s, "" if empty string
+     */
+    function firstLine(s) {
+        let matches = s.match(/^.*/);
+        if(matches && matches.length > 0) {
+            return matches[0];
+        }
+        else {
+            return '';
+        }
+    }
+
+    /**
+     * @return {String} The last line of s, "" if empty string
+     */
+    function lastLine(s) {
+        let matches = s.match(/.*$/);
+        if(matches && matches.length > 0) {
+            return matches[0];
+        }
+        else {
+            return '';
+        }
+    }
+
+    /**
+     * Called when the REPL needs to eval input
+     */
+    async function evalLine(input) {
+        if(codeBlockStep !== null) { // we're currently inputting a code block
+            codeBlockStep += '\n' + input;
+            if(
+                input.length == 0 ||
+                input.trim() != '}' ||
+                numberOfSpacesInFront(firstLine(codeBlockStep)) != numberOfSpacesInFront(lastLine(codeBlockStep))
+            ) { // not the end of code block input
+                return;
+            }
+        }
+
+        isBranchComplete = false;
+
+        let command = commandsMap[input.trim()];
+
+        if (command) {
+            // Pass correct 'this' for the built-in commands
+            await command.action.call(replServer);
+        }
+        else {
+            if(codeBlockStep === null) {
+                if(input.trim() == '{') {
+                    // A code block has started. Continue inputting lines until a } is inputted.
+                    codeBlockStep = '(anon step) ' + input;
+                    return;
+                }
+                else {
+                    let stepNode = new StepNode(0);
+                    stepNode.parseLine(input);
+                    if(stepNode.isMultiBlockFunctionDeclaration || stepNode.isMultiBlockFunctionCall) {
+                        utils.error('Cannot use step block brackets ([, ]) here');
+                    }
+                    else if(stepNode.isFunctionDeclaration) {
+                        utils.error('Cannot define a function declaration or hook here');
+                    }
+                    else if(stepNode.hasCodeBlock()) {
+                        // A code block has started. Continue inputting lines until a } is inputted.
+                        codeBlockStep = input;
+                        return;
+                    }
+                }
+            }
+            else {
+                input = codeBlockStep;
+                codeBlockStep = null;
+            }
+
+            console.log('');
+            await runner.inject(input);
+        }
+
+        if(isBranchComplete && runner.isComplete) {
+            exit(false);
+        }
+    }
+
 })();
