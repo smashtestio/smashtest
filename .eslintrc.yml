@@ -29,8 +29,6 @@ rules:
     - stroustrup
 
   # Temporarily turn off for gradual migration
-  no-unused-vars:
-    - off
   no-inner-declarations:
     - off
   no-prototype-builtins:

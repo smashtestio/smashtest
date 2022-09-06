@@ -1,5 +1,4 @@
 const utils = require('./utils.js');
-const Step = require('./step.js');
 const Constants = require('./constants.js');
 
 /**
@@ -244,7 +243,6 @@ class StepNode {
         // Validate hook steps
         if(this.isHook) {
             let canStepText = utils.canonicalize(this.text);
-            let stepText = this.text.trim().replace(/\s+/g, ' ');
             let index = Constants.HOOK_NAMES.indexOf(canStepText);
             if(index == -1) {
                 utils.error('Invalid hook name', filename, lineNumber);

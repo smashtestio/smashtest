@@ -60,7 +60,7 @@ async function exit(forcedStop, exitCode) {
     if(runner) {
         try {
             await runner.stop();
-            await new Promise((res, rej) => setTimeout(res, 1000));
+            await new Promise((res) => setTimeout(res, 1000));
             process.exit(exitCode);
         }
         catch(e) {
@@ -73,7 +73,7 @@ async function exit(forcedStop, exitCode) {
     }
 }
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason) => {
     if(!runner.isStopped) {
         onError(reason, true, true);
     }
@@ -694,16 +694,13 @@ function plural(count) {
 
             if(!isBranchComplete || runner.isPaused) {
                 // Tree not completed yet, open REPL and await user input
-                let nextStep = null;
-                let prevStep = null;
-
                 let codeBlockStep = null; // contents of a code block
 
                 prePrompt();
 
                 replServer = repl.start({
                     prompt: chalk.gray('> '),
-                    completer: line => {
+                    completer: () => {
                         process.stdout.write('    '); // enter a tab made up of 4 spaces
                         return []; // no autocomplete on tab
                     },
@@ -752,7 +749,7 @@ function plural(count) {
                         else {
                             replServer.defineCommand(obj.name, {
                                 help: obj.help,
-                                async action(name) {
+                                async action() {
                                     await obj.action();
                                     prePrompt();
                                     replServer.displayPrompt();
@@ -873,7 +870,6 @@ function plural(count) {
             // ***************************************
             //  Full run
             // ***************************************
-            let timer = null;
             let progressBar = null;
             fullRun = true;
 
@@ -893,7 +889,7 @@ function plural(count) {
              */
             function activateProgressBarTimer() {
                 let timeout = tree.branches.length <= 100000 ? 500 : 5000; // every 500 ms or 5 secs
-                timer = setTimeout(() => updateProgressBar(), timeout);
+                setTimeout(() => updateProgressBar(), timeout);
             }
 
             /**

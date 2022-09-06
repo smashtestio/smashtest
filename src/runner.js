@@ -1,5 +1,4 @@
 const RunInstance = require('./runinstance.js');
-const Tree = require('./tree.js');
 const chalk = require('chalk');
 const utils = require('./utils.js');
 

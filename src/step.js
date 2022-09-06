@@ -1,6 +1,5 @@
 const clonedeep = require('lodash/cloneDeep');
 const utils = require('./utils.js');
-const Constants = require('./constants.js');
 
 /**
  * Represents a step within a Branch

@@ -3,7 +3,6 @@ const StepBlockNode = require('./stepblocknode.js');
 const Step = require('./step.js');
 const Branch = require('./branch.js');
 const Constants = require('./constants.js');
-const util = require('util');
 const utils = require('./utils.js');
 
 /**
@@ -418,7 +417,6 @@ class Tree {
         // Try to find the function declarations we're looking for
         for(let index = branchAbove.steps.length - 1; index >= 0; index--) {
             let currStep = branchAbove.steps[index];
-            let currStepNode = this.stepNodeIndex[currStep.id];
 
             let stepAbove, stepNodeAbove, siblings;
             if(index > 0) {
@@ -949,7 +947,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         attachHooksToBranch(beforeEveryStep, 'beforeEveryStep', this);
         attachHooksToBranch(afterEveryStep, 'afterEveryStep', this);
 
-        function attachHooksToBranch(hooks, hookName, self) {
+        function attachHooksToBranch(hooks, hookName) {
             if(hooks && hooks.length > 0) {
                 branchesBelow.forEach(branchBelow => {
                     hooks.forEach(s => {
@@ -1221,7 +1219,6 @@ ${branchAbove.output(this.stepNodeIndex)}
         // Marks branches with a first step of .s as skipped
         this.branches.forEach(branch => {
             let firstStep = branch.steps[0];
-            let firstStepNode = this.stepNodeIndex[firstStep.id];
             if(this.getModifier(firstStep, 'isSkipBelow')) {
                 branch.markBranch('skip', undefined, this.stepDataMode);
                 //branch.appendToLog(`Branch skipped because it starts with a .s step`);
@@ -1502,11 +1499,9 @@ ${branchAbove.output(this.stepNodeIndex)}
 
         this.branches.forEach(branch => {
             // Find an equal branch in prevHashes
-            let found = false;
             for(let i = 0; i < prevHashes.length; i++) {
                 if(branch.hash == prevHashes[i]) {
                     branch.passedLastTime = true;
-                    found = true;
                     break;
                 }
             }

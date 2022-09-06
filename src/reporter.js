@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 const readFiles = require('read-files-promise');
-const mustache = require('mustache');
 const utils = require('./utils.js');
 const chalk = require('chalk');
 const getPort = require('get-port');
