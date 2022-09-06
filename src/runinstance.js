@@ -76,7 +76,7 @@ class RunInstance {
             // NOTE: pauses can only happen if there's one branch in total
             if(this.currBranch.beforeEveryBranch && !wasPaused) {
                 for(let i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
-                    let s = this.currBranch.beforeEveryBranch[i];
+                    const s = this.currBranch.beforeEveryBranch[i];
 
                     await this.runHookStep(s, null, this.currBranch);
                     if(this.checkForStopped()) {
@@ -84,7 +84,7 @@ class RunInstance {
                     }
                     else if(this.currBranch.isFailed) {
                         if(this.runner.consoleOutput && this.currBranch.error) {
-                            let sn = this.tree.stepNodeIndex[s.id];
+                            const sn = this.tree.stepNodeIndex[s.id];
                             this.outputError(this.currBranch.error, sn);
                             console.log('');
                         }
@@ -134,7 +134,7 @@ class RunInstance {
      * @throws {Error} If an error is thrown inside the step and error.fatal is set to true
      */
     async runStep(step, branch, overrideDebug) {
-        let stepNode = this.tree.stepNodeIndex[step.id];
+        const stepNode = this.tree.stepNodeIndex[step.id];
 
         if(step.isSkipped) {
             return;
@@ -164,7 +164,7 @@ class RunInstance {
         // Execute Before Every Step hooks
         if(branch.beforeEveryStep) {
             for(let i = 0; i < branch.beforeEveryStep.length; i++) {
-                let s = branch.beforeEveryStep[i];
+                const s = branch.beforeEveryStep[i];
                 await this.runHookStep(s, step, branch);
                 if(this.isStopped) {
                     return;
@@ -181,15 +181,15 @@ class RunInstance {
 
             // Find the previous step
             let prevStep = null;
-            let index = branch.steps.indexOf(step);
+            const index = branch.steps.indexOf(step);
             if(index >= 1) {
                 prevStep = branch.steps[index - 1];
             }
 
             // Handle the stack for {{local vars}}
             if(prevStep) {
-                let prevStepNode = this.tree.stepNodeIndex[prevStep.id];
-                let prevStepWasACodeBlockFunc = prevStepNode.isFunctionCall && this.tree.hasCodeBlock(prevStep);
+                const prevStepNode = this.tree.stepNodeIndex[prevStep.id];
+                const prevStepWasACodeBlockFunc = prevStepNode.isFunctionCall && this.tree.hasCodeBlock(prevStep);
 
                 // Check change of step.level between this step and the previous one, push/pop this.localStack accordingly
                 if(step.level > prevStep.level) { // NOTE: when step.level > prevStep.level, step.level is always prevStep.level + 1
@@ -200,7 +200,7 @@ class RunInstance {
                 }
                 else if(step.level < prevStep.level) {
                     // Pop one local var context for every level decrement
-                    let diff = prevStep.level - step.level;
+                    const diff = prevStep.level - step.level;
                     for(let i = 0; i < diff; i++) {
                         this.popLocalStack();
                     }
@@ -221,17 +221,17 @@ class RunInstance {
 
             // Execute the step
             try {
-                let varsBeingSet = stepNode.getVarsBeingSet();
+                const varsBeingSet = stepNode.getVarsBeingSet();
 
                 // Passing inputs into function calls
                 if(stepNode.isFunctionCall) {
-                    let functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
+                    const functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
 
                     // Set {vars} based on function declaration signature and function call signature
 
-                    let varList = functionDeclarationNode.text.match(Constants.VAR);
+                    const varList = functionDeclarationNode.text.match(Constants.VAR);
                     if(varList) {
-                        let inputList = stepNode.text.match(Constants.FUNCTION_INPUT);
+                        const inputList = stepNode.text.match(Constants.FUNCTION_INPUT);
                         if(inputList) {
                             if(varsBeingSet && varsBeingSet.length > 0) {
                                 // step is a {{var}} = Function {{var2}} {{var3}}, so skip the first var
@@ -239,8 +239,8 @@ class RunInstance {
                             }
 
                             for(let i = 0; i < varList.length; i++) {
-                                let isLocal = varList[i].includes('{{');
-                                let varname = utils.stripBrackets(varList[i]);
+                                const isLocal = varList[i].includes('{{');
+                                const varname = utils.stripBrackets(varList[i]);
                                 let value = inputList[i];
 
                                 if(value.match(Constants.STRING_LITERAL_WHOLE)) { // 'string', "string", or [string]
@@ -248,7 +248,7 @@ class RunInstance {
                                     value = this.replaceVars(value); // replace vars with their values
                                 }
                                 else if(value.match(Constants.VAR_WHOLE)) { // {var} or {{var}}
-                                    let isLocal = value.startsWith('{{');
+                                    const isLocal = value.startsWith('{{');
                                     value = utils.stripBrackets(value);
                                     value = this.findVarValue(value, isLocal);
                                 }
@@ -270,7 +270,7 @@ class RunInstance {
                 // Step is {var}='str' [, {var2}='str', etc.]
                 if(!stepNode.isFunctionCall && !this.tree.hasCodeBlock(step) && varsBeingSet && varsBeingSet.length > 0) {
                     for(let i = 0; i < varsBeingSet.length; i++) {
-                        let varBeingSet = varsBeingSet[i];
+                        const varBeingSet = varsBeingSet[i];
                         let value = utils.stripQuotes(varBeingSet.value);
                         value = this.replaceVars(value);
                         this.setVarBeingSet(varBeingSet, value);
@@ -292,7 +292,7 @@ class RunInstance {
                     }
 
                     inCodeBlock = true;
-                    let retVal = await this.evalCodeBlock(this.tree.getCodeBlock(step), stepNode.text, this.getFilenameOfCodeBlock(step), this.getLineNumberOffset(step), step);
+                    const retVal = await this.evalCodeBlock(this.tree.getCodeBlock(step), stepNode.text, this.getFilenameOfCodeBlock(step), this.getLineNumberOffset(step), step);
                     inCodeBlock = false;
 
                     this.g('prev', retVal);
@@ -350,7 +350,7 @@ class RunInstance {
         // Execute After Every Step hooks (all of them, regardless if one fails - though a stop will terminate right away)
         if(branch.afterEveryStep) {
             for(let i = 0; i < branch.afterEveryStep.length; i++) {
-                let s = branch.afterEveryStep[i];
+                const s = branch.afterEveryStep[i];
                 await this.runHookStep(s, step, branch);
                 if(this.isStopped) {
                     return;
@@ -364,10 +364,10 @@ class RunInstance {
         }
 
         if(this.runner.consoleOutput) {
-            let seconds = step.elapsed/1000 || 0;
+            const seconds = step.elapsed/1000 || 0;
 
             let chalkToUse = null;
-            let isGray = !this.tree.hasCodeBlock(step);
+            const isGray = !this.tree.hasCodeBlock(step);
             if(isGray) {
                 chalkToUse = brightGray;
             }
@@ -417,8 +417,8 @@ class RunInstance {
             return;
         }
 
-        let stepNode = this.tree.stepNodeIndex[step.id];
-        let codeBlock = this.tree.getCodeBlock(step);
+        const stepNode = this.tree.stepNodeIndex[step.id];
+        const codeBlock = this.tree.getCodeBlock(step);
 
         try {
             await this.evalCodeBlock(codeBlock, stepNode.text, stepNode.filename, stepNode.lineNumber, stepToGetError || branchToGetError);
@@ -479,7 +479,7 @@ class RunInstance {
      * Outputs the given error to the console, if allowed
      */
     outputError(error, stepNode) {
-        let showTrace = (!this.tree.isDebug || this.tree.isExpressDebug) && this.stepsRan && this.stepsRan.steps.length > 0;
+        const showTrace = (!this.tree.isDebug || this.tree.isExpressDebug) && this.stepsRan && this.stepsRan.steps.length > 0;
 
         this.c(
             (showTrace && this.currBranch ? chalk.gray(`Branch ${this.currBranch.hash}:\n\n`) : '') +
@@ -550,7 +550,7 @@ class RunInstance {
      * @return {Promise} Promise that resolves once the execution finishes
      */
     async runLastStep() {
-        let lastStep = this.getLastStep();
+        const lastStep = this.getLastStep();
         if(lastStep) {
             await this.runStep(lastStep, this.currBranch, true);
         }
@@ -560,9 +560,9 @@ class RunInstance {
      * @return {Step} The last step run, null if none
      */
     getLastStep() {
-        let currStep = this.getNextReadyStep();
+        const currStep = this.getNextReadyStep();
         if(currStep) {
-            let index = this.currBranch.steps.indexOf(currStep);
+            const index = this.currBranch.steps.indexOf(currStep);
             if(index - 1 < 0) {
                 return null;
             }
@@ -590,24 +590,24 @@ class RunInstance {
      */
     async inject(text) {
         this.tree.parseIn(text, undefined, undefined, true);
-        let keys = Object.keys(this.tree.stepNodeIndex);
-        let stepNode = this.tree.stepNodeIndex[keys[keys.length - 1]];
+        const keys = Object.keys(this.tree.stepNodeIndex);
+        const stepNode = this.tree.stepNodeIndex[keys[keys.length - 1]];
 
         let branchAbove = this.stepsRan;
         if(!branchAbove || branchAbove.steps.length == 0) {
             // Create a fake, empty step that connects to the tree
-            let tempStep = this.tree.newStepNode();
+            const tempStep = this.tree.newStepNode();
             tempStep.parent = this.tree.root;
             branchAbove = new Branch;
             branchAbove.push(new Step(tempStep.id), this.tree.stepNodeIndex);
         }
 
-        let branchesToRun = this.tree.branchify(stepNode, branchAbove); // branchify so that if step is an already-defined function call, it will work
-        let stepsToRun = branchesToRun[0];
+        const branchesToRun = this.tree.branchify(stepNode, branchAbove); // branchify so that if step is an already-defined function call, it will work
+        const stepsToRun = branchesToRun[0];
         this.stepsRan.mergeToEnd(stepsToRun);
 
         for(let i = 0; i < stepsToRun.steps.length; i++) {
-            let s = stepsToRun.steps[i];
+            const s = stepsToRun.steps[i];
             await this.runStep(s, stepsToRun, true);
             if(s.isFailed) {
                 break;
@@ -751,7 +751,7 @@ class RunInstance {
         }
 
         if(!this.getPersistent(varName)) {
-            let isPath = packageName.match(/^(\.|\/)/);
+            const isPath = packageName.match(/^(\.|\/)/);
             if(packageName.match(/^\.\/|^\.\.\//)) { // local file (non-npm package)
                 packageName = `${path.dirname(filename)}/${packageName}`;
             }
@@ -766,7 +766,7 @@ class RunInstance {
                     // eslint-disable-next-line no-constant-condition
                     while(true) {
                         try {
-                            let packageNameAttempt = path.join(currPath, 'node_modules', packageName);
+                            const packageNameAttempt = path.join(currPath, 'node_modules', packageName);
                             this.setPersistent(varName, require(packageNameAttempt));
                             break;
                         }
@@ -926,9 +926,9 @@ class RunInstance {
             return eval(code);
         }
         else {
-            let timerPromise = this.setStepTimer();
+            const timerPromise = this.setStepTimer();
 
-            let mainPromise = new Promise((resolve) => {
+            const mainPromise = new Promise((resolve) => {
                 resolve(eval(code));
             });
 
@@ -968,12 +968,12 @@ class RunInstance {
      */
     replaceVars(text, lookAnywhere) {
         text = utils.unescape(text);
-        let matches = text.match(Constants.VAR);
+        const matches = text.match(Constants.VAR);
         if(matches) {
             for(let i = 0; i < matches.length; i++) {
-                let match = matches[i];
-                let name = utils.stripBrackets(match);
-                let isLocal = match.startsWith('{{');
+                const match = matches[i];
+                const name = utils.stripBrackets(match);
+                const isLocal = match.startsWith('{{');
                 let value = null;
 
                 try {
@@ -1018,7 +1018,7 @@ class RunInstance {
             variableFullLookahead = `{${varname}:}`;
         }
 
-        let isLookaheadVar = varname.trim().endsWith(':');
+        const isLookaheadVar = varname.trim().endsWith(':');
         varname = varname.replace(/:\s*$/, ''); // strip the : off the end
 
         if(!isLookaheadVar || lookAnywhere) { // look to the existing value
@@ -1043,25 +1043,25 @@ class RunInstance {
         // If we got to this point, look down the branch looking for {varname}= or {{varname}}=
 
         let branch = this.currBranch;
-        let step = this.currStep;
+        const step = this.currStep;
 
         if(!branch) {
             branch = new Branch(); // temp branch that's going to be a container for the step
             branch.steps.push(step);
         }
 
-        let index = branch.steps.indexOf(step);
+        const index = branch.steps.indexOf(step);
         for(let i = index; i < branch.steps.length; i++) {
-            let s = branch.steps[i];
+            const s = branch.steps[i];
             if(isLocal && s.level < step.level) {
                 break; // you cannot look outside a function's scope for a local var
             }
 
-            let sNode = this.tree.stepNodeIndex[s.id];
-            let varsBeingSet = sNode.getVarsBeingSet();
+            const sNode = this.tree.stepNodeIndex[s.id];
+            const varsBeingSet = sNode.getVarsBeingSet();
             if(varsBeingSet) {
                 for(let j = 0; j < varsBeingSet.length; j++) {
-                    let varBeingSet = varsBeingSet[j];
+                    const varBeingSet = varsBeingSet[j];
                     if(utils.canonicalize(varBeingSet.name) == utils.canonicalize(varname) && varBeingSet.isLocal == isLocal) {
                         let value = null;
                         if(this.tree.hasCodeBlock(s)) {
@@ -1128,13 +1128,13 @@ class RunInstance {
     async runAfterEveryBranch() {
         if(this.currBranch.afterEveryBranch) {
             for(let i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
-                let s = this.currBranch.afterEveryBranch[i];
+                const s = this.currBranch.afterEveryBranch[i];
                 await this.runHookStep(s, null, this.currBranch);
                 if(this.checkForStopped()) {
                     return;
                 }
                 if(this.runner.consoleOutput && this.currBranch.error) {
-                    let sn = this.tree.stepNodeIndex[s.id];
+                    const sn = this.tree.stepNodeIndex[s.id];
                     this.outputError(this.currBranch.error, sn);
                     console.log('');
                 }
@@ -1159,7 +1159,7 @@ class RunInstance {
      * Moves this.currStep to the next not-yet-completed step, or to null if there are no more steps left in the branch
      */
     toNextReadyStep() {
-        let nextReadyStep = this.getNextReadyStep();
+        const nextReadyStep = this.getNextReadyStep();
         if(!nextReadyStep || this.currStep !== nextReadyStep) {
             this.currStep = this.tree.nextStep(this.currBranch, true, true);
         }
@@ -1204,7 +1204,7 @@ class RunInstance {
      * Takes an Error caught from the execution of a step and adds filename and lineNumber parameters to it
      */
     fillErrorFromStep(error, step, inCodeBlock) {
-        let stepNode = this.tree.stepNodeIndex[step.id];
+        const stepNode = this.tree.stepNodeIndex[step.id];
 
         error.filename = stepNode.filename;
         error.lineNumber = stepNode.lineNumber;
@@ -1212,7 +1212,7 @@ class RunInstance {
         // If error occurred in a function's code block, we should reference the function declaration's line, not the function call's line
         // (except for hooks and packaged code blocks)
         if(stepNode.isFunctionCall && inCodeBlock && !this.tree.getModifier(step, 'isHook') && !this.tree.getModifier(step, 'isPackaged')) {
-            let functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
+            const functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
             error.filename = functionDeclarationNode.filename;
             error.lineNumber = functionDeclarationNode.lineNumber;
         }
@@ -1245,9 +1245,9 @@ class RunInstance {
      * @return {Number} The line number offset for evalCodeBlock(), based on the given step
      */
     getLineNumberOffset(step) {
-        let stepNode = this.tree.stepNodeIndex[step.id];
+        const stepNode = this.tree.stepNodeIndex[step.id];
         if(stepNode.isFunctionCall && !this.tree.getModifier(step, 'isHook')) {
-            let functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
+            const functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
             return functionDeclarationNode.lineNumber;
         }
         else {
@@ -1259,12 +1259,12 @@ class RunInstance {
      * @return {String} The filename of the given step's code block
      */
     getFilenameOfCodeBlock(step) {
-        let stepNode = this.tree.stepNodeIndex[step.id];
+        const stepNode = this.tree.stepNodeIndex[step.id];
         if(stepNode.hasCodeBlock()) {
             return stepNode.filename;
         }
         else {
-            let functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
+            const functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
             return functionDeclarationNode.filename;
         }
     }

@@ -70,9 +70,9 @@ class Step {
     locString(stepNodeIndex) {
         const removePath = s => s ? s.replace(/^.*[/\\]/, '') : '';
 
-        let sn = stepNodeIndex[this.id];
+        const sn = stepNodeIndex[this.id];
         let loc = sn.filename ? `${removePath(sn.filename)}:${sn.lineNumber}` : '';
-        let fsn = this.fid ? stepNodeIndex[this.fid] : null; // function declaration step node
+        const fsn = this.fid ? stepNodeIndex[this.fid] : null; // function declaration step node
         if(fsn) {
             loc += `${loc ? ' ' : ''}--> ${removePath(fsn.filename)}:${fsn.lineNumber}`;
         }
@@ -84,7 +84,7 @@ class Step {
      * @return {Object} An Object representing this step, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        let o = {
+        const o = {
             id: this.id,
             fid: this.fid,
             level: this.level

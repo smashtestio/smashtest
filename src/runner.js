@@ -75,7 +75,7 @@ class Runner {
         this.tree.timeStarted = new Date();
         await this.startReporter();
 
-        let numInstances = Math.min(this.maxParallel, this.tree.branches.length);
+        const numInstances = Math.min(this.maxParallel, this.tree.branches.length);
 
         // If ~ is set on any step, pauseOnFail will be set
         if(this.tree.isDebug && !this.tree.isExpressDebug) {
@@ -136,7 +136,7 @@ class Runner {
             utils.error('Must be paused to run a step');
         }
 
-        let isBranchComplete = await this.runInstances[0].runOneStep();
+        const isBranchComplete = await this.runInstances[0].runOneStep();
         if(isBranchComplete) {
             await this.runAfterEverything();
         }
@@ -154,7 +154,7 @@ class Runner {
             utils.error('Must be paused to skip a step');
         }
 
-        let isBranchComplete = await this.runInstances[0].skipOneStep();
+        const isBranchComplete = await this.runInstances[0].skipOneStep();
         if(isBranchComplete) {
             await this.runAfterEverything();
         }
@@ -186,7 +186,7 @@ class Runner {
             utils.error('Must be paused to run a step');
         }
 
-        let branchRan = await this.runInstances[0].inject(text);
+        const branchRan = await this.runInstances[0].inject(text);
 
         return branchRan;
     }
@@ -225,7 +225,7 @@ class Runner {
      * @return {Object} An Object representing this runner, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        let o = {};
+        const o = {};
         this.isStopped && (o.isStopped = true);
         this.isComplete && (o.isComplete = true);
 
@@ -264,9 +264,9 @@ class Runner {
      * @return {Promise} Promise that resolves to true if all of them passed, false if one of them failed
      */
     async runBeforeEverything() {
-        let hookExecInstance = new RunInstance(this);
+        const hookExecInstance = new RunInstance(this);
         for(let i = 0; i < this.tree.beforeEverything.length; i++) {
-            let s = this.tree.beforeEverything[i];
+            const s = this.tree.beforeEverything[i];
             await hookExecInstance.runHookStep(s, s, null);
             if(this.consoleOutput && s.error) {
                 console.log('');
@@ -289,9 +289,9 @@ class Runner {
      */
     runBranches(numInstances) {
         // Spawn RunInstances, which will run in parallel
-        let runInstancePromises = [];
+        const runInstancePromises = [];
         for(let i = 0; i < numInstances; i++) {
-            let runInstance = new RunInstance(this);
+            const runInstance = new RunInstance(this);
             this.runInstances.push(runInstance);
             runInstancePromises.push(runInstance.run());
         }
@@ -304,9 +304,9 @@ class Runner {
      * @return {Promise} Promise that resolves once all of them finish running
      */
     async runAfterEverything() {
-        let hookExecInstance = new RunInstance(this);
+        const hookExecInstance = new RunInstance(this);
         for(let i = 0; i < this.tree.afterEverything.length; i++) {
-            let s = this.tree.afterEverything[i];
+            const s = this.tree.afterEverything[i];
             await hookExecInstance.runHookStep(s, s, null);
             if(this.consoleOutput && s.error) {
                 console.log('');

@@ -71,7 +71,7 @@ exports.unescapeBackticks = (str) => {
 exports.escape = (str) => {
     let newStr = '';
     for(let i = 0; i < str.length; i++) {
-        let c = str[i];
+        const c = str[i];
         switch(c) {
         case '\\':
             newStr += '\\\\'; break;
@@ -181,15 +181,15 @@ exports.numIndents = (line, filename, lineNumber) => {
         return 0;
     }
 
-    let spacesAtFront = line.match(/^( *)([^ ]|$)/);
-    let whitespaceAtFront = line.match(/^(\s*)([^\s]|$)/);
+    const spacesAtFront = line.match(/^( *)([^ ]|$)/);
+    const whitespaceAtFront = line.match(/^(\s*)([^\s]|$)/);
 
     if(spacesAtFront[1] != whitespaceAtFront[1]) {
         exports.error('Spaces are the only type of whitespace allowed at the beginning of a step', filename, lineNumber);
     }
     else {
-        let numSpaces = spacesAtFront[1].length;
-        let numIndents = numSpaces / Constants.SPACES_PER_INDENT;
+        const numSpaces = spacesAtFront[1].length;
+        const numIndents = numSpaces / Constants.SPACES_PER_INDENT;
 
         if(numIndents - Math.floor(numIndents) != 0) {
             exports.error(`The number of spaces at the beginning of a line must be a multiple of ${Constants.SPACES_PER_INDENT}. You have ${numSpaces} space${numSpaces != 1 ? 's' : ''}.`, filename, lineNumber);
@@ -237,7 +237,7 @@ exports.copyProps = (destination, source, props) => {
  * @return {Object} Converts Error into a simple js object
  */
 exports.serializeError = (error) => {
-    let o = {
+    const o = {
         message: error.message.toString(),
         stack: error.stack.toString(),
         filename: error.filename,

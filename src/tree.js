@@ -59,7 +59,7 @@ class Tree {
      * @return {StepNode} A new StepNode
      */
     newStepNode() {
-        let stepNode = new StepNode(this.stepNodeCount + 1);
+        const stepNode = new StepNode(this.stepNodeCount + 1);
         this.stepNodeIndex[stepNode.id] = stepNode;
         this.stepNodeCount++;
         return stepNode;
@@ -79,7 +79,7 @@ class Tree {
      * @return {Boolean} True if the given modifier is set on either step's StepNode or on its corresponding function declaration's StepNode (if step is a function call), false otherwise
      */
     getModifier(step, modifierName) {
-        let stepNode = this.stepNodeIndex[step.id];
+        const stepNode = this.stepNodeIndex[step.id];
         if(stepNode[modifierName]) {
             return true;
         }
@@ -96,12 +96,12 @@ class Tree {
      * @returns {String} The code block associated with this step (either from its StepNode, or if it's a function call, from its corresponding function declaration's StepNode), '' if no code blocks found
      */
     getCodeBlock(step) {
-        let stepNode = this.stepNodeIndex[step.id];
+        const stepNode = this.stepNodeIndex[step.id];
         if(stepNode.hasCodeBlock()) {
             return stepNode.codeBlock;
         }
         else if(Object.prototype.hasOwnProperty.call(step, 'fid')) {
-            let functionDeclarationNode = this.stepNodeIndex[step.fid];
+            const functionDeclarationNode = this.stepNodeIndex[step.fid];
             if(functionDeclarationNode.hasCodeBlock()) {
                 return functionDeclarationNode.codeBlock;
             }
@@ -115,12 +115,12 @@ class Tree {
      * @return {Boolean} True if step or its corresponding function declaration has a step block, false otherwise
      */
     hasCodeBlock(step) {
-        let stepNode = this.stepNodeIndex[step.id];
+        const stepNode = this.stepNodeIndex[step.id];
         if(stepNode.hasCodeBlock()) {
             return true;
         }
         else if(Object.prototype.hasOwnProperty.call(step, 'fid')) {
-            let functionDeclarationNode = this.stepNodeIndex[step.fid];
+            const functionDeclarationNode = this.stepNodeIndex[step.fid];
             if(functionDeclarationNode.hasCodeBlock()) {
                 return true;
             }
@@ -137,7 +137,7 @@ class Tree {
      * @param {Boolean} [allowIndented] - If true, allows the first step to have indents
      */
     parseIn(buffer, filename, isPackaged, allowIndented) {
-        let lines = buffer.split(/\n/);
+        const lines = buffer.split(/\n/);
 
         // Convert each string in lines to a StepNode object
         // For a line that's part of a code block, insert the code block contents into the StepNode that started the code block and remove that line
@@ -147,7 +147,7 @@ class Tree {
         let currentlyInsideCodeBlockFromLineNum = -1; // if we're currently inside a code block, that code block started on this line, otherwise -1
 
         for(let i = 0, lineNumber = 1; i < lines.length; i++, lineNumber++) {
-            let line = lines[i];
+            const line = lines[i];
 
             if(line.match(Constants.FULL_LINE_COMMENT) && currentlyInsideCodeBlockFromLineNum == -1) { // ignore lines that are fully comments
                 lines.splice(i, 1);
@@ -156,7 +156,7 @@ class Tree {
             }
 
             if(currentlyInsideCodeBlockFromLineNum != -1) { // we're currently inside a code block
-                let endRegex = new RegExp(`^[ ]{${lastStepNodeCreated.indents * Constants.SPACES_PER_INDENT}}\\}\\s*(\\/\\/.*?)?\\s*$`);
+                const endRegex = new RegExp(`^[ ]{${lastStepNodeCreated.indents * Constants.SPACES_PER_INDENT}}\\}\\s*(\\/\\/.*?)?\\s*$`);
                 if(line.match(endRegex)) {
                     // code block has ended
                     currentlyInsideCodeBlockFromLineNum = -1;
@@ -173,7 +173,7 @@ class Tree {
                 }
             }
             else {
-                let s = this.newStepNode().parseLine(line, filename, lineNumber);
+                const s = this.newStepNode().parseLine(line, filename, lineNumber);
                 s.indents = utils.numIndents(line, filename, lineNumber);
 
                 if(!allowIndented && !lastNonEmptyStepNode && s.indents != 0) {
@@ -230,7 +230,7 @@ class Tree {
             }
 
             // Current line may start a step block
-            let potentialStepBlock = new StepBlockNode();
+            const potentialStepBlock = new StepBlockNode();
 
             if(i > 0 && lines[i-1].text == '..') {
                 potentialStepBlock.isSequential = true;
@@ -314,7 +314,7 @@ class Tree {
         // Insert the contents of lines into the tree (under this.root)
         let prevStepNode = null;
         for(let i = 0; i < lines.length; i++) {
-            let currStepNode = lines[i]; // either a StepNode or StepBlockNode object
+            const currStepNode = lines[i]; // either a StepNode or StepBlockNode object
 
             // Packages
             if(isPackaged) {
@@ -358,7 +358,7 @@ class Tree {
             if(currStepNode.isMultiBlockFunctionCall) {
                 const ERR_MSG = 'Cannot find the \'[\' that corresponds to this \']\'';
                 if(currStepNode.parent.children.length > 1) {
-                    let lastSibling = currStepNode.parent.children[currStepNode.parent.children.length - 2];
+                    const lastSibling = currStepNode.parent.children[currStepNode.parent.children.length - 2];
                     if(lastSibling.isMultiBlockFunctionDeclaration) {
                         currStepNode.multiBlockFid = lastSibling.id;
                         currStepNode.text = lastSibling.text;
@@ -395,8 +395,8 @@ class Tree {
     findFunctionDeclarations(functionCall, branchAbove) {
         branchAbove.steps.push(functionCall);
 
-        let functionCallNode = this.stepNodeIndex[functionCall.id];
-        let functionCallNodeToMatch = functionCallNode;
+        const functionCallNode = this.stepNodeIndex[functionCall.id];
+        const functionCallNodeToMatch = functionCallNode;
 
         // Multi-level step block function calls
         if(functionCallNode.isMultiBlockFunctionCall) {
@@ -416,7 +416,7 @@ class Tree {
 
         // Try to find the function declarations we're looking for
         for(let index = branchAbove.steps.length - 1; index >= 0; index--) {
-            let currStep = branchAbove.steps[index];
+            const currStep = branchAbove.steps[index];
 
             let stepAbove, stepNodeAbove, siblings;
             if(index > 0) {
@@ -428,7 +428,7 @@ class Tree {
                 siblings = this.root.children;
             }
 
-            let foundDeclarationNodes = searchAmong(siblings, currStep);
+            const foundDeclarationNodes = searchAmong(siblings, currStep);
             if(foundDeclarationNodes.length > 0) {
                 branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
                 return foundDeclarationNodes;
@@ -438,13 +438,13 @@ class Tree {
             // finding all equivalents to *P, and searching all of their children
             if(index > 0) {
                 if(stepNodeAbove && stepNodeAbove.isFunctionCall) {
-                    let funcDeclAbove = this.stepNodeIndex[stepAbove.fid]; // this is *P from the example above
+                    const funcDeclAbove = this.stepNodeIndex[stepAbove.fid]; // this is *P from the example above
                     if(funcDeclAbove) {
-                        let funcDeclAboveEquivalents = this.equivalents(funcDeclAbove);
+                        const funcDeclAboveEquivalents = this.equivalents(funcDeclAbove);
                         let pool = [];
                         funcDeclAboveEquivalents.forEach(fd => pool = pool.concat(fd.children));
 
-                        let foundDeclarationNodes = searchAmong(pool, currStep);
+                        const foundDeclarationNodes = searchAmong(pool, currStep);
                         if(foundDeclarationNodes.length > 0) {
                             branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
                             return foundDeclarationNodes;
@@ -466,9 +466,9 @@ ${branchAbove.output(this.stepNodeIndex)}
          * @return {Array of StepNode} Step nodes that match functionCallNodeToMatch
          */
         function searchAmong(pool, currStep) {
-            let matches = [];
+            const matches = [];
             for(let i = 0; i < pool.length; i++) {
-                let sn = pool[i];
+                const sn = pool[i];
 
                 if(sn.isFunctionDeclaration
                     && functionCallNodeToMatch.isFunctionMatch(sn) &&
@@ -490,7 +490,7 @@ ${branchAbove.output(this.stepNodeIndex)}
     equivalents(stepNode) {
         let results = [];
 
-        let parents = [];
+        const parents = [];
         let s = null;
         for(s = stepNode; s && s.isFunctionDeclaration; s = s.parent) {
             parents.push(s);
@@ -499,8 +499,8 @@ ${branchAbove.output(this.stepNodeIndex)}
         results.push(s);
 
         for(let i = parents.length - 1; i >= 0; i--) {
-            let newResults = [];
-            let fd = parents[i];
+            const newResults = [];
+            const fd = parents[i];
             results.forEach(result => {
                 result.children.forEach(c => {
                     if(c === stepNode ||
@@ -548,8 +548,8 @@ ${branchAbove.output(this.stepNodeIndex)}
                 - May contain steps, step blocks, or a combination of them
         */
 
-        let stepNode = this.stepNodeIndex[step.id];
-        let functionDeclarationNode = this.stepNodeIndex[step.fid];
+        const stepNode = this.stepNodeIndex[step.id];
+        const functionDeclarationNode = this.stepNodeIndex[step.fid];
 
         if(functionDeclarationNode.hasCodeBlock()) {
             if(functionDeclarationNode.children.length > 0) {
@@ -579,7 +579,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         }
 
         function validateChild(child) {
-            let varsBeingSet = child.getVarsBeingSet();
+            const varsBeingSet = child.getVarsBeingSet();
             if(!varsBeingSet || varsBeingSet.length != 1 || varsBeingSet[0].isLocal) {
                 utils.error(`The function called at ${stepNode.filename}:${stepNode.lineNumber} must have all steps in its declaration be in format {x}='string' or {x}=Function (but ${child.filename}:${child.lineNumber} is not)`, stepNode.filename, stepNode.lineNumber);
             }
@@ -635,9 +635,9 @@ ${branchAbove.output(this.stepNodeIndex)}
         }
 
         // Initialize step corresponding to stepNode
-        let step = new Step(stepNode.id);
+        const step = new Step(stepNode.id);
         step.level = level; // needed to findFunctionDeclarations() below
-        let varsBeingSet = stepNode.getVarsBeingSet();
+        const varsBeingSet = stepNode.getVarsBeingSet();
 
         // ***************************************
         // 2) Fill branchesFromThisStepNode with the branches that come from this step node alone (and not its children)
@@ -645,14 +645,14 @@ ${branchAbove.output(this.stepNodeIndex)}
         // ***************************************
 
         let branchesFromThisStepNode = [];  // Array of Branch
-        let fids = [];                      // If stepNode is a function call, all matching function declaration ids go here
+        const fids = [];                      // If stepNode is a function call, all matching function declaration ids go here
 
         if(stepNode.indents == -1) {
             // We're at the root. Ignore it.
         }
         else if(stepNode.isFunctionCall) {
             let newBranchesFromThisStepNode = [];
-            let functionDeclarationNodes = this.findFunctionDeclarations(step, branchAbove);
+            const functionDeclarationNodes = this.findFunctionDeclarations(step, branchAbove);
 
             functionDeclarationNodes.forEach(functionDeclarationNode => {
                 step.fid = functionDeclarationNode.id;
@@ -674,7 +674,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                     // If newBranchesFromThisStepNode is empty (happens when the function declaration is empty),
                     // stick the current step (function call) into a sole branch, but only if it has a code block
                     if(functionDeclarationNode.hasCodeBlock()) {
-                        let branch = new Branch;
+                        const branch = new Branch;
                         branch.push(step.clone(), this.stepNodeIndex);
                         newBranchesFromThisStepNode = [ branch ];
                     }
@@ -684,12 +684,12 @@ ${branchAbove.output(this.stepNodeIndex)}
                         // replace {x} in each child to {var} (where this step is {var} = F)
                         newBranchesFromThisStepNode.forEach(branch => {
                             for(let i = 0; i < branch.steps.length; i++) { // handles mulitple levels of {var} = F
-                                let s = branch.steps[i];
-                                let sNode = this.stepNodeIndex[s.id];
-                                let sVarsBeingSet = sNode.getVarsBeingSet();
+                                const s = branch.steps[i];
+                                const sNode = this.stepNodeIndex[s.id];
+                                const sVarsBeingSet = sNode.getVarsBeingSet();
 
-                                let originalName = sVarsBeingSet[0].name;
-                                let newName = varsBeingSet[0].name;
+                                const originalName = sVarsBeingSet[0].name;
+                                const newName = varsBeingSet[0].name;
 
                                 sNode.text = sNode.text.replace(new RegExp(`(\\{\\s*)${originalName}(\\s*\\})`), `$1${newName}$2`);
 
@@ -712,7 +712,7 @@ ${branchAbove.output(this.stepNodeIndex)}
             if(branchesFromThisStepNode.length == 0) {
                 // If branchesFromThisStepNode is empty (happens when the function declarations are empty),
                 // just stick the current step (function call) into a sole branch
-                let branch = new Branch;
+                const branch = new Branch;
                 branch.push(step.clone(), this.stepNodeIndex);
                 branchesFromThisStepNode = [ branch ];
             }
@@ -720,7 +720,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         else if(stepNode instanceof StepBlockNode && stepNode.isSequential) { // sequential step block (with a .. on top)
             // Flatten the sequential step block node
             for(let i = 0; i < stepNode.steps.length; i++) {
-                let s = stepNode.steps[i];
+                const s = stepNode.steps[i];
 
                 if(i == stepNode.steps.length - 1) { // last step in block
                     s.children = stepNode.children;
@@ -742,7 +742,7 @@ ${branchAbove.output(this.stepNodeIndex)}
             }
         }
         else { // Textual steps, non-function-declaration code block steps, {var}='string'
-            let branch = new Branch;
+            const branch = new Branch;
             branch.push(step, this.stepNodeIndex);
             branchesFromThisStepNode.push(branch);
         }
@@ -766,15 +766,15 @@ ${branchAbove.output(this.stepNodeIndex)}
         // Does not affect sequential steps
         // This is a performance optimization. Full $/~ reduction is done in removeUnwantedBranches().
         if(!isSequential) {
-            let stepNodeHasModifier = c => (c.isOnly || c.isDebug) && !c.isFunctionDeclaration;
-            let hasModifier = c =>
+            const stepNodeHasModifier = c => (c.isOnly || c.isDebug) && !c.isFunctionDeclaration;
+            const hasModifier = c =>
                 c instanceof StepBlockNode ?
                     c.steps.find(c => stepNodeHasModifier(c)) && !c.isSequential :
                     stepNodeHasModifier(c);
 
             if(children.find(c => hasModifier(c))) {
                 for(let i = 0; i < children.length;) {
-                    let c = children[i];
+                    const c = children[i];
                     if(c.isFunctionDeclaration) {
                         i++;
                     }
@@ -793,10 +793,10 @@ ${branchAbove.output(this.stepNodeIndex)}
 
         // Set step's hooks if a child is a hook
 
-        let beforeEveryBranch = [];
-        let afterEveryBranch = [];
-        let beforeEveryStep = [];
-        let afterEveryStep = [];
+        const beforeEveryBranch = [];
+        const afterEveryBranch = [];
+        const beforeEveryStep = [];
+        const afterEveryStep = [];
 
         // Ignore function declarations (they're handled by their corresponding function call, in the code below)
         if(!stepNode.isFunctionDeclaration) {
@@ -816,14 +816,14 @@ ${branchAbove.output(this.stepNodeIndex)}
 
         function setHooks(child, self) {
             if(child.isHook) {
-                let hookStep = new Step(child.id);
+                const hookStep = new Step(child.id);
                 hookStep.level = 0;
 
                 if(child.children.length > 0) {
                     utils.error('A hook cannot have children', child.filename, child.lineNumber);
                 }
 
-                let canStepText = utils.canonicalize(child.text);
+                const canStepText = utils.canonicalize(child.text);
                 if(canStepText == 'before every branch') {
                     beforeEveryBranch.unshift(hookStep);
                 }
@@ -867,7 +867,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         if(isSequential && !(stepNode instanceof StepBlockNode)) {
             // One big resulting branch, built as follows:
             // One branchesFromThisStepNode branch, each child branch, one branchesFromThisStepNode branch, each child branch, etc.
-            let bigBranch = new Branch;
+            const bigBranch = new Branch;
             branchesFromThisStepNode.forEach(branchFromThisStepNode => {
                 bigBranch.mergeToEnd(branchFromThisStepNode);
 
@@ -911,7 +911,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                     if(child instanceof StepBlockNode && !child.isSequential) {
                         // If this child is a non-sequential step block, just call branchify() directly on each member
                         child.steps.forEach(s => {
-                            let branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () => this.branchify(s, branchAbove, level, false, isSequential));
+                            const branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () => this.branchify(s, branchAbove, level, false, isSequential));
                             if(branchesFromChild && branchesFromChild.length > 0) {
                                 branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                             }
@@ -920,7 +920,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                     }
                     else {
                         // If this child is a step, call branchify() on it normally
-                        let branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () => this.branchify(child, branchAbove, level, false, isSequential));
+                        const branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () => this.branchify(child, branchAbove, level, false, isSequential));
                         if(branchesFromChild && branchesFromChild.length > 0) {
                             branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
                         }
@@ -987,7 +987,7 @@ ${branchAbove.output(this.stepNodeIndex)}
          */
         function placeOntoBranchAbove(steps, f) {
             branchAbove.steps = branchAbove.steps.concat(steps);
-            let ret = f();
+            const ret = f();
             for(let i = 0; i < steps.length; i++) {
                 branchAbove.steps.pop();
             }
@@ -1013,10 +1013,10 @@ ${branchAbove.output(this.stepNodeIndex)}
         // Choose the branches with the $ at the shallowest depth (choosing multiple branches if there's a tie)
         let shortestDepth = -1;
         for(let i = 0; i < branches.length; i++) {
-            let branch = branches[i];
+            const branch = branches[i];
             if(branch.isOnly) {
                 // A $ was found
-                let o = findModifierDepth(branch, '$', this);
+                const o = findModifierDepth(branch, '$', this);
                 if(o.depth < shortestDepth || shortestDepth == -1) {
                     shortestDepth = o.depth;
                 }
@@ -1024,7 +1024,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         }
         if(shortestDepth != -1) {
             branches = branches.filter(branch => {
-                let o = findModifierDepth(branch, '$', this);
+                const o = findModifierDepth(branch, '$', this);
                 if(!o) {
                     return false;
                 }
@@ -1040,7 +1040,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         // ***************************************
         if(this.groups && isRoot) {
             for(let i = 0; i < branches.length;) {
-                let branch = branches[i];
+                const branch = branches[i];
 
                 if(!branch.groups) {
                     branches.splice(i, 1); // remove this branch
@@ -1054,7 +1054,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                     // this could be either a single group or multiple groups at once
                     // if it's the latter, we need to check if ALL of them are mentioned
                     // in branch.groups
-                    let groupsAllowedToRun = this.groups[j];
+                    const groupsAllowedToRun = this.groups[j];
 
                     isGroupMatched = true;
                     // looping through the groups of the current branch
@@ -1105,9 +1105,9 @@ ${branchAbove.output(this.stepNodeIndex)}
             };
 
             for(let i = 0; i < branches.length;) {
-                let branch = branches[i];
-                let freqAllowed = freqToNum(this.minFrequency);
-                let freqOfBranch = freqToNum(branch.frequency);
+                const branch = branches[i];
+                const freqAllowed = freqToNum(this.minFrequency);
+                const freqOfBranch = freqToNum(branch.frequency);
 
                 if(freqOfBranch >= freqAllowed) {
                     i++; // keep it
@@ -1127,10 +1127,10 @@ ${branchAbove.output(this.stepNodeIndex)}
         let branchFound = null;
         shortestDepth = -1;
         for(let i = 0; i < branches.length; i++) {
-            let branch = branches[i];
+            const branch = branches[i];
             if(branch.isDebug) {
                 // A ~ was found
-                let o = findModifierDepth(branch, '~', this);
+                const o = findModifierDepth(branch, '~', this);
                 if(o.depth < shortestDepth || shortestDepth == -1) {
                     shortestDepth = o.depth;
                     branchFound = branch;
@@ -1151,8 +1151,8 @@ ${branchAbove.output(this.stepNodeIndex)}
          */
         function findModifierDepth(branch, modifier, self) {
             for(let i = 0; i < branch.steps.length; i++) {
-                let step = branch.steps[i];
-                let stepNode = self.stepNodeIndex[step.id];
+                const step = branch.steps[i];
+                const stepNode = self.stepNodeIndex[step.id];
 
                 let setOnOriginal = null;
                 let setOnFunctionDeclaration = null;
@@ -1164,7 +1164,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                     setOnOriginal = stepNode.isOnly;
                 }
 
-                let functionDeclarationNode = step.fid ? self.stepNodeIndex[step.fid] : null;
+                const functionDeclarationNode = step.fid ? self.stepNodeIndex[step.fid] : null;
                 if(functionDeclarationNode) {
                     if(modifier == '~') {
                         setOnFunctionDeclaration = functionDeclarationNode.isDebug;
@@ -1219,7 +1219,7 @@ ${branchAbove.output(this.stepNodeIndex)}
 
         // Marks branches with a first step of .s as skipped
         this.branches.forEach(branch => {
-            let firstStep = branch.steps[0];
+            const firstStep = branch.steps[0];
             if(this.getModifier(firstStep, 'isSkipBelow')) {
                 branch.markBranch('skip', undefined, this.stepDataMode);
                 //branch.appendToLog(`Branch skipped because it starts with a .s step`);
@@ -1243,7 +1243,7 @@ ${branchAbove.output(this.stepNodeIndex)}
             if(!branch.isSkipped) {
                 let indexOfSkipBelow = -1;
                 for(let i = 0; i < branch.steps.length; i++) {
-                    let s = branch.steps[i];
+                    const s = branch.steps[i];
                     if(this.getModifier(s, 'isSkipBelow')) {
                         indexOfSkipBelow = i;
                     }
@@ -1254,7 +1254,7 @@ ${branchAbove.output(this.stepNodeIndex)}
 
                 // Mark all similar branches as skipped
                 if(indexOfSkipBelow != -1) {
-                    let branchesToSkip = this.findSimilarBranches(branch, indexOfSkipBelow + 1);
+                    const branchesToSkip = this.findSimilarBranches(branch, indexOfSkipBelow + 1);
                     branchesToSkip.forEach(branchToSkip => {
                         branchToSkip.markBranch('skip', undefined, this.stepDataMode);
                         /*branchToSkip.appendToLog(
@@ -1277,9 +1277,9 @@ ${branchAbove.output(this.stepNodeIndex)}
         }
 
         // Sort by frequency, but otherwise keeping the same order
-        let highBranches = [];
-        let medBranches = [];
-        let lowBranches = [];
+        const highBranches = [];
+        const medBranches = [];
+        const lowBranches = [];
         this.branches.forEach(branch => {
             if(branch.frequency == 'high') {
                 highBranches.push(branch);
@@ -1301,11 +1301,11 @@ ${branchAbove.output(this.stepNodeIndex)}
             branch.steps.forEach((step, i) => {
                 let stepNode = this.stepNodeIndex[step.id];
                 if(stepNode.isAfterDebug && stepNode.isFunctionCall) {
-                    let baseLevel = step.level;
+                    const baseLevel = step.level;
                     let found = false;
                     delete stepNode.isAfterDebug;
                     for(i++; i < branch.steps.length; i++) {
-                        let lastStepNode = stepNode;
+                        const lastStepNode = stepNode;
                         step = branch.steps[i];
                         stepNode = this.stepNodeIndex[step.id];
 
@@ -1316,8 +1316,8 @@ ${branchAbove.output(this.stepNodeIndex)}
                         }
                     }
                     if(!found) {
-                        let lastStep = branch.steps[branch.steps.length - 1];
-                        let lastStepNode = this.stepNodeIndex[lastStep.id];
+                        const lastStep = branch.steps[branch.steps.length - 1];
+                        const lastStepNode = this.stepNodeIndex[lastStep.id];
                         lastStepNode.isAfterDebug = true;
                     }
                 }
@@ -1334,8 +1334,8 @@ ${branchAbove.output(this.stepNodeIndex)}
                 if(this.branches[i].equalsHash(this.debugHash)) {
                     this.branches = [ this.branches[i] ];
 
-                    let lastStep = this.branches[0].steps[this.branches[0].steps.length - 1];
-                    let lastStepNode = this.stepNodeIndex[lastStep.id];
+                    const lastStep = this.branches[0].steps[this.branches[0].steps.length - 1];
+                    const lastStepNode = this.stepNodeIndex[lastStep.id];
                     lastStepNode.isDebug = true;
                     lastStepNode.isAfterDebug = true;
                     this.isDebug = true;
@@ -1376,13 +1376,13 @@ ${branchAbove.output(this.stepNodeIndex)}
      * @return {Object} An Object representing this tree
      */
     serialize(max, maxFailed) {
-        let branchesRunning = this.branches.filter(branch => branch.isRunning).filter(keepBranch);
-        let branchesFailed = this.branches.filter(branch => branch.isFailed).filter(keepBranchFailed);
-        let branchesPassed = this.branches.filter(branch => branch.isPassed || branch.passedLastTime).filter(keepBranch);
-        let branchesSkipped = this.branches.filter(branch => branch.isSkipped).filter(keepBranch);
-        let branchesNotRunYet = this.branches.filter(branch => !branch.isCompleteOrRunning()).filter(keepBranch);
+        const branchesRunning = this.branches.filter(branch => branch.isRunning).filter(keepBranch);
+        const branchesFailed = this.branches.filter(branch => branch.isFailed).filter(keepBranchFailed);
+        const branchesPassed = this.branches.filter(branch => branch.isPassed || branch.passedLastTime).filter(keepBranch);
+        const branchesSkipped = this.branches.filter(branch => branch.isSkipped).filter(keepBranch);
+        const branchesNotRunYet = this.branches.filter(branch => !branch.isCompleteOrRunning()).filter(keepBranch);
 
-        let branches = branchesRunning
+        const branches = branchesRunning
             .concat(branchesFailed)
             .concat(branchesPassed)
             .concat(branchesSkipped)
@@ -1401,10 +1401,10 @@ ${branchAbove.output(this.stepNodeIndex)}
          * @return {Object} stepNodeIndex, but only with step nodes that are actually used at least once
          */
         function serializeUsedStepNodes(stepNodeIndex) {
-            let o = {};
-            for(let key in stepNodeIndex) {
+            const o = {};
+            for(const key in stepNodeIndex) {
                 if(Object.prototype.hasOwnProperty.call(stepNodeIndex, key)) {
-                    let stepNode = stepNodeIndex[key];
+                    const stepNode = stepNodeIndex[key];
                     if(stepNode.used) {
                         o[key] = stepNode.serialize();
                     }
@@ -1433,12 +1433,12 @@ ${branchAbove.output(this.stepNodeIndex)}
      *     returnedObj also contains all the updated counts from this tree
      */
     serializeSnapshot(max, prevSnapshot) {
-        let snapshot = {
+        const snapshot = {
             branches: []
         };
 
         for(let i = 0; i < this.branches.length; i++) {
-            let b = this.branches[i];
+            const b = this.branches[i];
             if(b.isRunning) {
                 snapshot.branches.push(b.serialize());
                 if(typeof max != 'undefined' && snapshot.branches.length >= max) {
@@ -1454,7 +1454,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                     // Did we already include prevBranch in snapshot?
                     let alreadyIncluded = false;
                     for(let i = 0; i < snapshot.branches.length; i++) {
-                        let b = snapshot.branches[i];
+                        const b = snapshot.branches[i];
                         if(b.hash == prevBranch.hash) {
                             alreadyIncluded = true;
                             break;
@@ -1464,7 +1464,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                     if(!alreadyIncluded) {
                         // Find prevBranch's equivalent in this tree and put it into snapshot
                         for(let i = 0; i < this.branches.length; i++) {
-                            let b = this.branches[i];
+                            const b = this.branches[i];
                             if(b.hash == prevBranch.hash) {
                                 snapshot.branches.push(b.serialize());
                                 break;
@@ -1492,7 +1492,7 @@ ${branchAbove.output(this.stepNodeIndex)}
      * @param {String} previous - A list of hashes of passed branches from a completed previous run. Same string that serializePassed() returns.
      */
     markPassedFromPrevRun(previous) {
-        let prevHashes = previous.split('\n');
+        const prevHashes = previous.split('\n');
         if(prevHashes.length == 0) {
             return;
         }
@@ -1522,7 +1522,7 @@ ${branchAbove.output(this.stepNodeIndex)}
     getBranchCount(runnableOnly, completeOnly, passedOnly, failedOnly, skippedOnly, runningOnly) {
         let count = 0;
         for(let i = 0; i < this.branches.length; i++) {
-            let branch = this.branches[i];
+            const branch = this.branches[i];
 
             if(runnableOnly && (branch.passedLastTime || branch.isSkipped)) {
                 continue;
@@ -1564,14 +1564,14 @@ ${branchAbove.output(this.stepNodeIndex)}
     getStepCount(runnableOnly, completeOnly, failedOnly) {
         let count = 0;
         for(let i = 0; i < this.branches.length; i++) {
-            let branch = this.branches[i];
+            const branch = this.branches[i];
 
             if(runnableOnly && (branch.passedLastTime || branch.isSkipped)) {
                 continue;
             }
 
             for(let j = 0; j < branch.steps.length; j++) {
-                let step = branch.steps[j];
+                const step = branch.steps[j];
 
                 if(runnableOnly && this.getModifier(step, 'isSkipBelow')) {
                     break; // go to next branch
@@ -1599,7 +1599,7 @@ ${branchAbove.output(this.stepNodeIndex)}
     nextBranch() {
         let branchNotYetTaken = null;
         for(let i = 0; i < this.branches.length; i++) {
-            let branch = this.branches[i];
+            const branch = this.branches[i];
             if(!branch.isCompleteOrRunning()) {
                 if(branch.nonParallelIds) {
                     // If a branch's nonParallelIds are set, check if a previous branch with one of those ids is still running
@@ -1607,7 +1607,7 @@ ${branchAbove.output(this.stepNodeIndex)}
 
                     start:
                     for(let j = 0; j < this.branches.length; j++) {
-                        let b = this.branches[j];
+                        const b = this.branches[j];
                         if(b.isRunning && b.nonParallelIds) {
                             for(let g = 0; g < b.nonParallelIds.length; g++) {
                                 for(let h = 0; h < branch.nonParallelIds.length; h++) {
@@ -1647,7 +1647,7 @@ ${branchAbove.output(this.stepNodeIndex)}
      * @return {Array} Array of Branch - branches whose first N steps are the same as the given's branch's first N steps
      */
     findSimilarBranches(branch, n) {
-        let foundBranches = [];
+        const foundBranches = [];
         this.branches.forEach(b => {
             if(branch !== b && branch.equals(b, this.stepNodeIndex, n)) {
                 foundBranches.push(b);
@@ -1701,7 +1701,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         let runningStep = null;
         let nextStep = null;
         for(let i = 0; i < branch.steps.length; i++) {
-            let step = branch.steps[i];
+            const step = branch.steps[i];
             if(step.isRunning) {
                 runningStep = step;
                 if(i + 1 < branch.steps.length) {

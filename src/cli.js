@@ -102,7 +102,7 @@ function processFlag(name, value) {
         }
 
         let varName = null;
-        let matches = name.match(/^(g|p):(.*)$/);
+        const matches = name.match(/^(g|p):(.*)$/);
         if(matches) {
             name = matches[1];
             varName = matches[2];
@@ -376,8 +376,8 @@ function plural(count) {
      * Outputs info to the console that comes before the REPL prompt
      */
     function prePrompt() {
-        let nextStep = runner.getNextReadyStep();
-        let prevStep = runner.getLastStep();
+        const nextStep = runner.getNextReadyStep();
+        const prevStep = runner.getLastStep();
 
         if(nextStep) {
             console.log(`Next step: [ ${chalk.gray(tree.stepNodeIndex[nextStep.id].text.trim())} ]`);
@@ -486,27 +486,27 @@ function plural(count) {
                 utils.error(`Syntax error in ${CONFIG_FILENAME}`);
             }
 
-            for(let name in config) {
+            for(const name in config) {
                 processFlag(name, config[name]);
             }
         }
 
         // Sort command line arguments into filenames and flags
         for(let i = 2; i < process.argv.length; i++) {
-            let arg = process.argv[i];
+            const arg = process.argv[i];
             if(arg.startsWith('-')) {
-                let matches = arg.match(/--?([^=]+)(=(.*))?/);
+                const matches = arg.match(/--?([^=]+)(=(.*))?/);
                 if(!matches) {
                     utils.error(`Invalid argument: ${arg}`);
                 }
 
-                let name = matches[1];
-                let value = matches[3];
+                const name = matches[1];
+                const value = matches[3];
 
                 processFlag(name, value);
             }
             else {
-                let newFilenames = await new Promise((resolve, reject) => {
+                const newFilenames = await new Promise((resolve, reject) => {
                     glob(path.resolve(arg), {absolute: true}, (err, newFilenames) => err ? reject(err) : resolve(newFilenames));
                 });
 
@@ -521,7 +521,7 @@ function plural(count) {
                 searchString = '**/*.smash';
             }
 
-            let smashFiles = await new Promise((resolve, reject) => {
+            const smashFiles = await new Promise((resolve, reject) => {
                 // if no filenames passed in, just choose all the .smash files
                 glob(searchString, {absolute: true}, (err, smashFiles) => err ? reject(err) : resolve(smashFiles));
             });
@@ -534,7 +534,7 @@ function plural(count) {
             }
         }
 
-        let packageFilenames = await new Promise((resolve, reject) => {
+        const packageFilenames = await new Promise((resolve, reject) => {
             glob(path.join(path.dirname(require.main.filename), '../packages', '*.smash'), async(err, packageFilenames) => { // new array of filenames under packages/
                 err ? reject(err) : resolve(packageFilenames);
             });
@@ -545,7 +545,7 @@ function plural(count) {
         }
 
         // Read in all files
-        let originalFilenamesLength = filenames.length;
+        const originalFilenamesLength = filenames.length;
         if(runner.isRepl) {
             filenames = packageFilenames; // only include packages for a --repl
         }
@@ -691,9 +691,9 @@ function plural(count) {
                     },
                     eval: async(input, context, filename, callback) => {
                         try {
-                            let linesToEval = input.replace(/\n+$/, '').split(/\n/);
+                            const linesToEval = input.replace(/\n+$/, '').split(/\n/);
                             for(let i = 0; i < linesToEval.length; i++) {
-                                let line = linesToEval[i];
+                                const line = linesToEval[i];
                                 await evalLine(line);
 
                                 if(runner.getLastStep().isPassed && !commandsMap[line.trim()]) {
@@ -720,7 +720,7 @@ function plural(count) {
                 });
 
                 const commands = Object.entries(commandsMap);
-                for (let [shortcut, obj] of commands) {
+                for (const [shortcut, obj] of commands) {
                     if (obj.name) {
                         // Is built-in command? (e.g. 'help')
                         if (replServer.commands[obj.name]) {
@@ -811,7 +811,7 @@ function plural(count) {
      * Activates the progress bar timer
      */
     function activateProgressBarTimer() {
-        let timeout = tree.branches.length <= 100000 ? 500 : 5000; // every 500 ms or 5 secs
+        const timeout = tree.branches.length <= 100000 ? 500 : 5000; // every 500 ms or 5 secs
         setTimeout(() => updateProgressBar(), timeout);
     }
 
@@ -875,7 +875,7 @@ function plural(count) {
      * Updates the elapsed variable
      */
     function updateElapsed() {
-        let d = new Date(null);
+        const d = new Date(null);
         d.setSeconds((new Date() - tree.timeStarted)/1000);
         elapsed = d.toISOString().substr(11, 8);
     }
@@ -891,7 +891,7 @@ function plural(count) {
      * @return {String} The first line of s, "" if empty string
      */
     function firstLine(s) {
-        let matches = s.match(/^.*/);
+        const matches = s.match(/^.*/);
         if(matches && matches.length > 0) {
             return matches[0];
         }
@@ -904,7 +904,7 @@ function plural(count) {
      * @return {String} The last line of s, "" if empty string
      */
     function lastLine(s) {
-        let matches = s.match(/.*$/);
+        const matches = s.match(/.*$/);
         if(matches && matches.length > 0) {
             return matches[0];
         }
@@ -930,7 +930,7 @@ function plural(count) {
 
         isBranchComplete = false;
 
-        let command = commandsMap[input.trim()];
+        const command = commandsMap[input.trim()];
 
         if (command) {
             // Pass correct 'this' for the built-in commands
@@ -944,7 +944,7 @@ function plural(count) {
                     return;
                 }
                 else {
-                    let stepNode = new StepNode(0);
+                    const stepNode = new StepNode(0);
                     stepNode.parseLine(input);
                     if(stepNode.isMultiBlockFunctionDeclaration || stepNode.isMultiBlockFunctionCall) {
                         utils.error('Cannot use step block brackets ([, ]) here');

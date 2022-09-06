@@ -71,8 +71,8 @@ class Branch {
      * @param {Boolean} [toFront] - If true, step is being inserted to the front of this branch, false otherwise
      */
     mergeModifiers(step, stepNodeIndex, toFront) {
-        let stepNode = stepNodeIndex[step.id];
-        let functionDeclarationNode = stepNodeIndex[step.fid] || {};
+        const stepNode = stepNodeIndex[step.id];
+        const functionDeclarationNode = stepNodeIndex[step.fid] || {};
 
         if(stepNode.isSkipBranch || functionDeclarationNode.isSkipBranch) {
             this.isSkipBranch = true;
@@ -84,7 +84,7 @@ class Branch {
             this.isDebug = true;
         }
         if(stepNode.groups || functionDeclarationNode.groups) {
-            let incomingGroups = (stepNode.groups || []).concat(functionDeclarationNode.groups || []);
+            const incomingGroups = (stepNode.groups || []).concat(functionDeclarationNode.groups || []);
             incomingGroups.forEach(g => {
                 if(Constants.FREQUENCIES.includes(g)) {
                     if(toFront) {
@@ -140,7 +140,7 @@ class Branch {
         branch.isOnly && (this.isOnly = true);
         branch.isDebug && (this.isDebug = true);
 
-        let self = this;
+        const self = this;
 
         copyHooks('beforeEveryBranch', true); // Copy branch.beforeEveryBranch to the beginning of newBranch.beforeEveryBranch (so that packages comes first)
         copyHooks('afterEveryBranch', false); // Copy branch.afterEveryBranch to the end of newBranch.afterEveryBranch (so that packages comes last)
@@ -181,8 +181,8 @@ class Branch {
 
         let str = '';
         this.steps.forEach(s => {
-            let sn = stepNodeIndex[s.id];
-            let indentedText = utils.addWhitespaceToEnd(`${utils.getIndents(s.level, 2)}${sn.text || ''}`, 50);
+            const sn = stepNodeIndex[s.id];
+            const indentedText = utils.addWhitespaceToEnd(`${utils.getIndents(s.level, 2)}${sn.text || ''}`, 50);
 
             str += `${beginSpace}${indentedText}   ${s.locString(stepNodeIndex)}\n`;
         });
@@ -214,8 +214,8 @@ class Branch {
         }
 
         for(let i = 0; i < thisLen; i++) {
-            let stepNodeA = stepNodeIndex[this.steps[i].id];
-            let stepNodeB = stepNodeIndex[branch.steps[i].id];
+            const stepNodeA = stepNodeIndex[this.steps[i].id];
+            const stepNodeB = stepNodeIndex[branch.steps[i].id];
 
             if(getCanonicalStepText(stepNodeA) != getCanonicalStepText(stepNodeB)) {
                 return false;
@@ -263,14 +263,14 @@ class Branch {
     updateHash(stepNodeIndex) {
         let combinedStr = '';
         this.steps.forEach(step => {
-            let stepNode = stepNodeIndex[step.id];
+            const stepNode = stepNodeIndex[step.id];
             let codeBlock = '';
 
             if(stepNode.hasCodeBlock()) {
                 codeBlock = stepNode.codeBlock;
             }
             else if(Object.prototype.hasOwnProperty.call(step, 'fid')) {
-                let functionDeclarationNode = stepNodeIndex[step.fid];
+                const functionDeclarationNode = stepNodeIndex[step.fid];
                 if(functionDeclarationNode.hasCodeBlock()) {
                     codeBlock = functionDeclarationNode.codeBlock;
                 }
@@ -343,22 +343,22 @@ class Branch {
 
         function clearDataOfSteps(self) {
             for(let i = 0; i < self.steps.length; i++) {
-                let step = self.steps[i];
+                const step = self.steps[i];
 
                 // Save the properties of step we want to keep
-                let id = step.id;
-                let fid = step.fid;
-                let level = step.level;
-                let isFailed = step.isFailed;
-                let isSkipped = step.isSkipped;
-                let isRunning = step.isRunning;
+                const id = step.id;
+                const fid = step.fid;
+                const level = step.level;
+                const isFailed = step.isFailed;
+                const isSkipped = step.isSkipped;
+                const isRunning = step.isRunning;
                 let isPassed = undefined;
                 if(!self.isPassed) { // omit step.isPassed when the branch passes (it will be implied by the branch passing)
                     isPassed = step.isPassed;
                 }
 
                 // Clear out step
-                for(let key in step) {
+                for(const key in step) {
                     delete step[key];
                 }
 
@@ -416,7 +416,7 @@ class Branch {
       */
     finishOffBranch(stepDataMode) {
         for(let i = 0; i < this.steps.length; i++) {
-            let step = this.steps[i];
+            const step = this.steps[i];
             if(step.isFailed) {
                 this.markBranch('fail', undefined, stepDataMode);
                 return;
@@ -447,7 +447,7 @@ class Branch {
       * @return {Object} An Object representing this branch, but able to be converted to JSON and only containing the most necessary stuff for a report
       */
     serialize() {
-        let o = {
+        const o = {
             steps: this.steps.map(step => step.serialize())
         };
 

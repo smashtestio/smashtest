@@ -92,7 +92,7 @@ class StepNode {
             return this;
         }
 
-        let matches = line.match(Constants.LINE_WHOLE);
+        const matches = line.match(Constants.LINE_WHOLE);
         if(!matches) {
             utils.error('This step is not written correctly', filename, lineNumber); // NOTE: probably unreachable (LINE_WHOLE can match anything)
         }
@@ -242,8 +242,8 @@ class StepNode {
 
         // Validate hook steps
         if(this.isHook) {
-            let canStepText = utils.canonicalize(this.text);
-            let index = Constants.HOOK_NAMES.indexOf(canStepText);
+            const canStepText = utils.canonicalize(this.text);
+            const index = Constants.HOOK_NAMES.indexOf(canStepText);
             if(index == -1) {
                 utils.error('Invalid hook name', filename, lineNumber);
             }
@@ -265,10 +265,10 @@ class StepNode {
                 utils.error('A step setting {variables} cannot start with a *', filename, lineNumber);
             }
 
-            let varsBeingSet = this.getVarsBeingSet();
+            const varsBeingSet = this.getVarsBeingSet();
 
             for(let i = 0; i < varsBeingSet.length; i++) {
-                let varBeingSet = varsBeingSet[i];
+                const varBeingSet = varsBeingSet[i];
 
                 // Generate variable name validations
                 if(varBeingSet.name.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
@@ -286,7 +286,7 @@ class StepNode {
 
                 // Validations
                 for(let i = 0; i < varsBeingSet.length; i++) {
-                    let varBeingSet = varsBeingSet[i];
+                    const varBeingSet = varsBeingSet[i];
 
                     if(varBeingSet.value.trim() == '') {
                         utils.error('A {variable} must be set to something', filename, lineNumber);
@@ -299,7 +299,7 @@ class StepNode {
             else {
                 // This step is {var}=Func or {var}='str' (only one var being set)
 
-                let varBeingSet = varsBeingSet[0];
+                const varBeingSet = varsBeingSet[0];
                 if(!varBeingSet.value.match(Constants.STRING_LITERAL_WHOLE)) {
                     // This step is {var}=Func
 
@@ -347,7 +347,7 @@ class StepNode {
      * If this.text is in format {var1}=Step1, {{var2}}=Step2, etc., the returned array will contain objects {name: "var1", value: "Step1", isLocal: false}, {name: "var2", value: "Step2", isLocal: true} etc.
      */
     getVarsBeingSet() {
-        let varsBeingSet = [];
+        const varsBeingSet = [];
         let textCopy = this.text + '';
         let matches = textCopy.match(Constants.VARS_SET_WHOLE);
 
@@ -371,7 +371,7 @@ class StepNode {
      */
     getFunctionCallText() {
         if(this.isFunctionCall) {
-            let varsBeingSet = this.getVarsBeingSet();
+            const varsBeingSet = this.getVarsBeingSet();
             if(varsBeingSet && varsBeingSet.length == 1) { // {var} = Func
                 return varsBeingSet[0].value;
             }
@@ -392,7 +392,7 @@ class StepNode {
      */
     isFunctionMatch(functionDeclarationNode) {
         let functionCallText = this.canon;
-        let functionDeclarationText = functionDeclarationNode.canon;
+        const functionDeclarationText = functionDeclarationNode.canon;
         if(functionCallText == functionDeclarationText) {
             return true;
         }
@@ -437,7 +437,7 @@ class StepNode {
      * @return {Object} An Object representing this step node, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        let o = {
+        const o = {
             id: this.id
         };
 

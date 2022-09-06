@@ -46,9 +46,9 @@ class Reporter {
      * @return {String} Absolute path of smashtest/ folder
      */
     getPathFolder() {
-        let initialFolder = this.history ? path.join('smashtest', 'reports', `smashtest-${dateFormat}`) : 'smashtest';
-        let smashtestFolder = this.reportPath === '' ? path.join(process.cwd(), 'smashtest') : path.join(this.reportPath, 'smashtest');
-        let folder = this.reportPath === '' ? path.join(process.cwd(), initialFolder) : path.join(this.reportPath, initialFolder);
+        const initialFolder = this.history ? path.join('smashtest', 'reports', `smashtest-${dateFormat}`) : 'smashtest';
+        const smashtestFolder = this.reportPath === '' ? path.join(process.cwd(), 'smashtest') : path.join(this.reportPath, 'smashtest');
+        const folder = this.reportPath === '' ? path.join(process.cwd(), initialFolder) : path.join(this.reportPath, initialFolder);
 
         reportFilename = path.join(folder, 'report.html');
         reportDataFilename = path.join(folder, 'report-data.js');
@@ -79,10 +79,10 @@ class Reporter {
     async start() {
         // Clear out existing screenshots (one by one)
         try {
-            let files = fs.readdirSync(smashtestSSDir);
-            for(let file of files) {
-                let match = file.match(/[^_]+/);
-                let hash = match ? match[0] : null;
+            const files = fs.readdirSync(smashtestSSDir);
+            for(const file of files) {
+                const match = file.match(/[^_]+/);
+                const hash = match ? match[0] : null;
                 // If we're doing --skip-passed, delete a screenshot only if the branch didn't pass last time
                 if(!this.runner.skipPassed || !this.tree.branches.find(branch => branch.hash == hash && branch.passedLastTime)) {
                     fs.unlinkSync(path.join(smashtestSSDir, file));
@@ -96,7 +96,7 @@ class Reporter {
         }
 
         // Load template
-        let buffers = await readFiles([path.join(path.dirname(require.main.filename), 'report-template.html')] , {encoding: 'utf8'});
+        const buffers = await readFiles([path.join(path.dirname(require.main.filename), 'report-template.html')] , {encoding: 'utf8'});
         if(!buffers || !buffers[0]) {
             utils.error('report-template.html not found');
         }
@@ -144,9 +144,9 @@ class Reporter {
     async startServer() {
         // Set port and fill reportDomain
         let port = null;
-        let portConfig = {port: getPort.makeRange(9000,9999)}; // avoid 8000's, since that's where localhost apps tend to be run
+        const portConfig = {port: getPort.makeRange(9000,9999)}; // avoid 8000's, since that's where localhost apps tend to be run
         if(this.reportDomain) {
-            let matches = this.reportDomain.match(/:([0-9]+)/);
+            const matches = this.reportDomain.match(/:([0-9]+)/);
             if(matches && matches[1]) { // reportDomain has a domain and port
                 port = parseInt(matches[1]);
             }
@@ -212,7 +212,7 @@ class Reporter {
         this.reportTime = new Date();
 
         // Generate report data file
-        let reportData = 'onReportData(String.raw`' + utils.escapeBackticks(JSON.stringify({
+        const reportData = 'onReportData(String.raw`' + utils.escapeBackticks(JSON.stringify({
             tree: this.tree.serialize(MAX_BRANCHES_PER_TYPE, MAX_BRANCHES_PER_FAILED),
             runner: this.runner.serialize(),
             reportTime: this.reportTime,
@@ -220,7 +220,7 @@ class Reporter {
         })) + '`);';
 
         // Generate passed data file
-        let passedData = this.tree.serializePassed();
+        const passedData = this.tree.serializePassed();
 
         // Write report, report data, and passed data to disk
         await Promise.all([
@@ -240,7 +240,7 @@ class Reporter {
         // Have this function get called again in a certain period of time
         if(!this.stopped) {
             // The more branches there are, the longer it takes to serialize, the less often this function should get called
-            let timeout = this.tree.branches.length <= 100000 ? 30000 : 300000; // every 30 secs or 5 mins
+            const timeout = this.tree.branches.length <= 100000 ? 30000 : 300000; // every 30 secs or 5 mins
             this.timerFull = setTimeout(() => this.writeFull(), timeout);
         }
     }
@@ -253,7 +253,7 @@ class Reporter {
             const MAX_CURRENTLY_RUNNING_IN_SNAPSHOT = 20;
 
             // Send snapshot to all connected websockets
-            let snapshot = JSON.stringify({
+            const snapshot = JSON.stringify({
                 snapshot: true,
                 tree: this.tree.serializeSnapshot(MAX_CURRENTLY_RUNNING_IN_SNAPSHOT, this.prevSnapshot ? this.prevSnapshot.tree : undefined),
                 runner: this.runner.serialize()
@@ -269,7 +269,7 @@ class Reporter {
         // Have this function get called again in a certain period of time
         if(!this.stopped) {
             // The more branches there are, the longer it takes to serialize, the less often this function should get called
-            let timeout = this.tree.branches.length <= 100000 ? 1000 : 5000; // every 1 or 5 secs
+            const timeout = this.tree.branches.length <= 100000 ? 1000 : 5000; // every 1 or 5 secs
             this.timerSnapshot = setTimeout(() => this.writeSnapshot(), timeout);
         }
     }
