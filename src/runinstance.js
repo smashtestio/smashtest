@@ -428,16 +428,16 @@ class RunInstance {
                 return true;
             }
 
-            e = this.validateError(e);
+            let ex = this.validateError(e);
 
-            this.fillErrorFromStep(e, step, true);
+            this.fillErrorFromStep(ex, step, true);
 
             if(this.runner.outputErrors) {
-                this.outputError(e, stepNode);
+                this.outputError(ex, stepNode);
             }
 
             if(stepToGetError) {
-                this.tree.markHookStep('fail', stepToGetError, stepToGetError.error ? undefined : e); // do not set stepToGetError.error if it's already set
+                this.tree.markHookStep('fail', stepToGetError, stepToGetError.error ? undefined : ex); // do not set stepToGetError.error if it's already set
 
                 if(branchToGetError) {
                     branchToGetError.markBranch('fail', undefined, this.tree.stepDataMode);
@@ -445,9 +445,9 @@ class RunInstance {
             }
             else if(branchToGetError) {
                 if(branchToGetError.error) { // do not set branchToGetError.error if it's already set
-                    e = undefined;
+                    ex = undefined;
                 }
-                branchToGetError.markBranch('fail', e, this.tree.stepDataMode);
+                branchToGetError.markBranch('fail', ex, this.tree.stepDataMode);
             }
 
             return false;
@@ -763,6 +763,7 @@ class RunInstance {
                 if(!isPath) {
                     // search for node_modules in every directory up the file's path
                     let currPath = path.dirname(filename);
+                    // eslint-disable-next-line no-constant-condition
                     while(true) {
                         try {
                             let packageNameAttempt = path.join(currPath, 'node_modules', packageName);
@@ -912,20 +913,8 @@ class RunInstance {
         else {
             let timerPromise = this.setStepTimer();
 
-            // Doing this instead of putting async on top of evalCodeBlock(), because we want evalCodeBlock() to return both values and promises, depending on the value of isSync
-            let mainPromise = new Promise(async (resolve, reject) => {
-                let error = null;
-                let retVal = null;
-                try {
-                    retVal = await eval(code);
-                }
-                catch(e) {
-                    error = e;
-                    reject(e);
-                }
-                if(!error) {
-                    resolve(retVal);
-                }
+            let mainPromise = new Promise((resolve) => {
+                resolve(eval(code));
             });
 
             return Promise.race([

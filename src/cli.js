@@ -102,7 +102,7 @@ function processFlag(name, value) {
         }
 
         let varName = null;
-        matches = name.match(/^(g|p):(.*)$/);
+        let matches = name.match(/^(g|p):(.*)$/);
         if(matches) {
             name = matches[1];
             varName = matches[2];
@@ -180,6 +180,7 @@ Options
   --version                                Output the version of Smashtest (-v)
 `);
             process.exit();
+            break;
 
         case 'max-parallel':
             if(!value.match(/^[0-9]+$/) || parseInt(value) == 0) {
@@ -295,6 +296,7 @@ Options
             // Version already printed to console when executable started
             noValue();
             process.exit();
+            break;
 
         default:
             utils.error(`Invalid flag '${name}'. See --help for details.`);
@@ -371,8 +373,8 @@ function plural(count) {
      * Outputs info to the console that comes before the REPL prompt
      */
     function prePrompt() {
-        nextStep = runner.getNextReadyStep();
-        prevStep = runner.getLastStep();
+        let nextStep = runner.getNextReadyStep();
+        let prevStep = runner.getLastStep();
 
         if(nextStep) {
             console.log(`Next step: [ ${chalk.gray(tree.stepNodeIndex[nextStep.id].text.trim())} ]`);
@@ -468,7 +470,9 @@ function plural(count) {
         try {
             fileBuffers = await readFiles([ CONFIG_FILENAME ], {encoding: 'utf8'});
         }
-        catch(e) {} // it's ok if there's no config file
+        catch(e) {
+            // it's ok if there's no config file
+        }
 
         if(fileBuffers && fileBuffers.length > 0) {
             let config = null;
@@ -479,7 +483,7 @@ function plural(count) {
                 utils.error(`Syntax error in ${CONFIG_FILENAME}`);
             }
 
-            for(name in config) {
+            for(let name in config) {
                 processFlag(name, config[name]);
             }
         }
@@ -564,9 +568,6 @@ function plural(count) {
         process.stdout.write('Generating branches...\x1B[?25l'); // temporary message + hide cursor
         try {
             runner.init(tree);
-        }
-        catch(e) {
-            throw e;
         }
         finally {
             // Remove "Generating branches..."
