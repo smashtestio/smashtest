@@ -95,7 +95,7 @@ class StepNode {
 
         let matches = line.match(Constants.LINE_WHOLE);
         if(!matches) {
-            utils.error(`This step is not written correctly`, filename, lineNumber); // NOTE: probably unreachable (LINE_WHOLE can match anything)
+            utils.error('This step is not written correctly', filename, lineNumber); // NOTE: probably unreachable (LINE_WHOLE can match anything)
         }
 
         // Parsed parts of the line
@@ -155,19 +155,19 @@ class StepNode {
 
         // Validation against prohibited step texts
         if(this.text.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
-            utils.error(`Invalid step name`, filename, lineNumber);
+            utils.error('Invalid step name', filename, lineNumber);
         }
 
         // Function Declaration
         if(this.isFunctionDeclaration) {
             if(this.text.match(Constants.STRING_LITERAL)) {
-                utils.error(`A function declaration cannot have 'strings', "strings", or [strings] inside of it`, filename, lineNumber);
+                utils.error('A function declaration cannot have \'strings\', "strings", or [strings] inside of it', filename, lineNumber);
             }
         }
         else { // not a function declaration
             // Validate that a non-function declaration isn't using a hook step name
             if(Constants.HOOK_NAMES.indexOf(utils.canonicalize(this.text)) != -1) {
-                utils.error(`You cannot have a function call with that name. That's reserved for hook function declarations.`, filename, lineNumber);
+                utils.error('You cannot have a function call with that name. That\'s reserved for hook function declarations.', filename, lineNumber);
             }
         }
 
@@ -199,13 +199,13 @@ class StepNode {
                 this.isTextualStep = true;
 
                 if(this.isMultiBlockFunctionDeclaration) {
-                    utils.error(`A named step block ([) cannot be a textual step (-) as well`, filename, lineNumber);
+                    utils.error('A named step block ([) cannot be a textual step (-) as well', filename, lineNumber);
                 }
                 else if(this.isFunctionDeclaration) {
-                    utils.error(`A function declaration cannot be a textual step (-) as well`, filename, lineNumber);
+                    utils.error('A function declaration cannot be a textual step (-) as well', filename, lineNumber);
                 }
                 else if(this.hasCodeBlock()) {
-                    utils.error(`A step with a code block cannot be a textual step (-) as well`, filename, lineNumber);
+                    utils.error('A step with a code block cannot be a textual step (-) as well', filename, lineNumber);
                 }
             }
             if(this.modifiers.includes('~~')) {
@@ -247,11 +247,11 @@ class StepNode {
             let stepText = this.text.trim().replace(/\s+/g, ' ');
             let index = Constants.HOOK_NAMES.indexOf(canStepText);
             if(index == -1) {
-                utils.error(`Invalid hook name`, filename, lineNumber);
+                utils.error('Invalid hook name', filename, lineNumber);
             }
             else {
                 if(!this.hasCodeBlock()) {
-                    utils.error(`A hook must have a code block`, filename, lineNumber);
+                    utils.error('A hook must have a code block', filename, lineNumber);
                 }
                 if(this.modifiers && this.modifiers.length > 0) {
                     utils.error(`A hook cannot have any modifiers (${this.modifiers[0]})`, filename, lineNumber);
@@ -264,7 +264,7 @@ class StepNode {
             // This step is a {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (one or more vars)
 
             if(this.isFunctionDeclaration) {
-                utils.error(`A step setting {variables} cannot start with a *`, filename, lineNumber);
+                utils.error('A step setting {variables} cannot start with a *', filename, lineNumber);
             }
 
             let varsBeingSet = this.getVarsBeingSet();
@@ -274,12 +274,12 @@ class StepNode {
 
                 // Generate variable name validations
                 if(varBeingSet.name.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
-                    utils.error(`A {variable name} cannot be just numbers`, filename, lineNumber);
+                    utils.error('A {variable name} cannot be just numbers', filename, lineNumber);
                 }
 
                 // Variable names cannot end in a * (that's reserved for lookahead vars)
                 if(varBeingSet.name.match(/\*\s*$/)) {
-                    utils.error(`A variable name to the left of an = cannot end in a *`, filename, lineNumber);
+                    utils.error('A variable name to the left of an = cannot end in a *', filename, lineNumber);
                 }
             }
 
@@ -291,10 +291,10 @@ class StepNode {
                     let varBeingSet = varsBeingSet[i];
 
                     if(varBeingSet.value.trim() == '') {
-                        utils.error(`A {variable} must be set to something`, filename, lineNumber);
+                        utils.error('A {variable} must be set to something', filename, lineNumber);
                     }
                     if(!varBeingSet.value.match(Constants.STRING_LITERAL_WHOLE)) {
-                        utils.error(`When multiple {variables} are being set on a single line, those {variables} can only be set to 'strings', "strings", or [strings]`, filename, lineNumber);
+                        utils.error('When multiple {variables} are being set on a single line, those {variables} can only be set to \'strings\', "strings", or [strings]', filename, lineNumber);
                     }
                 }
             }
@@ -312,13 +312,13 @@ class StepNode {
 
                     // Validations
                     if(varBeingSet.value.trim() == '') {
-                        utils.error(`A {variable} must be set to something`, filename, lineNumber);
+                        utils.error('A {variable} must be set to something', filename, lineNumber);
                     }
                     if(varBeingSet.value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
-                        utils.error(`{vars} can only be set to 'strings', "strings", or [strings]`, filename, lineNumber);
+                        utils.error('{vars} can only be set to \'strings\', "strings", or [strings]', filename, lineNumber);
                     }
                     if(this.isTextualStep) {
-                        utils.error(`A textual step (ending in -) cannot also start with a {variable} assignment`, filename, lineNumber);
+                        utils.error('A textual step (ending in -) cannot also start with a {variable} assignment', filename, lineNumber);
                     }
                 }
             }
@@ -350,7 +350,7 @@ class StepNode {
      */
     getVarsBeingSet() {
         let varsBeingSet = [];
-        let textCopy = this.text + "";
+        let textCopy = this.text + '';
         let matches = textCopy.match(Constants.VARS_SET_WHOLE);
 
         while(matches) {

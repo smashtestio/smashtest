@@ -1,11 +1,11 @@
-const fs = require("fs");
-const path = require("path");
-const readFiles = require("read-files-promise");
-const mustache = require("mustache");
-const utils = require("./utils.js");
-const chalk = require("chalk");
-const getPort = require("get-port");
-const WebSocket = require("ws");
+const fs = require('fs');
+const path = require('path');
+const readFiles = require('read-files-promise');
+const mustache = require('mustache');
+const utils = require('./utils.js');
+const chalk = require('chalk');
+const getPort = require('get-port');
+const WebSocket = require('ws');
 const date = require('date-and-time');
 
 let reportFilename,
@@ -25,7 +25,7 @@ class Reporter {
         this.tree = tree;               // the Tree object to report on
         this.runner = runner;           // the Runner object to report on
 
-        this.reportTemplate = "";       // template for html reports
+        this.reportTemplate = '';       // template for html reports
         this.reportTime = null;         // Date when the report was generated
 
         this.isReportServer = true;     // whether or not to run the report server
@@ -39,7 +39,7 @@ class Reporter {
 
         this.stopped = false;           // true if this Reporter has been stopped
 
-        this.reportPath = "";           // custom absolute path for the smashtest folder sent in by user
+        this.reportPath = '';           // custom absolute path for the smashtest folder sent in by user
         this.history = false;           // activate history for reporting
     }
 
@@ -47,15 +47,15 @@ class Reporter {
      * @return {String} Absolute path of smashtest/ folder
      */
     getPathFolder() {
-        let initialFolder = this.history ? path.join(`smashtest`, `reports`, `smashtest-${dateFormat}`) : `smashtest`;
-        let smashtestFolder = this.reportPath === "" ? path.join(process.cwd(), `smashtest`) : path.join(this.reportPath, `smashtest`);
-        let folder = this.reportPath === "" ? path.join(process.cwd(), initialFolder) : path.join(this.reportPath, initialFolder);
+        let initialFolder = this.history ? path.join('smashtest', 'reports', `smashtest-${dateFormat}`) : 'smashtest';
+        let smashtestFolder = this.reportPath === '' ? path.join(process.cwd(), 'smashtest') : path.join(this.reportPath, 'smashtest');
+        let folder = this.reportPath === '' ? path.join(process.cwd(), initialFolder) : path.join(this.reportPath, initialFolder);
 
-        reportFilename = path.join(folder, "report.html");
-        reportDataFilename = path.join(folder, "report-data.js");
-        passedDataFilename = path.join(smashtestFolder, "passed-data");
-        passedDataFilenameHistory = path.join(folder, "passed-data");
-        smashtestSSDir = path.join(folder, "screenshots");
+        reportFilename = path.join(folder, 'report.html');
+        reportDataFilename = path.join(folder, 'report-data.js');
+        passedDataFilename = path.join(smashtestFolder, 'passed-data');
+        passedDataFilenameHistory = path.join(folder, 'passed-data');
+        smashtestSSDir = path.join(folder, 'screenshots');
 
         return folder;
     }
@@ -64,7 +64,7 @@ class Reporter {
      * @return {String} Absolute path of the report html file
      */
     getFullReportPath() {
-        return path.join(this.getPathFolder(), "report.html");
+        return path.join(this.getPathFolder(), 'report.html');
     }
 
     /**
@@ -91,15 +91,15 @@ class Reporter {
             }
         }
         catch(e) {
-            if(!e.message.includes(`no such file or directory, scandir`)) { // not finding the dir is ok
+            if(!e.message.includes('no such file or directory, scandir')) { // not finding the dir is ok
                 throw e;
             }
         }
 
         // Load template
-        let buffers = await readFiles([path.join(path.dirname(require.main.filename), `report-template.html`)] , {encoding: 'utf8'});
+        let buffers = await readFiles([path.join(path.dirname(require.main.filename), 'report-template.html')] , {encoding: 'utf8'});
         if(!buffers || !buffers[0]) {
-            utils.error(`report-template.html not found`);
+            utils.error('report-template.html not found');
         }
         this.reportTemplate = buffers[0];
 
@@ -153,7 +153,7 @@ class Reporter {
             }
             else { // reportDomain only has a domain
                 port = await getPort(portConfig);
-                this.reportDomain += ":" + port;
+                this.reportDomain += ':' + port;
             }
         }
         else { // reportDomain has nothing
@@ -166,7 +166,7 @@ class Reporter {
 
         this.wsServer.on('connection', (ws) => {
             ws.on('message', (message) => {
-                const ERR_MSG = `Invalid origin`;
+                const ERR_MSG = 'Invalid origin';
                 let isError = false;
                 try {
                     // message must be { origin: absolute filename or domain:port of client }
@@ -197,7 +197,7 @@ class Reporter {
                 }
 
                 if(!isError) {
-                    ws.send(`{ "dataUpdate": true }`);
+                    ws.send('{ "dataUpdate": true }');
                 }
             });
         });
@@ -234,7 +234,7 @@ class Reporter {
         // Notify all connected websockets that new data is available on disk
         if(this.isReportServer && this.wsServer) {
             this.wsServer.clients.forEach(client => {
-                client.send(`{ "dataUpdate": true }`);
+                client.send('{ "dataUpdate": true }');
             });
         }
 
@@ -282,7 +282,7 @@ class Reporter {
     async markPassedFromPrevRun(filename) {
         filename = filename || passedDataFilename;
         console.log(`Including passed branches from: ${chalk.gray(filename)}`);
-        console.log("");
+        console.log('');
 
         let fileBuffers = null;
         try {

@@ -23,8 +23,8 @@ const Constants = require('./constants.js');
 let isReport = true;
 let isRecursive = false;
 
-const yellowChalk = chalk.hex("#ffb347");
-const hRule = chalk.gray("─".repeat(process.stdout.columns));
+const yellowChalk = chalk.hex('#ffb347');
+const hRule = chalk.gray('─'.repeat(process.stdout.columns));
 
 const CONFIG_FILENAME = 'smashtest.json';
 
@@ -34,8 +34,8 @@ let fullRun = false;
 const version = require('../package.json').version;
 
 console.log(hRule);
-console.log(yellowChalk.bold("Smashtest " + version));
-console.log("");
+console.log(yellowChalk.bold('Smashtest ' + version));
+console.log('');
 
 // ***************************************
 //  Exit and cleanup
@@ -43,16 +43,16 @@ console.log("");
 
 function setSigint() {
     process.on('SIGINT', () => { // Ctrl + C (except when REPL is open)
-        console.log("");
-        console.log("");
+        console.log('');
+        console.log('');
         exit(true);
     });
 }
 
 async function exit(forcedStop, exitCode) {
     if(forcedStop) {
-        console.log("Stopping...");
-        console.log("");
+        console.log('Stopping...');
+        console.log('');
     }
 
     restoreCursor();
@@ -109,38 +109,38 @@ function processFlag(name, value) {
         }
 
         switch(name.toLowerCase()) {
-            case "a":
-                noValue();
-                runner.skipPassed = false;
-                break;
+        case 'a':
+            noValue();
+            runner.skipPassed = false;
+            break;
 
-            case "debug":
-                if(!value) {
-                    utils.error(`debug flag must be set to a hash`);
-                }
-                runner.debugHash = value;
-                break;
+        case 'debug':
+            if(!value) {
+                utils.error('debug flag must be set to a hash');
+            }
+            runner.debugHash = value;
+            break;
 
-            case "g":
-                runner.globalInit[varName] = value;
-                break;
+        case 'g':
+            runner.globalInit[varName] = value;
+            break;
 
-            case "groups":
-                if(!value) {
-                    utils.error(`groups flag must include a group expression`);
-                }
-                runner.groups = value.split(/\s*\,\s*/)
-                                     .map(group =>
-                                        group.split(/\s*\+\s*/));
-                break;
+        case 'groups':
+            if(!value) {
+                utils.error('groups flag must include a group expression');
+            }
+            runner.groups = value.split(/\s*\,\s*/)
+                .map(group =>
+                    group.split(/\s*\+\s*/));
+            break;
 
-            case "headless":
-                runner.headless = boolValue();
-                break;
+        case 'headless':
+            runner.headless = boolValue();
+            break;
 
-            case "help":
-            case "?":
-                console.log(`Usage: smashtest [files] [options]
+        case 'help':
+        case '?':
+            console.log(`Usage: smashtest [files] [options]
 
 Files
 
@@ -179,126 +179,126 @@ Options
   --test-server=<url>                      Location of test server (e.g., http://localhost:4444/wd/hub for selenium server)
   --version                                Output the version of Smashtest (-v)
 `);
-                process.exit();
+            process.exit();
 
-            case "max-parallel":
-                if(!value.match(/^[0-9]+$/) || parseInt(value) == 0) {
-                    utils.error(`Invalid max-parallel. It must be a positive integer above 0.`);
-                }
+        case 'max-parallel':
+            if(!value.match(/^[0-9]+$/) || parseInt(value) == 0) {
+                utils.error('Invalid max-parallel. It must be a positive integer above 0.');
+            }
 
-                runner.maxParallel = parseInt(value);
-                break;
+            runner.maxParallel = parseInt(value);
+            break;
 
-            case "max-screenshots":
-                if(!value.match(/^[0-9]+$/) || parseInt(value) == 0) {
-                    utils.error(`Invalid max-screenshots. It must be a positive integer above 0.`);
-                }
+        case 'max-screenshots':
+            if(!value.match(/^[0-9]+$/) || parseInt(value) == 0) {
+                utils.error('Invalid max-screenshots. It must be a positive integer above 0.');
+            }
 
-                runner.maxScreenshots = parseInt(value);
-                break;
+            runner.maxScreenshots = parseInt(value);
+            break;
 
-            case "min-frequency":
-                if(Constants.FREQUENCIES.indexOf(value) == -1) {
-                    utils.error(`Invalid min-frequency. It must be either 'high', 'med', or 'low'.`);
-                }
-                runner.minFrequency = value;
-                break;
+        case 'min-frequency':
+            if(Constants.FREQUENCIES.indexOf(value) == -1) {
+                utils.error('Invalid min-frequency. It must be either \'high\', \'med\', or \'low\'.');
+            }
+            runner.minFrequency = value;
+            break;
 
-            case "no-debug":
-                noValue();
-                runner.noDebug = true;
-                break;
+        case 'no-debug':
+            noValue();
+            runner.noDebug = true;
+            break;
 
-            case "output-errors":
-                runner.outputErrors = boolValue();
-                break;
+        case 'output-errors':
+            runner.outputErrors = boolValue();
+            break;
 
-            case "p":
-                runner.persistent[varName] = value;
-                break;
+        case 'p':
+            runner.persistent[varName] = value;
+            break;
 
-            case "random":
-                runner.random = boolValue();
-                break;
+        case 'random':
+            runner.random = boolValue();
+            break;
 
-            case "recursive":
-                noValue();
-                isRecursive = true;
-                break;
+        case 'recursive':
+            noValue();
+            isRecursive = true;
+            break;
 
-            case "repl":
-            case "r":
-                noValue();
-                runner.isRepl = true;
-                break;
+        case 'repl':
+        case 'r':
+            noValue();
+            runner.isRepl = true;
+            break;
 
-            case "report-domain":
-                if(!value.match(/^[^\/\: ]+(\:[0-9]+)?$/)) {
-                    utils.error(`Invalid report-domain. It must be in the format 'domain' or 'domain:port'.`);
-                }
-                reporter.reportDomain = value;
-                break;
+        case 'report-domain':
+            if(!value.match(/^[^\/\: ]+(\:[0-9]+)?$/)) {
+                utils.error('Invalid report-domain. It must be in the format \'domain\' or \'domain:port\'.');
+            }
+            reporter.reportDomain = value;
+            break;
 
-            case "report-server":
-                reporter.isReportServer = boolValue();
-                break;
+        case 'report-server':
+            reporter.isReportServer = boolValue();
+            break;
 
-            case "report-path":
-                reporter.reportPath = value;
-                break;
+        case 'report-path':
+            reporter.reportPath = value;
+            break;
 
-            case "report-history":
-                reporter.history = boolValue();
-                break;
+        case 'report-history':
+            reporter.history = boolValue();
+            break;
 
-            case "s":
-                noValue();
+        case 's':
+            noValue();
+            runner.skipPassed = true;
+            break;
+
+        case 'screenshots':
+            runner.screenshots = boolValue();
+            break;
+
+        case 'skip-passed':
+            if(value == 'true') {
                 runner.skipPassed = true;
-                break;
+            }
+            else if(value == 'false') {
+                runner.skipPassed = false;
+            }
+            else {
+                runner.skipPassed = value;
+            }
+            break;
 
-            case "screenshots":
-                runner.screenshots = boolValue();
-                break;
+        case 'step-data':
+            if(!value.match(/all|fail|none/)) {
+                utils.error('Invalid step-data. It must be \'all\', \'fail\', or \'none\'.');
+            }
+            tree.stepDataMode = value;
+            break;
 
-            case "skip-passed":
-                if(value == 'true') {
-                    runner.skipPassed = true;
-                }
-                else if(value == 'false') {
-                    runner.skipPassed = false;
-                }
-                else {
-                    runner.skipPassed = value;
-                }
+        case 'test-server':
+            if(value == '') {
+                runner.testServer = undefined; // --test-server="" is the same as not setting test-server at all
                 break;
+            }
+            if(!value.match(/^https?:\/\/.*$/)) {
+                utils.error('Invalid test-server. It must be in the format \'http://...\' or \'https://...\'.');
+            }
+            runner.testServer = value;
+            break;
 
-            case "step-data":
-                if(!value.match(/all|fail|none/)) {
-                    utils.error(`Invalid step-data. It must be 'all', 'fail', or 'none'.`);
-                }
-                tree.stepDataMode = value;
-                break;
+        case 'version':
+        case 'v':
+            // Version already printed to console when executable started
+            noValue();
+            process.exit();
 
-            case "test-server":
-                if(value == "") {
-                    runner.testServer = undefined; // --test-server="" is the same as not setting test-server at all
-                    break;
-                }
-                if(!value.match(/^https?:\/\/.*$/)) {
-                    utils.error(`Invalid test-server. It must be in the format 'http://...' or 'https://...'.`);
-                }
-                runner.testServer = value;
-                break;
-
-            case "version":
-            case "v":
-                // Version already printed to console when executable started
-                noValue();
-                process.exit();
-
-            default:
-                utils.error(`Invalid flag '${name}'. See --help for details.`);
-                break;
+        default:
+            utils.error(`Invalid flag '${name}'. See --help for details.`);
+            break;
         }
 
         runner.flags[name] = value;
@@ -354,10 +354,10 @@ function restoreCursor() {
  */
 function plural(count) {
     if(count == 1) {
-        return "";
+        return '';
     }
     else {
-        return "es";
+        return 'es';
     }
 }
 
@@ -376,25 +376,25 @@ function plural(count) {
 
         if(nextStep) {
             console.log(`Next step: [ ${chalk.gray(tree.stepNodeIndex[nextStep.id].text.trim())} ]`);
-            console.log(chalk.gray("enter = run next, p = run previous, s = skip, r = resume, x = exit, or enter step to run it"));
+            console.log(chalk.gray('enter = run next, p = run previous, s = skip, r = resume, x = exit, or enter step to run it'));
         }
         else if(prevStep) {
-            console.log(chalk.gray("Passed the very last step"));
-            console.log(chalk.gray("enter or x = exit, p = run previous, or enter step to run it"));
+            console.log(chalk.gray('Passed the very last step'));
+            console.log(chalk.gray('enter or x = exit, p = run previous, or enter step to run it'));
         }
         else {
-            console.log(chalk.gray("enter step to run it, enter or x = exit"));
+            console.log(chalk.gray('enter step to run it, enter or x = exit'));
         }
 
-        console.log("");
+        console.log('');
     }
 
     const wrapAction = (action) => {
         return async function() {
-            console.log("");
+            console.log('');
             await action.call(this);
-        }
-    }
+        };
+    };
 
     const commandsMap = {
         '': {
@@ -454,7 +454,7 @@ function plural(count) {
             name: 'editor',
             help: '(e) Enter editor mode'
         }
-    }
+    };
 
     try {
         // ***************************************
@@ -487,7 +487,7 @@ function plural(count) {
         // Sort command line arguments into filenames and flags
         for(let i = 2; i < process.argv.length; i++) {
             let arg = process.argv[i];
-            if(arg.startsWith("-")) {
+            if(arg.startsWith('-')) {
                 let matches = arg.match(/\-\-?([^\=]+)(\=(.*))?/);
                 if(!matches) {
                     utils.error(`Invalid argument: ${arg}`);
@@ -520,7 +520,7 @@ function plural(count) {
             });
 
             if(!smashFiles) {
-                utils.error("No files found");
+                utils.error('No files found');
             }
             else {
                 smashFiles.forEach(filename => filenames.push(filename));
@@ -534,7 +534,7 @@ function plural(count) {
         });
 
         if(!packageFilenames || packageFilenames.length == 0) {
-            utils.error("Make sure ../packages/ directory exists in the directory you're running this from");
+            utils.error('Make sure ../packages/ directory exists in the directory you\'re running this from');
         }
 
         // Read in all files
@@ -549,7 +549,7 @@ function plural(count) {
         fileBuffers = await readFiles(filenames, {encoding: 'utf8'});
 
         if(fileBuffers.length == 0) {
-            utils.error("No files found");
+            utils.error('No files found');
         }
 
         for(let i = 0; i < fileBuffers.length; i++) {
@@ -561,7 +561,7 @@ function plural(count) {
         // ***************************************
 
         // Generate branches
-        process.stdout.write("Generating branches...\x1B[?25l"); // temporary message + hide cursor
+        process.stdout.write('Generating branches...\x1B[?25l'); // temporary message + hide cursor
         try {
             runner.init(tree);
         }
@@ -599,7 +599,7 @@ function plural(count) {
         }
 
         if(tree.branches.length == 0 && !runner.isRepl) {
-            utils.error("0 branches generated from given files");
+            utils.error('0 branches generated from given files');
         }
 
         // --skip-passed
@@ -623,16 +623,16 @@ function plural(count) {
          * Outputs a message upon the completion of a run
          */
         function outputCompleteMessage(outputCounts) {
-            console.log(``);
-            console.log(yellowChalk("Run complete"));
+            console.log('');
+            console.log(yellowChalk('Run complete'));
             if(outputCounts) {
                 console.log(getCounts());
             }
             if(isReport && !reporter.history) {
-                console.log(`Report at: ` + chalk.gray.italic(reporter.getFullReportPath()));
+                console.log('Report at: ' + chalk.gray.italic(reporter.getFullReportPath()));
             }
 
-            console.log(``);
+            console.log('');
         }
 
         // Output header that contains number of branches to run and live report location
@@ -640,7 +640,7 @@ function plural(count) {
             tree.updateCounts();
 
             if(tree.counts.totalToRun == 0 && runner.skipPassed) {
-                console.log("No branches left to run. All branches have passed last time.");
+                console.log('No branches left to run. All branches have passed last time.');
                 outputCompleteMessage(true);
                 restoreCursor();
                 process.exit(0);
@@ -650,23 +650,23 @@ function plural(count) {
                 `${tree.counts.totalToRun} branch${plural(tree.counts.totalToRun)} to run` +
                 (isReport ?
                     ` | ${tree.counts.total} branch${plural(tree.counts.total)} total` :
-                    ``
+                    ''
                 ) +
                 (tree.isDebug ?
                     (
                         (tree.isExpressDebug ?
-                            ` | ` + yellowChalk(`In EXPRESS DEBUG mode`) :
-                            ` | ` + yellowChalk(`In DEBUG mode`)
+                            ' | ' + yellowChalk('In EXPRESS DEBUG mode') :
+                            ' | ' + yellowChalk('In DEBUG mode')
                         )
                     ) :
-                    ``
+                    ''
                 )
             );
             if(isReport) {
-                console.log(`Live report at: ` + chalk.gray.italic(reporter.getFullReportPath()));
+                console.log('Live report at: ' + chalk.gray.italic(reporter.getFullReportPath()));
             }
 
-            console.log(``);
+            console.log('');
         }
 
         if((tree.isDebug && !tree.isExpressDebug) || runner.isRepl) {
@@ -701,9 +701,9 @@ function plural(count) {
                 prePrompt();
 
                 replServer = repl.start({
-                    prompt: chalk.gray("> "),
+                    prompt: chalk.gray('> '),
                     completer: line => {
-                        process.stdout.write("    "); // enter a tab made up of 4 spaces
+                        process.stdout.write('    '); // enter a tab made up of 4 spaces
                         return []; // no autocomplete on tab
                     },
                     eval: async(input, context, filename, callback) => {
@@ -728,7 +728,7 @@ function plural(count) {
                         }
                         catch(e) {
                             console.log(e);
-                            console.log("");
+                            console.log('');
 
                             prePrompt();
                             callback(null);
@@ -736,7 +736,7 @@ function plural(count) {
                     }
                 });
 
-                const commands = Object.entries(commandsMap)
+                const commands = Object.entries(commandsMap);
                 for (let [shortcut, obj] of commands) {
                     if (obj.name) {
                         // Is built-in command? (e.g. 'help')
@@ -787,7 +787,7 @@ function plural(count) {
                         return matches[0];
                     }
                     else {
-                        return "";
+                        return '';
                     }
                 }
 
@@ -800,7 +800,7 @@ function plural(count) {
                         return matches[0];
                     }
                     else {
-                        return "";
+                        return '';
                     }
                 }
 
@@ -809,10 +809,10 @@ function plural(count) {
                  */
                 async function evalLine(input) {
                     if(codeBlockStep !== null) { // we're currently inputting a code block
-                        codeBlockStep += "\n" + input;
+                        codeBlockStep += '\n' + input;
                         if(
                             input.length == 0 ||
-                            input.trim() != "}" ||
+                            input.trim() != '}' ||
                             numberOfSpacesInFront(firstLine(codeBlockStep)) != numberOfSpacesInFront(lastLine(codeBlockStep))
                         ) { // not the end of code block input
                             return;
@@ -838,10 +838,10 @@ function plural(count) {
                                 let stepNode = new StepNode(0);
                                 stepNode.parseLine(input);
                                 if(stepNode.isMultiBlockFunctionDeclaration || stepNode.isMultiBlockFunctionCall) {
-                                    utils.error(`Cannot use step block brackets ([, ]) here`);
+                                    utils.error('Cannot use step block brackets ([, ]) here');
                                 }
                                 else if(stepNode.isFunctionDeclaration) {
-                                    utils.error(`Cannot define a function declaration or hook here`);
+                                    utils.error('Cannot define a function declaration or hook here');
                                 }
                                 else if(stepNode.hasCodeBlock()) {
                                     // A code block has started. Continue inputting lines until a } is inputted.
@@ -855,7 +855,7 @@ function plural(count) {
                             codeBlockStep = null;
                         }
 
-                        console.log("");
+                        console.log('');
                         await runner.inject(input);
                     }
 
@@ -937,7 +937,7 @@ function plural(count) {
                     barsize: 25,
                     hideCursor: true,
                     linewrap: true,
-                    format: "{bar} {percentage}% | "
+                    format: '{bar} {percentage}% | '
                 }, progress.Presets.shades_classic);
             }
 
@@ -947,7 +947,7 @@ function plural(count) {
             function outputCounts() {
                 tree.updateCounts();
                 process.stdout.write(
-                    (elapsed ? (`${elapsed} | `) : ``) + getCounts()
+                    (elapsed ? (`${elapsed} | `) : '') + getCounts()
                 );
             }
 
@@ -965,9 +965,9 @@ function plural(count) {
          * @return {String} The console-formatted counts in the tree
          */
         function getCounts() {
-            return (tree.counts.passed > 0 ? chalk.greenBright(`${tree.counts.passed} passed`) + ` | ` : ``) +
-                   (tree.counts.failed > 0 ? chalk.redBright(`${tree.counts.failed} failed`) + ` | ` : ``) +
-                   (tree.counts.skipped > 0 ? chalk.cyanBright(`${tree.counts.skipped} skipped`) + ` | ` : ``) +
+            return (tree.counts.passed > 0 ? chalk.greenBright(`${tree.counts.passed} passed`) + ' | ' : '') +
+                   (tree.counts.failed > 0 ? chalk.redBright(`${tree.counts.failed} failed`) + ' | ' : '') +
+                   (tree.counts.skipped > 0 ? chalk.cyanBright(`${tree.counts.skipped} skipped`) + ' | ' : '') +
                    (`${tree.counts.complete} branch${plural(tree.counts.complete)} complete`);
         }
     }

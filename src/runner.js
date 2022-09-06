@@ -84,7 +84,7 @@ class Runner {
         }
 
         if(this.isStopped) { // starting from a stop
-            utils.error("Cannot run a stopped runner");
+            utils.error('Cannot run a stopped runner');
         }
         else if(this.isPaused) { // starting from a pause
             await this.runInstances[0].run(); // resume that one branch that was paused
@@ -134,7 +134,7 @@ class Runner {
      */
     async runOneStep() {
         if(!this.isPaused) {
-            utils.error("Must be paused to run a step");
+            utils.error('Must be paused to run a step');
         }
 
         let isBranchComplete = await this.runInstances[0].runOneStep();
@@ -152,7 +152,7 @@ class Runner {
      */
     async skipOneStep() {
         if(!this.isPaused) {
-            utils.error("Must be paused to skip a step");
+            utils.error('Must be paused to skip a step');
         }
 
         let isBranchComplete = await this.runInstances[0].skipOneStep();
@@ -169,7 +169,7 @@ class Runner {
      */
     async runLastStep() {
         if(!this.isPaused) {
-            utils.error("Must be paused to run a step");
+            utils.error('Must be paused to run a step');
         }
 
         await this.runInstances[0].runLastStep();
@@ -184,7 +184,7 @@ class Runner {
      */
     async inject(text) {
         if(!this.isPaused) {
-            utils.error("Must be paused to run a step");
+            utils.error('Must be paused to run a step');
         }
 
         let branchRan = await this.runInstances[0].inject(text);
@@ -270,10 +270,10 @@ class Runner {
             let s = this.tree.beforeEverything[i];
             await hookExecInstance.runHookStep(s, s, null);
             if(this.consoleOutput && s.error) {
-                console.log(``);
-                console.log(chalk.red.bold(`Before Everything error occurred:`));
+                console.log('');
+                console.log(chalk.red.bold('Before Everything error occurred:'));
                 console.log(this.formatStackTrace(s.error));
-                console.log(``);
+                console.log('');
             }
             if(s.error || this.isStopped) {
                 return false;
@@ -310,10 +310,10 @@ class Runner {
             let s = this.tree.afterEverything[i];
             await hookExecInstance.runHookStep(s, s, null);
             if(this.consoleOutput && s.error) {
-                console.log(``);
-                console.log(chalk.red.bold(`After Everything error occurred:`));
+                console.log('');
+                console.log(chalk.red.bold('After Everything error occurred:'));
                 console.log(this.formatStackTrace(s.error));
-                console.log(``);
+                console.log('');
             }
         }
 

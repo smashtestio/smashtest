@@ -163,7 +163,7 @@ class Tree {
                     currentlyInsideCodeBlockFromLineNum = -1;
                 }
                 else {
-                    lastStepNodeCreated.codeBlock += ("\n" + line);
+                    lastStepNodeCreated.codeBlock += ('\n' + line);
                 }
 
                 lines[i] = this.newStepNode().parseLine('', filename, lineNumber); // blank out the line we just handled
@@ -178,7 +178,7 @@ class Tree {
                 s.indents = utils.numIndents(line, filename, lineNumber);
 
                 if(!allowIndented && !lastNonEmptyStepNode && s.indents != 0) {
-                    utils.error(`The first step must have 0 indents`, filename, lineNumber);
+                    utils.error('The first step must have 0 indents', filename, lineNumber);
                 }
 
                 // If this is the start of a new code block
@@ -197,23 +197,23 @@ class Tree {
 
         // If we're still inside a code block, and EOF was reached, complain that a code block is not closed
         if(currentlyInsideCodeBlockFromLineNum != -1) {
-            utils.error(`An unclosed code block was found`, filename, currentlyInsideCodeBlockFromLineNum);
+            utils.error('An unclosed code block was found', filename, currentlyInsideCodeBlockFromLineNum);
         }
 
         // Validations for .. step nodes
         for(let i = 0; i < lines.length; i++) {
             if(lines[i].text == '..') {
                 if(i > 0 && lines[i-1].text != '' && lines[i-1].indents == lines[i].indents) {
-                    utils.error(`You cannot have a .. line at the same indent level as the adjacent line above`, filename, lines[i].lineNumber);
+                    utils.error('You cannot have a .. line at the same indent level as the adjacent line above', filename, lines[i].lineNumber);
                 }
                 if((i + 1 < lines.length && lines[i+1].text == '') || (i + 1 == lines.length)) {
-                    utils.error(`You cannot have a .. line without anything directly below`, filename, lines[i].lineNumber);
+                    utils.error('You cannot have a .. line without anything directly below', filename, lines[i].lineNumber);
                 }
                 if(i + 1 < lines.length && lines[i+1].indents != lines[i].indents) {
-                    utils.error(`A .. line must be followed by a line at the same indent level`, filename, lines[i].lineNumber);
+                    utils.error('A .. line must be followed by a line at the same indent level', filename, lines[i].lineNumber);
                 }
                 if(i + 1 < lines.length && lines[i+1].text == '..') {
-                    utils.error(`You cannot have two .. lines in a row`, filename, lines[i].lineNumber);
+                    utils.error('You cannot have two .. lines in a row', filename, lines[i].lineNumber);
                 }
             }
         }
@@ -257,7 +257,7 @@ class Tree {
                 // We've found a step block, which goes from lines index i to j
 
                 if(j < lines.length && lines[j].text != '' && lines[j].text != '..' && lines[j].indents == potentialStepBlock.steps[0].indents + 1) {
-                    utils.error(`There must be an empty line under a step block if it has children directly underneath it. Try putting an empty line under this line.`, filename, lines[j].lineNumber - 1);
+                    utils.error('There must be an empty line under a step block if it has children directly underneath it. Try putting an empty line under this line.', filename, lines[j].lineNumber - 1);
                 }
 
                 potentialStepBlock.filename = filename;
@@ -269,10 +269,10 @@ class Tree {
                     // Validate that a step block member is not a function declaration
                     if(potentialStepBlock.steps[k].isFunctionDeclaration) {
                         if(potentialStepBlock.steps[k].isOpeningBracket) {
-                            utils.error(`You cannot have a '[' within a step block, or adjacent to another '[' or ']' at the same indent level`, filename, potentialStepBlock.steps[k].lineNumber);
+                            utils.error('You cannot have a \'[\' within a step block, or adjacent to another \'[\' or \']\' at the same indent level', filename, potentialStepBlock.steps[k].lineNumber);
                         }
                         else {
-                            utils.error(`You cannot have a function declaration within a step block`, filename, potentialStepBlock.steps[k].lineNumber);
+                            utils.error('You cannot have a function declaration within a step block', filename, potentialStepBlock.steps[k].lineNumber);
                         }
                     }
                 }
@@ -299,7 +299,7 @@ class Tree {
             else if(lines[i].text == '..') {
                 // Validate that .. steps have a StepBlockNode directly below
                 if(i + 1 < lines.length && !(lines[i+1] instanceof StepBlockNode)) {
-                    utils.error(`A .. line must be followed by a step block`, filename, lines[i].lineNumber);
+                    utils.error('A .. line must be followed by a step block', filename, lines[i].lineNumber);
                 }
                 else {
                     this.deleteStepNode(lines[i].id);
@@ -343,7 +343,7 @@ class Tree {
                 prevStepNode.children.push(currStepNode);
             }
             else if(indentsAdvanced > 1) {
-                utils.error(`You cannot have a step that has 2 or more indents beyond the previous step`, filename, currStepNode.lineNumber);
+                utils.error('You cannot have a step that has 2 or more indents beyond the previous step', filename, currStepNode.lineNumber);
             }
             else { // indentsAdvanced < 0, and current step node is a child of an ancestor of the previous step node
                 let parent = prevStepNode.parent;
@@ -357,7 +357,7 @@ class Tree {
 
             // If current step node is a multi-level-step-block function call
             if(currStepNode.isMultiBlockFunctionCall) {
-                const ERR_MSG = `Cannot find the '[' that corresponds to this ']'`;
+                const ERR_MSG = 'Cannot find the \'[\' that corresponds to this \']\'';
                 if(currStepNode.parent.children.length > 1) {
                     let lastSibling = currStepNode.parent.children[currStepNode.parent.children.length - 2];
                     if(lastSibling.isMultiBlockFunctionDeclaration) {
@@ -562,7 +562,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         }
         else {
             if(functionDeclarationNode.children.length == 0) {
-                utils.error(`You cannot use an empty function`, stepNode.filename, stepNode.lineNumber);
+                utils.error('You cannot use an empty function', stepNode.filename, stepNode.lineNumber);
             }
 
             functionDeclarationNode.children.forEach(child => {
@@ -616,14 +616,14 @@ ${branchAbove.output(this.stepNodeIndex)}
         if(this.noDebug) {
             if(stepNode.isDebug) {
                 if(stepNode.isExpressDebug) {
-                    utils.error(`A ~~ was found, but the no-debug flag is set`, stepNode.filename, stepNode.lineNumber);
+                    utils.error('A ~~ was found, but the no-debug flag is set', stepNode.filename, stepNode.lineNumber);
                 }
                 else {
-                    utils.error(`A ~ was found, but the no-debug flag is set`, stepNode.filename, stepNode.lineNumber);
+                    utils.error('A ~ was found, but the no-debug flag is set', stepNode.filename, stepNode.lineNumber);
                 }
             }
             else if(stepNode.isOnly) {
-                utils.error(`A $ was found, but the no-debug flag is set`, stepNode.filename, stepNode.lineNumber);
+                utils.error('A $ was found, but the no-debug flag is set', stepNode.filename, stepNode.lineNumber);
             }
         }
 
@@ -770,8 +770,8 @@ ${branchAbove.output(this.stepNodeIndex)}
             let stepNodeHasModifier = c => (c.isOnly || c.isDebug) && !c.isFunctionDeclaration;
             let hasModifier = c =>
                 c instanceof StepBlockNode ?
-                c.steps.find(c => stepNodeHasModifier(c)) && !c.isSequential :
-                stepNodeHasModifier(c);
+                    c.steps.find(c => stepNodeHasModifier(c)) && !c.isSequential :
+                    stepNodeHasModifier(c);
 
             if(children.find(c => hasModifier(c))) {
                 for(let i = 0; i < children.length;) {
@@ -821,32 +821,32 @@ ${branchAbove.output(this.stepNodeIndex)}
                 hookStep.level = 0;
 
                 if(child.children.length > 0) {
-                    utils.error(`A hook cannot have children`, child.filename, child.lineNumber);
+                    utils.error('A hook cannot have children', child.filename, child.lineNumber);
                 }
 
                 let canStepText = utils.canonicalize(child.text);
-                if(canStepText == "before every branch") {
+                if(canStepText == 'before every branch') {
                     beforeEveryBranch.unshift(hookStep);
                 }
-                else if(canStepText == "after every branch") {
+                else if(canStepText == 'after every branch') {
                     afterEveryBranch.push(hookStep);
                 }
-                else if(canStepText == "before every step") {
+                else if(canStepText == 'before every step') {
                     beforeEveryStep.unshift(hookStep);
                 }
-                else if(canStepText == "after every step") {
+                else if(canStepText == 'after every step') {
                     afterEveryStep.push(hookStep);
                 }
-                else if(canStepText == "before everything") {
+                else if(canStepText == 'before everything') {
                     if(child.indents != 0) {
-                        utils.error(`A Before Everything hook must not be indented (it must be at 0 indents)`, child.filename, child.lineNumber);
+                        utils.error('A Before Everything hook must not be indented (it must be at 0 indents)', child.filename, child.lineNumber);
                     }
 
                     self.beforeEverything.unshift(hookStep); // inserted this way so that packaged hooks get executed first
                 }
-                else if(canStepText == "after everything") {
+                else if(canStepText == 'after everything') {
                     if(child.indents != 0) {
-                        utils.error(`An After Everything hook must not be indented (it must be at 0 indents)`, child.filename, child.lineNumber);
+                        utils.error('An After Everything hook must not be indented (it must be at 0 indents)', child.filename, child.lineNumber);
                     }
 
                     self.afterEverything.push(hookStep); // inserted this way so that packaged hooks get executed last
@@ -944,10 +944,10 @@ ${branchAbove.output(this.stepNodeIndex)}
         // ***************************************
 
         // Attach hooks to each branch below
-        attachHooksToBranch(beforeEveryBranch, "beforeEveryBranch", this);
-        attachHooksToBranch(afterEveryBranch, "afterEveryBranch", this);
-        attachHooksToBranch(beforeEveryStep, "beforeEveryStep", this);
-        attachHooksToBranch(afterEveryStep, "afterEveryStep", this);
+        attachHooksToBranch(beforeEveryBranch, 'beforeEveryBranch', this);
+        attachHooksToBranch(afterEveryBranch, 'afterEveryBranch', this);
+        attachHooksToBranch(beforeEveryStep, 'beforeEveryStep', this);
+        attachHooksToBranch(afterEveryStep, 'afterEveryStep', this);
 
         function attachHooksToBranch(hooks, hookName, self) {
             if(hooks && hooks.length > 0) {
@@ -1205,12 +1205,12 @@ ${branchAbove.output(this.stepNodeIndex)}
             this.branches = this.branchify(this.root);
         }
         catch(e) {
-            if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {
+            if(e.name == 'RangeError' && e.message == 'Maximum call stack size exceeded') {
                 if(this.latestBranchifiedStepNode) {
-                    utils.error(`Infinite loop detected`, this.latestBranchifiedStepNode.filename, this.latestBranchifiedStepNode.lineNumber);
+                    utils.error('Infinite loop detected', this.latestBranchifiedStepNode.filename, this.latestBranchifiedStepNode.lineNumber);
                 }
                 else {
-                    throw new Error("Infinite loop detected"); // very rare situation (as this.latestBranchifiedStepNode is almost always set)
+                    throw new Error('Infinite loop detected'); // very rare situation (as this.latestBranchifiedStepNode is almost always set)
                 }
             }
             else {
@@ -1348,7 +1348,7 @@ ${branchAbove.output(this.stepNodeIndex)}
             }
 
             if(!found) {
-                utils.error(`Couldn't find the branch with the given hash`);
+                utils.error('Couldn\'t find the branch with the given hash');
             }
         }
 
@@ -1610,19 +1610,19 @@ ${branchAbove.output(this.stepNodeIndex)}
                     let found = false;
 
                     start:
-                        for(let j = 0; j < this.branches.length; j++) {
-                            let b = this.branches[j];
-                            if(b.isRunning && b.nonParallelIds) {
-                                for(let g = 0; g < b.nonParallelIds.length; g++) {
-                                    for(let h = 0; h < branch.nonParallelIds.length; h++) {
-                                        if(b.nonParallelIds[g] == branch.nonParallelIds[h]) {
-                                            found = true;
-                                            break start;
-                                        }
+                    for(let j = 0; j < this.branches.length; j++) {
+                        let b = this.branches[j];
+                        if(b.isRunning && b.nonParallelIds) {
+                            for(let g = 0; g < b.nonParallelIds.length; g++) {
+                                for(let h = 0; h < branch.nonParallelIds.length; h++) {
+                                    if(b.nonParallelIds[g] == branch.nonParallelIds[h]) {
+                                        found = true;
+                                        break start;
                                     }
                                 }
                             }
                         }
+                    }
 
                     if(found) {
                         // You can't touch this branch yet, another branch that has the same nonParallelId is still executing

@@ -22,28 +22,28 @@ exports.DOUBLE_QUOTE_STR = /(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*")/g;
 exports.BRACKET_STR = /(?<!(\\\\)*\\)(\[([^\\\]]|(\\\\)*\\.)*\])/g;
 
 // Matches "string", 'string', or [string], handles escaped chars
-exports.STRING_LITERAL = new RegExp(exports.SINGLE_QUOTE_STR.source + "|" + exports.DOUBLE_QUOTE_STR.source + "|" + exports.BRACKET_STR.source, "g");
+exports.STRING_LITERAL = new RegExp(exports.SINGLE_QUOTE_STR.source + '|' + exports.DOUBLE_QUOTE_STR.source + '|' + exports.BRACKET_STR.source, 'g');
 
 // Same as STRING_LITERAL, only matches the whole line
-exports.STRING_LITERAL_WHOLE = new RegExp("^(" + exports.STRING_LITERAL.source + ")$");
+exports.STRING_LITERAL_WHOLE = new RegExp('^(' + exports.STRING_LITERAL.source + ')$');
 
 // Matches "string" or 'string', handles escaped chars
-exports.QUOTED_STRING_LITERAL = new RegExp(exports.SINGLE_QUOTE_STR.source + "|" + exports.DOUBLE_QUOTE_STR.source, "g");
+exports.QUOTED_STRING_LITERAL = new RegExp(exports.SINGLE_QUOTE_STR.source + '|' + exports.DOUBLE_QUOTE_STR.source, 'g');
 
 // Same as QUOTED_STRING_LITERAL, only matches the whole line
-exports.QUOTED_STRING_LITERAL_WHOLE = new RegExp("^(" + exports.QUOTED_STRING_LITERAL.source + ")$");
+exports.QUOTED_STRING_LITERAL_WHOLE = new RegExp('^(' + exports.QUOTED_STRING_LITERAL.source + ')$');
 
 // Matches {var} or {{var}}
 exports.VAR = /\{\{[^\{\}\\]+\}\}|\{[^\{\}\\]+\}/g;
 
 // Same as VAR, only matches the whole line
-exports.VAR_WHOLE = new RegExp("^" + exports.VAR.source + "$");
+exports.VAR_WHOLE = new RegExp('^' + exports.VAR.source + '$');
 
 // Matches {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (minimum one {var}=Val) as the whole line
 exports.VARS_SET_WHOLE = /^(\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*(\=|is)\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|\[([^\\\]]|(\\\\)*\\.)*\]|.*?)+?)\s*)(\,\s*((\{[^\{\}\\]+\})|(\{\{[^\{\}\\]+\}\}))\s*(\=|is)\s*(('([^\\']|(\\\\)*\\.)*'|"([^\\"]|(\\\\)*\\.)*"|\[([^\\\]]|(\\\\)*\\.)*\]|.*?)+?)\s*)*$/;
 
 // Matches "string", 'string', [string], {var}, or {{var}}, handles escaped chars
-exports.FUNCTION_INPUT = new RegExp(exports.STRING_LITERAL.source + "|" + exports.VAR.source, "g");
+exports.FUNCTION_INPUT = new RegExp(exports.STRING_LITERAL.source + '|' + exports.VAR.source, 'g');
 
 // Matches a line with only numbers (after whitespace stripped out)
 exports.NUMBERS_ONLY_WHOLE = /^[0-9\.\,]+$/;

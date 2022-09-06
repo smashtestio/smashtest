@@ -72,10 +72,10 @@ class Step {
         const removePath = s => s ? s.replace(/^.*[\/\\]/, '') : '';
 
         let sn = stepNodeIndex[this.id];
-        let loc = sn.filename ? `${removePath(sn.filename)}:${sn.lineNumber}` : ``;
+        let loc = sn.filename ? `${removePath(sn.filename)}:${sn.lineNumber}` : '';
         let fsn = this.fid ? stepNodeIndex[this.fid] : null; // function declaration step node
         if(fsn) {
-            loc += `${loc ? ` ` : ``}--> ${removePath(fsn.filename)}:${fsn.lineNumber}`;
+            loc += `${loc ? ' ' : ''}--> ${removePath(fsn.filename)}:${fsn.lineNumber}`;
         }
 
         return loc;

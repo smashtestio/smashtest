@@ -5,8 +5,8 @@ const utils = require('./utils.js');
 const chalk = require('chalk');
 const path = require('path');
 
-const darkGray = chalk.hex("#303030");
-const brightGray = chalk.hex("#B6B6B6");
+const darkGray = chalk.hex('#303030');
+const brightGray = chalk.hex('#B6B6B6');
 
 /**
  * Represents a running test instance. Kind of like a "thread".
@@ -42,7 +42,7 @@ class RunInstance {
      */
     async run() {
         if(this.isStopped) {
-            utils.error("Cannot run a stopped runner");
+            utils.error('Cannot run a stopped runner');
         }
 
         let wasPaused = false;
@@ -86,7 +86,7 @@ class RunInstance {
                         if(this.runner.consoleOutput && this.currBranch.error) {
                             let sn = this.tree.stepNodeIndex[s.id];
                             this.outputError(this.currBranch.error, sn);
-                            console.log("");
+                            console.log('');
                         }
 
                         // runHookStep() already marked the branch as a failure, so now just run all After Every Branch hooks
@@ -146,7 +146,7 @@ class RunInstance {
         }
 
         if(this.runner.consoleOutput) {
-            console.log(`Start:     ${utils.getIndents(step.level, 2)}${chalk.gray(stepNode.text.trim() || '(anon)')}     ${stepNode.filename ? chalk.gray(step.locString(this.tree.stepNodeIndex)) : ``}`);
+            console.log(`Start:     ${utils.getIndents(step.level, 2)}${chalk.gray(stepNode.text.trim() || '(anon)')}     ${stepNode.filename ? chalk.gray(step.locString(this.tree.stepNodeIndex)) : ''}`);
         }
 
         this.stepsRan.steps.push(step);
@@ -379,16 +379,16 @@ class RunInstance {
             }
 
             console.log(`End:       ${utils.getIndents(step.level, 2)}` +
-                (chalkToUse(stepNode.text.trim() || `(anon)`)) +
-                `    ` +
+                (chalkToUse(stepNode.text.trim() || '(anon)')) +
+                '    ' +
                 (
                     !isGray ?
-                    (
-                        (step.isPassed ? chalk.green(` passed`) : ``) +
-                        (step.isFailed ? chalk.red(` failed`) : ``) +
+                        (
+                            (step.isPassed ? chalk.green(' passed') : '') +
+                        (step.isFailed ? chalk.red(' failed') : '') +
                         chalk.gray(` (${seconds} s)`)
-                    )
-                    : ``
+                        )
+                        : ''
                 )
             );
 
@@ -396,7 +396,7 @@ class RunInstance {
                 this.outputError(step.error, stepNode);
             }
 
-            console.log("");
+            console.log('');
         }
 
         if(this.tree.getModifier(step, 'isAfterDebug') && !overrideDebug && !this.tree.isExpressDebug) {
@@ -482,9 +482,9 @@ class RunInstance {
         let showTrace = (!this.tree.isDebug || this.tree.isExpressDebug) && this.stepsRan && this.stepsRan.steps.length > 0;
 
         this.c(
-            (showTrace && this.currBranch ? chalk.gray(`Branch ${this.currBranch.hash}:\n\n`) : ``) +
-            (showTrace ? chalk.gray(this.stepsRan.output(this.tree.stepNodeIndex, 0)) + `\n` : ``) +
-            chalk.red.bold(stepNode.text) + `\n` +
+            (showTrace && this.currBranch ? chalk.gray(`Branch ${this.currBranch.hash}:\n\n`) : '') +
+            (showTrace ? chalk.gray(this.stepsRan.output(this.tree.stepNodeIndex, 0)) + '\n' : '') +
+            chalk.red.bold(stepNode.text) + '\n' +
             this.runner.formatStackTrace(error)
         );
     }
@@ -881,10 +881,10 @@ class RunInstance {
 
         // Make global, local, and persistent accessible as js vars
         let header = '';
-        header = loadIntoJsVars(header, this.persistent, "getPersistent");
-        header = loadIntoJsVars(header, this.global, "getGlobal");
-        header = loadIntoJsVars(header, this.local, "getLocal");
-        header = loadIntoJsVars(header, this.localsPassedIntoFunc, "getLocal");
+        header = loadIntoJsVars(header, this.persistent, 'getPersistent');
+        header = loadIntoJsVars(header, this.global, 'getGlobal');
+        header = loadIntoJsVars(header, this.local, 'getLocal');
+        header = loadIntoJsVars(header, this.localsPassedIntoFunc, 'getLocal');
 
         // Remove unsafe chars from funcName
         if(funcName) {
@@ -903,7 +903,7 @@ class RunInstance {
             padding += '//\n';
         }
 
-        code = padding + `(` + (isSync ? `` : `async`) + ` function CodeBlock` + funcName + `(runInstance) { ` + header + `{` + code + `\n }})(this);`; // all on one line so line numbers in stack traces correspond to line numbers in code blocks, code enclosed in {} so you can declare vars with the same name as vars in header
+        code = padding + '(' + (isSync ? '' : 'async') + ' function CodeBlock' + funcName + '(runInstance) { ' + header + '{' + code + '\n }})(this);'; // all on one line so line numbers in stack traces correspond to line numbers in code blocks, code enclosed in {} so you can declare vars with the same name as vars in header
 
         // Evaluate
         if(isSync) {
@@ -932,9 +932,9 @@ class RunInstance {
                 mainPromise,
                 timerPromise
             ])
-            .finally(() => {
-                this.clearStepTimer();
-            });
+                .finally(() => {
+                    this.clearStepTimer();
+                });
         }
 
         /**
@@ -946,7 +946,7 @@ class RunInstance {
                     varname = utils.keepCaseCanonicalize(varname);
                     if(varname.match(JS_VARNAME_WHITELIST) &&
                         !varname.toLowerCase().match(JS_VARNAME_BLACKLIST) &&
-                        !varname.includes("'")) {
+                        !varname.includes('\'')) {
                         header += `var ${varname} = ${getter}('${varname}');`;
                     }
                 }
@@ -976,8 +976,8 @@ class RunInstance {
                     value = this.findVarValue(name, isLocal, lookAnywhere);
                 }
                 catch(e) {
-                    if(e.name == "RangeError" && e.message == "Maximum call stack size exceeded") {
-                        utils.error("Infinite loop detected amongst variable references");
+                    if(e.name == 'RangeError' && e.message == 'Maximum call stack size exceeded') {
+                        utils.error('Infinite loop detected amongst variable references');
                     }
                     else {
                         throw e; // re-throw
@@ -1003,8 +1003,8 @@ class RunInstance {
      * @throws {Error} If the variable is never set
      */
     findVarValue(varname, isLocal, lookAnywhere) {
-        let variableFull = "";
-        let variableFullLookahead = "";
+        let variableFull = '';
+        let variableFullLookahead = '';
         if(isLocal) {
             variableFull = `{{${varname}}}`;
             variableFullLookahead = `{{${varname}:}}`;
@@ -1132,7 +1132,7 @@ class RunInstance {
                 if(this.runner.consoleOutput && this.currBranch.error) {
                     let sn = this.tree.stepNodeIndex[s.id];
                     this.outputError(this.currBranch.error, sn);
-                    console.log("");
+                    console.log('');
                 }
                 // finish running all After Every Branch steps, even if one fails, and even if there was a pause
             }
@@ -1144,8 +1144,8 @@ class RunInstance {
         }
 
         if(this.runner.consoleOutput) {
-            console.log("Branch complete");
-            console.log("");
+            console.log('Branch complete');
+            console.log('');
         }
 
         delete this.currBranch.isRunning;
@@ -1230,7 +1230,7 @@ class RunInstance {
      */
     validateError(error) {
         if(typeof error != 'object') {
-            return new Error(`A non-object was thrown inside this step. Only objects can be thrown.`);
+            return new Error('A non-object was thrown inside this step. Only objects can be thrown.');
         }
         else {
             return error;
