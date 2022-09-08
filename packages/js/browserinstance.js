@@ -396,7 +396,7 @@ class BrowserInstance {
     async isAlertOpen() {
         let alertOpen = true;
         try {
-            await browser.driver.switchTo().alert();
+            await this.driver.switchTo().alert();
         }
         catch(e) {
             alertOpen = false;
