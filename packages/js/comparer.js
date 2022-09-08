@@ -2,15 +2,29 @@ const Constants = require('../../src/constants.js');
 const clonedeep = require('lodash/cloneDeep');
 const utils = require('../../src/utils.js');
 
-const RESERVED_KEYWORDS = ['$typeof', '$regex', '$contains', '$max', '$min', '$code', '$length', '$maxLength', '$minLength', '$subset', '$anyOrder', '$exact', '$every'];
+const RESERVED_KEYWORDS = [
+    '$typeof',
+    '$regex',
+    '$contains',
+    '$max',
+    '$min',
+    '$code',
+    '$length',
+    '$maxLength',
+    '$minLength',
+    '$subset',
+    '$anyOrder',
+    '$exact',
+    '$every'
+];
 
 /**
  * Replaces a value inside an object to mark that the Comparer was there, and to store any associated errors
  */
 class ComparerNode {
     constructor(errors, value) {
-        this.errors = errors;    // array of strings describing errors related to comparison
-        this.value = value;      // original actual value at the position of this ComparerNode
+        this.errors = errors; // array of strings describing errors related to comparison
+        this.value = value; // original actual value at the position of this ComparerNode
         //this.$comparerNode = true;
     }
 }
@@ -28,10 +42,10 @@ class Comparer {
      * @throws {Error} If actualObj doesn't match expectedObj
      */
     static expect(actualObj, errorStart, errorEnd, errorHeader, jsonClone) {
-        if(typeof errorStart == 'undefined') {
+        if (typeof errorStart == 'undefined') {
             errorStart = Comparer.defaultErrorStart;
         }
-        if(typeof errorEnd == 'undefined') {
+        if (typeof errorEnd == 'undefined') {
             errorEnd = Comparer.defaultErrorEnd;
         }
 
@@ -40,8 +54,10 @@ class Comparer {
                 match: (expectedObj) => {
                     actualObj = this.clone(actualObj, jsonClone);
                     const comp = this.comparison(actualObj, expectedObj);
-                    if(this.hasErrors(comp)) {
-                        throw new Error('\n' + (errorHeader ? errorHeader + '\n' : '') + this.print(comp, errorStart, errorEnd));
+                    if (this.hasErrors(comp)) {
+                        throw new Error(
+                            '\n' + (errorHeader ? errorHeader + '\n' : '') + this.print(comp, errorStart, errorEnd)
+                        );
                     }
                 }
             }
@@ -59,20 +75,22 @@ class Comparer {
      */
     static comparison(actual, expected, subsetMatching) {
         const originalActual = actual;
-        if(actual instanceof ComparerNode) { // we've already been here
+        if (actual instanceof ComparerNode) {
+            // we've already been here
             actual = actual.value;
         }
 
         const errors = [];
 
-        if(typeof expected == 'object') {
-            if(expected === null) { // remember, typeof null is "object"
-                if(actual !== null) {
+        if (typeof expected == 'object') {
+            if (expected === null) {
+                // remember, typeof null is "object"
+                if (actual !== null) {
                     errors.push('not null');
                 }
             }
-            else if(expected instanceof Array) {
-                if(!(actual instanceof Array)) {
+            else if (expected instanceof Array) {
+                if (!(actual instanceof Array)) {
                     errors.push('not an array');
                 }
                 else {
@@ -80,27 +98,27 @@ class Comparer {
                     let anyOrder = false;
 
                     // [ '$subset', A, B, ... ]
-                    if(expected.indexOf('$subset') != -1 || subsetMatching) {
+                    if (expected.indexOf('$subset') != -1 || subsetMatching) {
                         subset = true;
                     }
 
                     // [ '$anyOrder', A, B, ... ]
-                    if(expected.indexOf('$anyOrder') != -1) {
+                    if (expected.indexOf('$anyOrder') != -1) {
                         anyOrder = true;
                     }
 
                     // Make sure every expected item has a corresponding actual item
-                    for(let expectedIndex = 0, actualIndex = 0; expectedIndex < expected.length; expectedIndex++) {
+                    for (let expectedIndex = 0, actualIndex = 0; expectedIndex < expected.length; expectedIndex++) {
                         const expectedItem = expected[expectedIndex];
-                        if(['$subset', '$anyOrder'].indexOf(expectedItem) == -1) {
-                            if(subset || anyOrder) {
+                        if (['$subset', '$anyOrder'].indexOf(expectedItem) == -1) {
+                            if (subset || anyOrder) {
                                 // corresponding actual item can be anywhere
                                 const actualClone = this.clone(actual);
                                 let found = false;
-                                for(let i = 0; i < actualClone.length; i++) {
+                                for (let i = 0; i < actualClone.length; i++) {
                                     const actualItem = actualClone[i];
                                     const comparisonResult = this.comparison(actualItem, expectedItem, true);
-                                    if(!this.hasErrors(comparisonResult)) {
+                                    if (!this.hasErrors(comparisonResult)) {
                                         // we have a match
                                         found = true;
                                         actual[i] = comparisonResult;
@@ -108,8 +126,8 @@ class Comparer {
                                     }
                                 }
 
-                                if(!found) {
-                                    errors.push( { blockError: true, text: 'missing', obj: expectedItem } );
+                                if (!found) {
+                                    errors.push({ blockError: true, text: 'missing', obj: expectedItem });
                                 }
                             }
                             else {
@@ -125,43 +143,44 @@ class Comparer {
                         }
                     }
 
-                    if(!subset) {
+                    if (!subset) {
                         // Make sure we don't have any items in actual that haven't been visited
-                        for(let i = 0; i < actual.length; i++) {
-                            if(!(actual[i] instanceof ComparerNode)) {
+                        for (let i = 0; i < actual.length; i++) {
+                            if (!(actual[i] instanceof ComparerNode)) {
                                 actual[i] = this.createComparerNode(['not expected'], actual[i]);
                             }
                         }
                     }
                 }
             }
-            else { // expected is a plain object
+            else {
+                // expected is a plain object
                 // { $typeof: "type" }
-                if(Object.prototype.hasOwnProperty.call(expected, '$typeof')) {
+                if (Object.prototype.hasOwnProperty.call(expected, '$typeof')) {
                     // Validate expected
-                    if(typeof expected.$typeof != 'string') {
+                    if (typeof expected.$typeof != 'string') {
                         throw new Error(`$typeof has to be a string: ${expected.$typeof}`);
                     }
 
                     // Validate actual matches expected
-                    if(expected.$typeof.toLowerCase() == 'array') {
-                        if(!(actual instanceof Array)) {
+                    if (expected.$typeof.toLowerCase() == 'array') {
+                        if (!(actual instanceof Array)) {
                             errors.push('not $typeof array');
                         }
                     }
-                    else if(typeof actual != expected.$typeof) {
+                    else if (typeof actual != expected.$typeof) {
                         errors.push(`not $typeof ${expected.$typeof}`);
                     }
                 }
 
                 // { $regex: /regex/ } or { $regex: "regex" }
-                if(Object.prototype.hasOwnProperty.call(expected, '$regex')) {
+                if (Object.prototype.hasOwnProperty.call(expected, '$regex')) {
                     // Validate expected
                     let regex = null;
-                    if(typeof expected.$regex == 'string') {
+                    if (typeof expected.$regex == 'string') {
                         regex = new RegExp(expected.$regex);
                     }
-                    else if(expected.$regex instanceof RegExp) {
+                    else if (expected.$regex instanceof RegExp) {
                         regex = expected.$regex;
                     }
                     else {
@@ -169,76 +188,76 @@ class Comparer {
                     }
 
                     // Validate actual matches expected
-                    if(typeof actual != 'string') {
+                    if (typeof actual != 'string') {
                         errors.push(`isn't a string so can't match $regex /${regex.source}/`);
                     }
-                    else if(!actual.match(regex)) {
+                    else if (!actual.match(regex)) {
                         errors.push(`doesn't match $regex /${regex.source}/`);
                     }
                 }
 
                 // { $contains: "string" }
-                if(Object.prototype.hasOwnProperty.call(expected, '$contains')) {
+                if (Object.prototype.hasOwnProperty.call(expected, '$contains')) {
                     // Validate expected
-                    if(typeof expected.$contains != 'string') {
+                    if (typeof expected.$contains != 'string') {
                         throw new Error(`$contains has to be a string: ${JSON.stringify(expected.$contains)}`);
                     }
 
                     // Validate actual matches expected
-                    if(typeof actual != 'string') {
+                    if (typeof actual != 'string') {
                         errors.push(`isn't a string so can't $contains "${expected.$contains}"`);
                     }
-                    else if(!actual.includes(expected.$contains)) {
+                    else if (!actual.includes(expected.$contains)) {
                         errors.push(`doesn't $contains "${expected.$contains}"`);
                     }
                 }
 
                 // { $max: <number> }
-                if(Object.prototype.hasOwnProperty.call(expected, '$max')) {
+                if (Object.prototype.hasOwnProperty.call(expected, '$max')) {
                     // Validate expected
-                    if(typeof expected.$max != 'number') {
+                    if (typeof expected.$max != 'number') {
                         throw new Error(`$max has to be a number: ${JSON.stringify(expected.$max)}`);
                     }
 
                     // Validate actual matches expected
-                    if(typeof actual != 'number') {
+                    if (typeof actual != 'number') {
                         errors.push(`isn't a number so can't have a $max of ${expected.$max}`);
                     }
-                    else if(actual > expected.$max) {
+                    else if (actual > expected.$max) {
                         errors.push(`is greater than the $max of ${expected.$max}`);
                     }
                 }
 
                 // { $min: <number> }
-                if(Object.prototype.hasOwnProperty.call(expected, '$min')) {
+                if (Object.prototype.hasOwnProperty.call(expected, '$min')) {
                     // Validate expected
-                    if(typeof expected.$min != 'number') {
+                    if (typeof expected.$min != 'number') {
                         throw new Error(`$min has to be a number: ${JSON.stringify(expected.$min)}`);
                     }
 
                     // Validate actual matches expected
-                    if(typeof actual != 'number') {
+                    if (typeof actual != 'number') {
                         errors.push(`isn't a number so can't have a $min of ${expected.$min}`);
                     }
-                    else if(actual < expected.$min) {
+                    else if (actual < expected.$min) {
                         errors.push(`is less than the $min of ${expected.$min}`);
                     }
                 }
 
                 // { $code: (actual)=>{ return true/false; } } or { $code: "...true/false" } or { $code: "...return true/false" }
-                if(Object.prototype.hasOwnProperty.call(expected, '$code')) {
+                if (Object.prototype.hasOwnProperty.call(expected, '$code')) {
                     let success = true;
 
                     // Validate expected
-                    if(typeof expected.$code == 'function') {
+                    if (typeof expected.$code == 'function') {
                         success = expected.$code(actual);
                     }
-                    else if(typeof expected.$code == 'string') {
+                    else if (typeof expected.$code == 'string') {
                         try {
                             success = eval(expected.$code);
                         }
-                        catch(e) {
-                            if(e.message == 'Illegal return statement') {
+                        catch (e) {
+                            if (e.message == 'Illegal return statement') {
                                 // The code has a return, so enclose it in a function and try again
                                 success = eval(`(()=>{${expected.$code}})()`);
                             }
@@ -252,91 +271,101 @@ class Comparer {
                     }
 
                     // Validate actual matches expected
-                    if(!success) {
+                    if (!success) {
                         errors.push(`failed the $code '${expected.$code.toString().replace(/\n/g, ' ')}'`);
                     }
                 }
 
                 // { $length: <number> }
-                if(Object.prototype.hasOwnProperty.call(expected, '$length')) {
+                if (Object.prototype.hasOwnProperty.call(expected, '$length')) {
                     // Validate expected
-                    if(typeof expected.$length != 'number') {
+                    if (typeof expected.$length != 'number') {
                         throw new Error(`$length has to be a number: ${JSON.stringify(expected.$length)}`);
                     }
 
                     // Validate actual matches expected
-                    if(typeof actual != 'object' && typeof actual != 'string') {
+                    if (typeof actual != 'object' && typeof actual != 'string') {
                         errors.push(`isn't an object, array, or string so can't have a $length of ${expected.$length}`);
                     }
                     else {
-                        if(Object.prototype.hasOwnProperty.call(actual, 'length')) {
-                            if(actual.length != expected.$length) {
+                        if (Object.prototype.hasOwnProperty.call(actual, 'length')) {
+                            if (actual.length != expected.$length) {
                                 errors.push(`doesn't have a $length of ${expected.$length}`);
                             }
                         }
                         else {
-                            errors.push(`doesn't have a length property so can't have a $length of ${expected.$length}`);
+                            errors.push(
+                                `doesn't have a length property so can't have a $length of ${expected.$length}`
+                            );
                         }
                     }
                 }
 
                 // { $maxLength: <number> }
-                if(Object.prototype.hasOwnProperty.call(expected, '$maxLength')) {
+                if (Object.prototype.hasOwnProperty.call(expected, '$maxLength')) {
                     // Validate expected
-                    if(typeof expected.$maxLength != 'number') {
+                    if (typeof expected.$maxLength != 'number') {
                         throw new Error(`$maxLength has to be a number: ${JSON.stringify(expected.$maxLength)}`);
                     }
 
                     // Validate actual matches expected
-                    if(typeof actual != 'object' && typeof actual != 'string') {
-                        errors.push(`isn't an object, array, or string so can't have a $maxLength of ${expected.$maxLength}`);
+                    if (typeof actual != 'object' && typeof actual != 'string') {
+                        errors.push(
+                            `isn't an object, array, or string so can't have a $maxLength of ${expected.$maxLength}`
+                        );
                     }
                     else {
-                        if(Object.prototype.hasOwnProperty.call(actual, 'length')) {
-                            if(actual.length > expected.$maxLength) {
+                        if (Object.prototype.hasOwnProperty.call(actual, 'length')) {
+                            if (actual.length > expected.$maxLength) {
                                 errors.push(`is longer than the $maxLength of ${expected.$maxLength}`);
                             }
                         }
                         else {
-                            errors.push(`doesn't have a length property so can't have a $maxLength of ${expected.$maxLength}`);
+                            errors.push(
+                                `doesn't have a length property so can't have a $maxLength of ${expected.$maxLength}`
+                            );
                         }
                     }
                 }
 
                 // { $minLength: <number> }
-                if(Object.prototype.hasOwnProperty.call(expected, '$minLength')) {
+                if (Object.prototype.hasOwnProperty.call(expected, '$minLength')) {
                     // Validate expected
-                    if(typeof expected.$minLength != 'number') {
+                    if (typeof expected.$minLength != 'number') {
                         throw new Error(`$minLength has to be a number: ${JSON.stringify(expected.$minLength)}`);
                     }
 
                     // Validate actual matches expected
-                    if(typeof actual != 'object' && typeof actual != 'string') {
-                        errors.push(`isn't an object, array, or string so can't have a $minLength of ${expected.$minLength}`);
+                    if (typeof actual != 'object' && typeof actual != 'string') {
+                        errors.push(
+                            `isn't an object, array, or string so can't have a $minLength of ${expected.$minLength}`
+                        );
                     }
                     else {
-                        if(Object.prototype.hasOwnProperty.call(actual, 'length')) {
-                            if(actual.length < expected.$minLength) {
+                        if (Object.prototype.hasOwnProperty.call(actual, 'length')) {
+                            if (actual.length < expected.$minLength) {
                                 errors.push(`is shorter than the $minLength of ${expected.$minLength}`);
                             }
                         }
                         else {
-                            errors.push(`doesn't have a length property so can't have a $minLength of ${expected.$minLength}`);
+                            errors.push(
+                                `doesn't have a length property so can't have a $minLength of ${expected.$minLength}`
+                            );
                         }
                     }
                 }
 
                 // { $every: <value> }
-                if(Object.prototype.hasOwnProperty.call(expected, '$every')) {
+                if (Object.prototype.hasOwnProperty.call(expected, '$every')) {
                     // Validate actual matches expected
-                    if(typeof actual != 'object' || !(actual instanceof Array)) {
+                    if (typeof actual != 'object' || !(actual instanceof Array)) {
                         errors.push('not an array as needed for $every');
                     }
-                    else if(actual.length == 0) {
+                    else if (actual.length == 0) {
                         errors.push('empty array cannot match $every');
                     }
                     else {
-                        for(let i = 0; i < actual.length; i++) {
+                        for (let i = 0; i < actual.length; i++) {
                             actual[i] = this.comparison(actual[i], expected.$every, subsetMatching);
                         }
                     }
@@ -344,35 +373,39 @@ class Comparer {
 
                 // { $exact: true }
                 let exact = false;
-                if(Object.prototype.hasOwnProperty.call(expected, '$exact')) {
+                if (Object.prototype.hasOwnProperty.call(expected, '$exact')) {
                     exact = true;
                 }
 
                 // If there are non-$ keys in expected, then expected is a plain object that needs to be a subset of the actual object
-                const expectedKeys = Object.keys(expected).filter(key => RESERVED_KEYWORDS.indexOf(key) == -1);
-                if(exact || expectedKeys.length > 0) {
-                    if(typeof actual != 'object' || actual === null) {
+                const expectedKeys = Object.keys(expected).filter((key) => RESERVED_KEYWORDS.indexOf(key) == -1);
+                if (exact || expectedKeys.length > 0) {
+                    if (typeof actual != 'object' || actual === null) {
                         errors.push('not an object');
                     }
                     else {
                         // Make sure every key in expected matches every key in actual
-                        for(const key of expectedKeys) {
-                            if(!actual || (!Object.prototype.hasOwnProperty.call(actual, key) &&
-                                expected[key] !== undefined)
+                        for (const key of expectedKeys) {
+                            if (
+                                !actual ||
+                                (!Object.prototype.hasOwnProperty.call(actual, key) && expected[key] !== undefined)
                             ) {
-                                errors.push( { blockError: true, text: 'missing', key: key, obj: expected[key] } );
+                                errors.push({ blockError: true, text: 'missing', key: key, obj: expected[key] });
                             }
                             else {
                                 actual[key] = this.comparison(actual[key], expected[key], subsetMatching);
                             }
                         }
 
-                        if(exact) {
+                        if (exact) {
                             // Make sure every key in actual exists in expected
-                            for(const key in actual) {
-                                if(Object.prototype.hasOwnProperty.call(actual, key)) {
-                                    if(!Object.prototype.hasOwnProperty.call(expected, key)) {
-                                        actual[key] = this.createComparerNode(['this key isn\'t in $exact object'], actual[key]);
+                            for (const key in actual) {
+                                if (Object.prototype.hasOwnProperty.call(actual, key)) {
+                                    if (!Object.prototype.hasOwnProperty.call(expected, key)) {
+                                        actual[key] = this.createComparerNode(
+                                            ['this key isn\'t in $exact object'],
+                                            actual[key]
+                                        );
                                     }
                                 }
                             }
@@ -381,8 +414,9 @@ class Comparer {
                 }
             }
         }
-        else { // expected is a primitive (also handles functions, undefineds, and other constructs whose typeof isn't object)
-            if(actual !== expected) {
+        else {
+            // expected is a primitive (also handles functions, undefineds, and other constructs whose typeof isn't object)
+            if (actual !== expected) {
                 errors.push(`not ${JSON.stringify(expected)}`);
             }
         }
@@ -397,7 +431,7 @@ class Comparer {
      * @return {ComparerNode} The ComparerNode that destination will be set to
      */
     static createComparerNode(errors, value) {
-        if(value instanceof ComparerNode) {
+        if (value instanceof ComparerNode) {
             return new ComparerNode(value.errors.concat(errors), value.value);
         }
         else {
@@ -412,34 +446,35 @@ class Comparer {
      */
     static hasErrors(value, isRecursive) {
         // Do not traverse value if it's been seen already (in the case of object with circular references)
-        if(this.wasSeen(value)) return false;
+        if (this.wasSeen(value)) return false;
 
-        if(value instanceof ComparerNode) {
-            if(value.errors.length > 0) {
+        if (value instanceof ComparerNode) {
+            if (value.errors.length > 0) {
                 this.endSeen(!isRecursive);
                 return true;
             }
             value = value.value;
-            if(this.wasSeen(value)) return false;
+            if (this.wasSeen(value)) return false;
         }
 
-        if(typeof value == 'object') {
-            if(value === null) {
+        if (typeof value == 'object') {
+            if (value === null) {
                 this.endSeen(!isRecursive);
                 return false;
             }
-            else if(value instanceof Array) {
-                for(const item of value) {
-                    if(this.hasErrors(item, true)) {
+            else if (value instanceof Array) {
+                for (const item of value) {
+                    if (this.hasErrors(item, true)) {
                         this.endSeen(!isRecursive);
                         return true;
                     }
                 }
             }
-            else { // plain object
-                for(const key in value) {
-                    if(Object.prototype.hasOwnProperty.call(value, key)) {
-                        if(this.hasErrors(value[key], true)) {
+            else {
+                // plain object
+                for (const key in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, key)) {
+                        if (this.hasErrors(value[key], true)) {
                             this.endSeen(!isRecursive);
                             return true;
                         }
@@ -456,7 +491,7 @@ class Comparer {
      * Ends maintaining a list of seen objects (used to prevent infinite loops on circular objects). Only works if go is true.
      */
     static endSeen(go) {
-        if(go) {
+        if (go) {
             delete Comparer.seen;
         }
     }
@@ -465,13 +500,13 @@ class Comparer {
      * @return {Boolean} True if the given value was seen already, false otherwise
      */
     static wasSeen(value) {
-        if(!Comparer.seen) {
+        if (!Comparer.seen) {
             Comparer.seen = [];
         }
 
-        if(typeof value == 'object' && value !== null) {
-            for(let i = 0; i < Comparer.seen.length; i++) {
-                if(Comparer.seen[i] === value) {
+        if (typeof value == 'object' && value !== null) {
+            for (let i = 0; i < Comparer.seen.length; i++) {
+                if (Comparer.seen[i] === value) {
                     return true;
                 }
             }
@@ -490,18 +525,18 @@ class Comparer {
      * @return {String} The pretty-printed version of value, including errors
      */
     static print(value, errorStart, errorEnd, indents, commaAtEnd) {
-        if(!indents) {
+        if (!indents) {
             indents = 0;
         }
 
-        if(typeof errorStart == 'undefined') {
+        if (typeof errorStart == 'undefined') {
             errorStart = '-->';
         }
-        if(typeof errorEnd == 'undefined') {
+        if (typeof errorEnd == 'undefined') {
             errorEnd = '';
         }
 
-        if(this.wasSeen(value)) return '[Circular]\n';
+        if (this.wasSeen(value)) return '[Circular]\n';
 
         const spaces = utils.getIndents(indents);
         const nextSpaces = utils.getIndents(indents + 1);
@@ -509,18 +544,19 @@ class Comparer {
         const self = this;
 
         let errors = [];
-        if(value instanceof ComparerNode) {
+        if (value instanceof ComparerNode) {
             errors = value.errors;
             value = value.value;
         }
 
-        if(typeof value == 'object') {
-            if(value === null) { // remember, typeof null is "object"
+        if (typeof value == 'object') {
+            if (value === null) {
+                // remember, typeof null is "object"
                 ret += 'null' + (commaAtEnd ? ',' : '') + outputErrors() + '\n';
             }
-            else if(value instanceof Array) {
+            else if (value instanceof Array) {
                 ret += '[' + outputErrors() + '\n';
-                for(let i = 0; i < value.length; i++) {
+                for (let i = 0; i < value.length; i++) {
                     ret += nextSpaces + this.print(value[i], errorStart, errorEnd, indents + 1, i < value.length - 1);
                 }
 
@@ -528,14 +564,21 @@ class Comparer {
 
                 ret += spaces + ']' + (commaAtEnd ? ',' : '') + '\n';
             }
-            else { // plain object
+            else {
+                // plain object
                 ret += '{' + outputErrors() + '\n';
                 const keys = Object.keys(value);
-                for(let i = 0; i < keys.length; i++) {
+                for (let i = 0; i < keys.length; i++) {
                     const key = keys[i];
-                    if(Object.prototype.hasOwnProperty.call(value, key)) {
+                    if (Object.prototype.hasOwnProperty.call(value, key)) {
                         const hasWeirdChars = key.match(/[^A-Za-z0-9$]/); // put quotes around the key if there are non-standard chars in it
-                        ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(value[key], errorStart, errorEnd, indents + 1, i < keys.length - 1);
+                        ret +=
+                            nextSpaces +
+                            (hasWeirdChars ? '"' : '') +
+                            key +
+                            (hasWeirdChars ? '"' : '') +
+                            ': ' +
+                            this.print(value[key], errorStart, errorEnd, indents + 1, i < keys.length - 1);
                     }
                 }
 
@@ -544,8 +587,9 @@ class Comparer {
                 ret += spaces + '}' + (commaAtEnd ? ',' : '') + '\n';
             }
         }
-        else { // primitive
-            if(typeof value == 'function') {
+        else {
+            // primitive
+            if (typeof value == 'function') {
                 value = '[Function]';
             }
             else {
@@ -555,7 +599,7 @@ class Comparer {
             ret = value + (commaAtEnd ? ',' : '') + outputErrors() + '\n';
         }
 
-        if(indents == 0) {
+        if (indents == 0) {
             this.endSeen(true);
             return ret.trim();
         }
@@ -567,14 +611,14 @@ class Comparer {
          * @return {String} Stringified normal errors, generated from the errors array
          */
         function outputErrors() {
-            const filteredErrors = errors.filter(error => !error.blockError);
+            const filteredErrors = errors.filter((error) => !error.blockError);
 
-            if(filteredErrors.length == 0) {
+            if (filteredErrors.length == 0) {
                 return '';
             }
 
             let ret = `  ${errorStart}  `;
-            for(const error of errors) {
+            for (const error of errors) {
                 ret += error.replace(/\n/g, ' ') + ', ';
             }
 
@@ -588,15 +632,20 @@ class Comparer {
          * @return {String} Stringified block errors, generated from the errors array
          */
         function outputBlockErrors() {
-            const filteredErrors = errors.filter(error => error.blockError);
-            if(filteredErrors.length == 0) {
+            const filteredErrors = errors.filter((error) => error.blockError);
+            if (filteredErrors.length == 0) {
                 return '';
             }
 
             let ret = '\n';
-            for(const error of errors) {
+            for (const error of errors) {
                 ret += nextSpaces + `${errorStart} ${error.text}\n`;
-                ret += nextSpaces + (error.key ? error.key + ': ' : '') + self.print(error.obj, errorStart, errorEnd, indents + 1) + errorEnd + '\n';
+                ret +=
+                    nextSpaces +
+                    (error.key ? error.key + ': ' : '') +
+                    self.print(error.obj, errorStart, errorEnd, indents + 1) +
+                    errorEnd +
+                    '\n';
             }
 
             ret = ret.slice(0, -1); // slice off last '\n'

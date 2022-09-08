@@ -1,5 +1,5 @@
 /* globals sinon */
-const {Builder, By, Key, until} = require('selenium-webdriver');
+const { Builder, By, Key, until } = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const firefox = require('selenium-webdriver/firefox');
 const safari = require('selenium-webdriver/safari');
@@ -13,7 +13,7 @@ const request = require('request-promise-native');
 const utils = require('../../src/utils.js');
 const ElementFinder = require('./elementfinder.js');
 const Comparer = require('./comparer.js');
-const {reporter} = require('../../src/instances.js');
+const { reporter } = require('../../src/instances.js');
 
 class BrowserInstance {
     // ***************************************
@@ -30,7 +30,7 @@ class BrowserInstance {
         // Register this browser in the persistent array browsers
         // Used to kill all open browsers if the runner is stopped
         let browsers = runInstance.p('browsers');
-        if(!browsers) {
+        if (!browsers) {
             browsers = runInstance.p('browsers', []);
         }
         browsers.push(browser);
@@ -73,14 +73,14 @@ class BrowserInstance {
      */
     static async killAllBrowsers(runner) {
         const browsers = runner.p('browsers');
-        if(browsers) {
-            for(let i = 0; i < browsers.length; i++) {
+        if (browsers) {
+            for (let i = 0; i < browsers.length; i++) {
                 const browser = browsers[i];
-                if(browser.driver) {
+                if (browser.driver) {
                     try {
                         await browser.driver.quit();
                     }
-                    catch(e) {
+                    catch (e) {
                         // ignore errors
                     }
 
@@ -100,7 +100,7 @@ class BrowserInstance {
         this.runInstance = runInstance;
         this.startTime = null;
 
-        this.definedProps = ElementFinder.defaultProps();  // ElementFinder props
+        this.definedProps = ElementFinder.defaultProps(); // ElementFinder props
     }
 
     /**
@@ -119,16 +119,16 @@ class BrowserInstance {
      * @param {Capabilities} [params.capabilities] - Sets capabilities (see the withCapabilities() function in https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html)
      */
     async open(params) {
-        if(!params) {
+        if (!params) {
             params = {};
         }
 
         // Options
-        if(!params.options) {
+        if (!params.options) {
             try {
                 params.options = this.runInstance.findVarValue('browser options', false, true); // look for {browser options}, above or below
             }
-            catch(e) {
+            catch (e) {
                 // ignore
             }
         }
@@ -141,82 +141,82 @@ class BrowserInstance {
         };
 
         // Capabilities
-        if(!params.capabilities) {
+        if (!params.capabilities) {
             try {
                 params.capabilities = this.runInstance.findVarValue('browser capabilities', false, true); // look for {browser capabilities}, above or below
             }
-            catch(e) {
+            catch (e) {
                 // ignore
             }
         }
 
         // Browser name
-        if(!params.name) {
+        if (!params.name) {
             try {
                 params.name = this.runInstance.findVarValue('browser name', false, true); // look for {browser name}, above or below
             }
-            catch(e) {
+            catch (e) {
                 params.name = 'chrome'; // defaults to chrome
             }
         }
 
         // Browser version
-        if(!params.version) {
+        if (!params.version) {
             try {
                 params.version = this.runInstance.findVarValue('browser version', false, true); // look for {browser version}, above or below
             }
-            catch(e) {
+            catch (e) {
                 // it's ok if the variable isn't found (simply don't set browser version)
             }
         }
 
         // Browser platform
-        if(!params.platform) {
+        if (!params.platform) {
             try {
                 params.platform = this.runInstance.findVarValue('browser platform', false, true); // look for {browser platform}, above or below
             }
-            catch(e) {
+            catch (e) {
                 // ignore
             }
         }
 
         // Mobile device emulation (Chrome only)
-        if(!params.deviceEmulation) {
+        if (!params.deviceEmulation) {
             try {
                 params.deviceEmulation = this.runInstance.findVarValue('device', false, true);
             }
-            catch(e) {
+            catch (e) {
                 // ignore
             }
         }
-        if(params.deviceEmulation) {
-            options.chrome.setMobileEmulation({deviceName: params.deviceEmulation});
+        if (params.deviceEmulation) {
+            options.chrome.setMobileEmulation({ deviceName: params.deviceEmulation });
         }
 
         // Dimensions
-        if(!params.width) {
+        if (!params.width) {
             try {
                 params.width = parseInt(this.runInstance.findVarValue('browser width', false, true)); // look for {browser width}, above or below
             }
-            catch(e) {
+            catch (e) {
                 // ignore
             }
         }
-        if(!params.height) {
+        if (!params.height) {
             try {
                 params.height = parseInt(this.runInstance.findVarValue('browser height', false, true)); // look for {browser height}, above or below
             }
-            catch(e) {
+            catch (e) {
                 // ignore
             }
         }
 
         // Headless
-        if(typeof params.isHeadless == 'undefined') {
+        if (typeof params.isHeadless == 'undefined') {
             params.isHeadless = this.runInstance.runner.headless;
         }
 
-        if(params.isHeadless) {
+        if (params.isHeadless) {
             options.chrome.headless();
             options.firefox.headless();
 
@@ -224,12 +224,12 @@ class BrowserInstance {
         }
 
         // Test server url
-        if(!params.testServer) {
+        if (!params.testServer) {
             params.testServer = this.runInstance.runner.testServer;
         }
 
         // No console logging (unless options are explicitly set)
-        if(!params.options) {
+        if (!params.options) {
             options.chrome.addArguments('log-level=3', 'silent');
             options.chrome.excludeSwitches('enable-logging');
         }
@@ -241,7 +241,9 @@ class BrowserInstance {
         params.deviceEmulation && (logStr += `, device '${params.deviceEmulation}'`);
         params.width && (logStr += `, width '${params.width}'`);
         params.height && (logStr += `, height '${params.height}'`);
-        params.isHeadless && !['safari', 'internet explorer', 'MicrosoftEdge'].includes(params.name) && (logStr += ', headless mode');
+        params.isHeadless &&
+            !['safari', 'internet explorer', 'MicrosoftEdge'].includes(params.name) &&
+            (logStr += ', headless mode');
         params.serverUrl && (logStr += `, server url '${params.serverUrl}'`);
 
         this.runInstance.log(logStr);
@@ -255,11 +257,11 @@ class BrowserInstance {
             .setIeOptions(options.ie)
             .setEdgeOptions(options.edge);
 
-        if(params.testServer) {
+        if (params.testServer) {
             builder = builder.usingServer(params.testServer);
         }
 
-        if(params.capabilities) {
+        if (params.capabilities) {
             builder = builder.withCapabilities(params.capabilities);
         }
 
@@ -269,12 +271,12 @@ class BrowserInstance {
 
         // Resize to dimensions
         // NOTE: Options.windowSize() wasn't working properly
-        if(params.width && params.height && !(params.name == 'chrome' && params.deviceEmulation)) {
-            await this.driver.manage().window().setRect({width: params.width, height: params.height});
+        if (params.width && params.height && !(params.name == 'chrome' && params.deviceEmulation)) {
+            await this.driver.manage().window().setRect({ width: params.width, height: params.height });
         }
 
         // Set timeouts
-        await this.driver.manage().setTimeouts( { implicit: 0, pageLoad: 30 * 1000, script: 30 * 1000 } );
+        await this.driver.manage().setTimeouts({ implicit: 0, pageLoad: 30 * 1000, script: 30 * 1000 });
     }
 
     /**
@@ -282,18 +284,18 @@ class BrowserInstance {
      */
     async close() {
         try {
-            if(this.driver) {
+            if (this.driver) {
                 await this.driver.quit();
                 this.driver = null;
             }
         }
-        catch(e) {
+        catch (e) {
             // ignore
         }
 
         const browsers = this.runInstance.p('browsers');
-        for(let i = 0; i < browsers.length; i++) {
-            if(browsers[i] === this) {
+        for (let i = 0; i < browsers.length; i++) {
+            if (browsers[i] === this) {
                 browsers.splice(i, 1);
             }
         }
@@ -311,13 +313,15 @@ class BrowserInstance {
         let domain = matches[2];
         const path = matches[4];
 
-        if(protocol != 'file://') {
-            if(!domain) {
+        if (protocol != 'file://') {
+            if (!domain) {
                 const currUrl = await this.driver.getCurrentUrl();
                 matches = currUrl.match(URL_REGEX);
                 domain = matches[2];
-                if(!domain) {
-                    throw new Error('Cannot determine domain to navigate to. Either include a domain or have the browser already be at a page with a domain.');
+                if (!domain) {
+                    throw new Error(
+                        'Cannot determine domain to navigate to. Either include a domain or have the browser already be at a page with a domain.'
+                    );
                 }
             }
 
@@ -336,11 +340,11 @@ class BrowserInstance {
      */
     async type(text, element) {
         let items = text.split(/(?=(?<=[^\\])\[)|(?<=(?=[^\\])\])/g);
-        items = items.map(item => {
+        items = items.map((item) => {
             const matches = item.match(/^\[(.*)\]$/);
-            if(matches && matches[1]) {
+            if (matches && matches[1]) {
                 const key = Key[matches[1].toUpperCase()];
-                if(!key) {
+                if (!key) {
                     throw new Error(`Invalid key ${item}`);
                 }
                 return key;
@@ -368,15 +372,23 @@ class BrowserInstance {
         const dropdownCoords = this.runInstance.currStep ? this.runInstance.currStep.targetCoords : null;
 
         const tagName = await dropdownElement.getTagName();
-        if(tagName.toLowerCase() == 'select') {
+        if (tagName.toLowerCase() == 'select') {
             try {
-                const item = await this.$(`selector 'option', contains exact '${this.str(value)}', any visibility`, false, dropdownElement);
+                const item = await this.$(
+                    `selector 'option', contains exact '${this.str(value)}', any visibility`,
+                    false,
+                    dropdownElement
+                );
                 this.runInstance.log(EXACT_LOG);
                 await item.click();
             }
-            catch(e) {
+            catch (e) {
                 this.runInstance.log(INEXACT_LOG);
-                const item = await this.$(`selector 'option', contains '${this.str(value)}', any visibility`, false, dropdownElement);
+                const item = await this.$(
+                    `selector 'option', contains '${this.str(value)}', any visibility`,
+                    false,
+                    dropdownElement
+                );
                 this.runInstance.log(FOUND_LOG);
                 await item.click();
             }
@@ -385,7 +397,7 @@ class BrowserInstance {
             throw new Error('Target element is not a <select>');
         }
 
-        if(this.runInstance.currStep) {
+        if (this.runInstance.currStep) {
             this.runInstance.currStep.targetCoords = dropdownCoords; // restore the dropdown's coords, since the option's coords took over
         }
     }
@@ -400,7 +412,7 @@ class BrowserInstance {
         dropdownElement = await this.$(dropdownElement, true);
 
         const tagName = await dropdownElement.getTagName();
-        if(tagName.toLowerCase() != 'select') {
+        if (tagName.toLowerCase() != 'select') {
             // Click it open
             await dropdownElement.click();
         }
@@ -416,7 +428,7 @@ class BrowserInstance {
         try {
             await this.driver.switchTo().alert();
         }
-        catch(e) {
+        catch (e) {
             alertOpen = false;
         }
 
@@ -456,30 +468,31 @@ class BrowserInstance {
      */
     async takeScreenshot(isAfter, targetCoords) {
         // See if screenshot is allowed
-        if(!this.runInstance.runner.reporter) {
+        if (!this.runInstance.runner.reporter) {
             return;
         }
-        if(!this.runInstance.runner.screenshots) {
+        if (!this.runInstance.runner.screenshots) {
             return;
         }
-        if(this.runInstance.tree.stepDataMode == 'none') {
+        if (this.runInstance.tree.stepDataMode == 'none') {
             return;
         }
-        if(this.runInstance.runner.screenshotCount >= this.runInstance.runner.maxScreenshots
-            && this.runInstance.runner.maxScreenshots != -1
+        if (
+            this.runInstance.runner.screenshotCount >= this.runInstance.runner.maxScreenshots &&
+            this.runInstance.runner.maxScreenshots != -1
         ) {
             return;
         }
-        if(!this.runInstance.currStep || !this.runInstance.currBranch) {
+        if (!this.runInstance.currStep || !this.runInstance.currBranch) {
             return;
         }
-        if(!this.runInstance.tree.hasCodeBlock(this.runInstance.currStep)) {
+        if (!this.runInstance.tree.hasCodeBlock(this.runInstance.currStep)) {
             return;
         }
 
         // Create smashtest/screenshots if it doesn't already exist
         const dir = path.join(reporter.getPathFolder(), 'screenshots');
-        if(!fs.existsSync(dir)) {
+        if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
 
@@ -488,16 +501,18 @@ class BrowserInstance {
         try {
             data = await this.driver.takeScreenshot();
         }
-        catch(e) {
+        catch (e) {
             // fail silently
         }
 
-        if(!data) {
+        if (!data) {
             return;
         }
 
         // Write screenshot to file
-        const filename = `${this.runInstance.currBranch.hash}_${this.runInstance.currBranch.steps.indexOf(this.runInstance.currStep) || '0'}_${isAfter ? 'after' : 'before'}.jpg`;
+        const filename = `${this.runInstance.currBranch.hash}_${
+            this.runInstance.currBranch.steps.indexOf(this.runInstance.currStep) || '0'
+        }_${isAfter ? 'after' : 'before'}.jpg`;
         const SCREENSHOT_WIDTH = 1000;
         await (await Jimp.read(Buffer.from(data, 'base64')))
             .resize(SCREENSHOT_WIDTH, Jimp.AUTO)
@@ -505,7 +520,7 @@ class BrowserInstance {
             .writeAsync(path.join(reporter.getFullSSPath(), filename));
 
         // Include crosshairs in report
-        if(targetCoords) {
+        if (targetCoords) {
             this.runInstance.currStep.targetCoords = targetCoords;
         }
 
@@ -516,19 +531,20 @@ class BrowserInstance {
      * Clears the current branch's screenshots if the --step-data mode requires it
      */
     async clearUnneededScreenshots() {
-        if(this.runInstance.tree.stepDataMode == 'fail' && !this.runInstance.currBranch.isFailed) { // NOTE: for stepDataMode of 'none', a screenshot wasn't created in the first place
+        if (this.runInstance.tree.stepDataMode == 'fail' && !this.runInstance.currBranch.isFailed) {
+            // NOTE: for stepDataMode of 'none', a screenshot wasn't created in the first place
             // Delete all screenshots with a filename that begins with the currBranch's hash
             const screenshotsDir = `${path.join(reporter.getPathFolder(), 'screenshots')}`;
             let files = [];
             try {
                 files = fs.readdirSync(screenshotsDir);
             }
-            catch(e) {
+            catch (e) {
                 // it's ok if the directory doesn't exist
             }
 
-            for(const file of files) {
-                if(file.startsWith(this.runInstance.currBranch.hash)) {
+            for (const file of files) {
+                if (file.startsWith(this.runInstance.currBranch.hash)) {
                     fs.unlinkSync(path.join(screenshotsDir, file));
                     this.runInstance.runner.screenshotCount--; // decrement screenshotCount for every screenshot deleted
                 }
@@ -540,11 +556,11 @@ class BrowserInstance {
      * Sets the crosshairs for the before screenshot to the given WebElement's coordinates
      */
     async setCrosshairs(elem) {
-        if(!this.runInstance.currStep) {
+        if (!this.runInstance.currStep) {
             return;
         }
 
-        const rect = await this.executeScript(function(elem) {
+        const rect = await this.executeScript(function (elem) {
             const rect = elem.getBoundingClientRect();
             return {
                 top: rect.top,
@@ -557,8 +573,8 @@ class BrowserInstance {
         }, elem);
 
         this.runInstance.currStep.targetCoords = {
-            x: (rect.left + (rect.width/2)) / rect.clientWidth * 100,
-            y: (rect.top + (rect.height/2)) / rect.clientHeight * 100
+            x: ((rect.left + rect.width / 2) / rect.clientWidth) * 100,
+            y: ((rect.top + rect.height / 2) / rect.clientHeight) * 100
         };
     }
 
@@ -566,16 +582,16 @@ class BrowserInstance {
      * If the given WebElement is not currently scrolled into view, scrolls it into view and retakes the before screenshot
      */
     async scrollIntoView(elem) {
-        const isScrolledIntoView = await this.executeScript(function(elem) {
+        const isScrolledIntoView = await this.executeScript(function (elem) {
             var rect = elem.getBoundingClientRect();
-            const isScrolledIntoView = (rect.top >= 0) && (rect.bottom <= window.innerHeight);
-            if(!isScrolledIntoView) {
+            const isScrolledIntoView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+            if (!isScrolledIntoView) {
                 elem.scrollIntoView();
             }
             return isScrolledIntoView;
         }, elem);
 
-        if(!isScrolledIntoView) {
+        if (!isScrolledIntoView) {
             await this.takeScreenshot(false);
         }
     }
@@ -599,13 +615,13 @@ class BrowserInstance {
         timeout = typeof timeout != 'undefined' ? timeout : 2000;
 
         let ef = null;
-        if(typeof element == 'string') {
-            if(!element.match(/\n/g)) {
+        if (typeof element == 'string') {
+            if (!element.match(/\n/g)) {
                 element = element.trim();
             }
             ef = new ElementFinder(element, this.definedProps);
         }
-        else if(element instanceof ElementFinder) {
+        else if (element instanceof ElementFinder) {
             ef = element;
         }
         else {
@@ -613,7 +629,7 @@ class BrowserInstance {
         }
 
         let results = null;
-        if(tryClickable) {
+        if (tryClickable) {
             ef.addProp('clickable', 'clickable', undefined, undefined, this.definedProps, true);
             try {
                 results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
@@ -625,9 +641,11 @@ class BrowserInstance {
 
                 return result;
             }
-            catch(e) {
+            catch (e) {
                 ef.props.shift(); // remove 'clickable'
-                this.runInstance.log(`No elements from \`${ef.print()}\` match the \`clickable\` prop, so trying all elements`);
+                this.runInstance.log(
+                    `No elements from \`${ef.print()}\` match the \`clickable\` prop, so trying all elements`
+                );
             }
         }
 
@@ -651,20 +669,20 @@ class BrowserInstance {
         timeout = typeof timeout != 'undefined' ? timeout : 2000;
 
         let ef = null;
-        if(typeof element == 'string') {
-            if(!element.match(/\n/g)) {
+        if (typeof element == 'string') {
+            if (!element.match(/\n/g)) {
                 element = element.trim();
             }
             ef = new ElementFinder(element, this.definedProps);
         }
-        else if(element instanceof ElementFinder) {
+        else if (element instanceof ElementFinder) {
             ef = element;
         }
         else {
             return [element];
         }
 
-        if(ef.counter.default) {
+        if (ef.counter.default) {
             ef.counter = { min: 1 };
         }
 
@@ -682,24 +700,24 @@ class BrowserInstance {
         timeout = typeof timeout != 'undefined' ? timeout : 2000;
 
         let ef = null;
-        if(typeof element == 'string') {
-            if(!element.match(/\n/g)) {
+        if (typeof element == 'string') {
+            if (!element.match(/\n/g)) {
                 element = element.trim();
             }
             ef = new ElementFinder(element, this.definedProps);
         }
-        else if(element instanceof ElementFinder) {
+        else if (element instanceof ElementFinder) {
             ef = element;
         }
         else {
             try {
                 await this.driver.wait(async () => {
-                    return await element.isDisplayed() === false;
+                    return (await element.isDisplayed()) === false;
                 }, timeout);
             }
-            catch(e) {
-                if(e.message.includes('Wait timed out after')) {
-                    throw new Error(`Element still found after timeout (${timeout/1000} s)`);
+            catch (e) {
+                if (e.message.includes('Wait timed out after')) {
+                    throw new Error(`Element still found after timeout (${timeout / 1000} s)`);
                 }
                 else {
                     throw e;
@@ -716,28 +734,30 @@ class BrowserInstance {
      * @param {Boolean} [isAdd] - If true, does not override existing defintions, but adds to them
      */
     props(props, isAdd) {
-        for(const prop in props) {
-            if(Object.prototype.hasOwnProperty.call(props, prop)) {
-                if(typeof props[prop] == 'string') {
+        for (const prop in props) {
+            if (Object.prototype.hasOwnProperty.call(props, prop)) {
+                if (typeof props[prop] == 'string') {
                     // parse it as an EF
                     props[prop] = new ElementFinder(props[prop], this.definedProps, undefined, this.runInstance.log);
                 }
-                else if(typeof props[prop] == 'function') {
+                else if (typeof props[prop] == 'function') {
                     // empty
                 }
                 else {
-                    throw new Error(`Invalid value of prop '${prop}'. Must be either a string ElementFinder or a function.`);
+                    throw new Error(
+                        `Invalid value of prop '${prop}'. Must be either a string ElementFinder or a function.`
+                    );
                 }
 
                 const [canonProp] = ElementFinder.canonicalizePropStr(prop);
-                if(isAdd) {
-                    if(!this.definedProps[canonProp]) {
+                if (isAdd) {
+                    if (!this.definedProps[canonProp]) {
                         this.definedProps[canonProp] = [];
                     }
                     this.definedProps[canonProp].push(props[prop]);
                 }
                 else {
-                    this.definedProps[canonProp] = [ props[prop] ];
+                    this.definedProps[canonProp] = [props[prop]];
                 }
             }
         }
@@ -756,7 +776,7 @@ class BrowserInstance {
      * Clears all definitions of the given EF props
      */
     propsClear(names) {
-        names.forEach(name => delete this.definedProps[name]);
+        names.forEach((name) => delete this.definedProps[name]);
     }
 
     /**
@@ -779,14 +799,17 @@ class BrowserInstance {
         let obj = null;
         try {
             await this.driver.wait(async () => {
-                obj = await this.executeScript(function(titleOrUrl) {
-                    let isMatched = document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) != -1 ||
+                obj = await this.executeScript(function (titleOrUrl) {
+                    let isMatched =
+                        document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) != -1 ||
                         window.location.href.indexOf(titleOrUrl) != -1;
-                    if(!isMatched) { // try them as regexes
+                    if (!isMatched) {
+                        // try them as regexes
                         try {
                             isMatched = document.title.match(titleOrUrl) || window.location.href.match(titleOrUrl);
                         }
-                        catch(e) { // in case of a bad regex
+                        catch (e) {
+                            // in case of a bad regex
                         }
                     }
 
@@ -799,9 +822,13 @@ class BrowserInstance {
                 return obj.isMatched;
             }, timeout);
         }
-        catch(e) {
-            if(e.message.includes('Wait timed out after')) {
-                throw new Error(`Neither the page title ('${obj.title}'), nor the page url ('${obj.url}'), contain the string or regex '${titleOrUrl}' after ${timeout/1000} s`);
+        catch (e) {
+            if (e.message.includes('Wait timed out after')) {
+                throw new Error(
+                    `Neither the page title ('${obj.title}'), nor the page url ('${
+                        obj.url
+                    }'), contain the string or regex '${titleOrUrl}' after ${timeout / 1000} s`
+                );
             }
             else {
                 throw e;
@@ -819,8 +846,8 @@ class BrowserInstance {
                 try {
                     cookie = await this.driver.manage().getCookie(name);
                 }
-                catch(e) {
-                    if(e.message.includes('No cookie with name')) {
+                catch (e) {
+                    if (e.message.includes('No cookie with name')) {
                         return false;
                     }
                     else {
@@ -828,16 +855,16 @@ class BrowserInstance {
                     }
                 }
 
-                if(!cookie) {
+                if (!cookie) {
                     return false;
                 }
 
                 return cookie.value.includes(value);
             }, timeout);
         }
-        catch(e) {
-            if(e.message.includes('Wait timed out after')) {
-                throw new Error(`The cookie '${name}' didn't contain '${value}' after ${timeout/1000} s`);
+        catch (e) {
+            if (e.message.includes('Wait timed out after')) {
+                throw new Error(`The cookie '${name}' didn't contain '${value}' after ${timeout / 1000} s`);
             }
             else {
                 throw e;
@@ -860,11 +887,11 @@ class BrowserInstance {
         try {
             stateElems = await this.$$(state, elem, timeout, true);
         }
-        catch(e) {
+        catch (e) {
             throw new Error(ERR);
         }
 
-        if(stateElems.length == 0 || (await stateElems[0].getId() != await elem.getId())) {
+        if (stateElems.length == 0 || (await stateElems[0].getId()) != (await elem.getId())) {
             throw new Error(ERR);
         }
     }
@@ -876,19 +903,19 @@ class BrowserInstance {
     async verifyEveryState(element, state, timeout) {
         const elems = await this.$$(element, undefined, timeout, true);
 
-        for(let i = 0; i < elems.length; i++) {
+        for (let i = 0; i < elems.length; i++) {
             const elem = elems[i];
             let stateElems = [];
-            const ERR = `Matched element number ${i+1} doesn't match the given state`;
+            const ERR = `Matched element number ${i + 1} doesn't match the given state`;
 
             try {
                 stateElems = await this.$$(state, elem, timeout, true);
             }
-            catch(e) {
+            catch (e) {
                 throw new Error(ERR);
             }
 
-            if(stateElems.length == 0 || (await stateElems[0].getId() != await elem.getId())) {
+            if (stateElems.length == 0 || (await stateElems[0].getId()) != (await elem.getId())) {
                 throw new Error(ERR);
             }
         }
@@ -903,11 +930,11 @@ class BrowserInstance {
      * Sinon will be available inside the browser at the global js var 'sinon'
      */
     async injectSinon() {
-        const sinonExists = await this.executeScript(function() {
+        const sinonExists = await this.executeScript(function () {
             return typeof sinon != 'undefined';
         });
 
-        if(!sinonExists) {
+        if (!sinonExists) {
             const sinonCode = await request.get('https://cdnjs.cloudflare.com/ajax/libs/sinon.js/7.3.2/sinon.min.js');
             await this.executeScript(sinonCode);
         }
@@ -921,7 +948,7 @@ class BrowserInstance {
     async mockTime(time) {
         await this.mockTimeStop(); // stop any existing time mocks
         await this.injectSinon();
-        await this.executeScript(function(timeStr) {
+        await this.executeScript(function (timeStr) {
             window.smashtestSinonClock = sinon.useFakeTimers({
                 now: new Date(timeStr),
                 shouldAdvanceTime: true
@@ -944,11 +971,11 @@ class BrowserInstance {
     async mockHttp(method, url, response) {
         // Validate and serialize url
         let typeofUrl = typeof url;
-        if(typeofUrl == 'object' && url instanceof RegExp) {
+        if (typeofUrl == 'object' && url instanceof RegExp) {
             typeofUrl = 'regex';
             url = url.toString();
         }
-        else if(typeofUrl == 'string') {
+        else if (typeofUrl == 'string') {
             // empty
         }
         else {
@@ -957,16 +984,16 @@ class BrowserInstance {
 
         // Validate and serialize response
         let typeofResponse = typeof response;
-        if(typeofResponse == 'function') {
+        if (typeofResponse == 'function') {
             response = response.toString();
         }
-        else if(typeofResponse == 'string') {
+        else if (typeofResponse == 'string') {
             // empty
         }
-        else if(typeofResponse == 'object') {
-            if(response instanceof Array) {
+        else if (typeofResponse == 'object') {
+            if (response instanceof Array) {
                 typeofResponse = 'array';
-                if(typeof response[2] == 'object') {
+                if (typeof response[2] == 'object') {
                     response[2] = JSON.stringify(response[2]);
                 }
             }
@@ -978,24 +1005,31 @@ class BrowserInstance {
         }
 
         await this.injectSinon();
-        await this.executeScript(function(method, url, response, typeofUrl, typeofResponse) {
-            // Deserialize url
-            if(typeofUrl == 'regex') {
-                url = eval(url);
-            }
+        await this.executeScript(
+            function (method, url, response, typeofUrl, typeofResponse) {
+                // Deserialize url
+                if (typeofUrl == 'regex') {
+                    url = eval(url);
+                }
 
-            // Deserialize response
-            if(typeofResponse == 'function') {
-                eval('response = ' + response.trim());
-            }
-            else if(typeofResponse == 'array') {
-                response = JSON.parse(response);
-            }
+                // Deserialize response
+                if (typeofResponse == 'function') {
+                    eval('response = ' + response.trim());
+                }
+                else if (typeofResponse == 'array') {
+                    response = JSON.parse(response);
+                }
 
-            window.smashtestSinonFakeServer = window.smashtestSinonFakeServer ||
-                sinon.createFakeServer({ respondImmediately: true });
-            window.smashtestSinonFakeServer.respondWith(method, url, response);
-        }, method, url, response, typeofUrl, typeofResponse);
+                window.smashtestSinonFakeServer =
+                    window.smashtestSinonFakeServer || sinon.createFakeServer({ respondImmediately: true });
+                window.smashtestSinonFakeServer.respondWith(method, url, response);
+            },
+            method,
+            url,
+            response,
+            typeofUrl,
+            typeofResponse
+        );
     }
 
     /**
@@ -1005,8 +1039,8 @@ class BrowserInstance {
      * Fails silently if no mock is currently active
      */
     async mockHttpConfigure(config) {
-        await this.executeScript(function(config) {
-            if(typeof window.smashtestSinonFakeServer != 'undefined') {
+        await this.executeScript(function (config) {
+            if (typeof window.smashtestSinonFakeServer != 'undefined') {
                 window.smashtestSinonFakeServer.configure(config);
             }
         }, config);
@@ -1018,34 +1052,38 @@ class BrowserInstance {
      * @param {String or Number} longitude - The longitude to set the browser to
      */
     async mockLocation(latitude, longitude) {
-        await this.executeScript(function(latitude, longitude) {
-            if(typeof window.smashtestOriginalGetCurrentPosition == 'undefined') {
-                window.smashtestOriginalGetCurrentPosition = window.navigator.geolocation.getCurrentPosition;
-            }
+        await this.executeScript(
+            function (latitude, longitude) {
+                if (typeof window.smashtestOriginalGetCurrentPosition == 'undefined') {
+                    window.smashtestOriginalGetCurrentPosition = window.navigator.geolocation.getCurrentPosition;
+                }
 
-            window.navigator.geolocation.getCurrentPosition = function(success) {
-                success({
-                    coords: {
-                        accuracy: 98,
-                        altitude: null,
-                        altitudeAccuracy: null,
-                        heading: null,
-                        latitude: parseFloat(latitude),
-                        longitude: parseFloat(longitude),
-                        speed: null
-                    },
-                    timestamp: (new Date()).valueOf()
-                });
-            };
-        }, latitude, longitude);
+                window.navigator.geolocation.getCurrentPosition = function (success) {
+                    success({
+                        coords: {
+                            accuracy: 98,
+                            altitude: null,
+                            altitudeAccuracy: null,
+                            heading: null,
+                            latitude: parseFloat(latitude),
+                            longitude: parseFloat(longitude),
+                            speed: null
+                        },
+                        timestamp: new Date().valueOf()
+                    });
+                };
+            },
+            latitude,
+            longitude
+        );
     }
 
     /**
      * Stops and reverts all time-related mocks
      */
     async mockTimeStop() {
-        await this.executeScript(function() {
-            if(typeof window.smashtestSinonClock != 'undefined') {
+        await this.executeScript(function () {
+            if (typeof window.smashtestSinonClock != 'undefined') {
                 window.smashtestSinonClock.restore();
                 window.smashtestSinonClock = undefined;
             }
@@ -1056,8 +1094,8 @@ class BrowserInstance {
      * Stops and reverts all http-related mocks
      */
     async mockHttpStop() {
-        await this.executeScript(function() {
-            if(typeof window.smashtestSinonFakeServer != 'undefined') {
+        await this.executeScript(function () {
+            if (typeof window.smashtestSinonFakeServer != 'undefined') {
                 window.smashtestSinonFakeServer.restore();
                 window.smashtestSinonFakeServer = undefined;
             }
@@ -1068,8 +1106,8 @@ class BrowserInstance {
      * Stops geolocation mock
      */
     async mockLocationStop() {
-        await this.executeScript(function() {
-            if(typeof window.smashtestOriginalGetCurrentPosition != 'undefined') {
+        await this.executeScript(function () {
+            if (typeof window.smashtestOriginalGetCurrentPosition != 'undefined') {
                 window.navigator.geolocation.getCurrentPosition = window.smashtestOriginalGetCurrentPosition;
                 window.smashtestOriginalGetCurrentPosition = undefined;
             }

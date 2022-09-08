@@ -22,31 +22,31 @@ class HttpApi {
     makeReq(func) {
         const args = Array.from(arguments).slice(1);
         let uri = '';
-        if(typeof args[0] == 'string') {
+        if (typeof args[0] == 'string') {
             uri = args[0];
         }
-        else if(typeof args[0] == 'object') {
-            if(args[0].uri) {
+        else if (typeof args[0] == 'object') {
+            if (args[0].uri) {
                 uri = args[0].uri;
             }
-            else if(args[0].url) {
+            else if (args[0].url) {
                 uri = args[0].url;
             }
         }
-        else if(typeof args[1] == 'object') {
-            if(args[1].uri) {
+        else if (typeof args[1] == 'object') {
+            if (args[1].uri) {
                 uri = args[1].uri;
             }
-            else if(args[1].url) {
+            else if (args[1].url) {
                 uri = args[1].url;
             }
         }
 
         let method = 'GET';
-        if(typeof args[0] == 'object' && Object.prototype.hasOwnProperty.call(args[0], 'method')) {
+        if (typeof args[0] == 'object' && Object.prototype.hasOwnProperty.call(args[0], 'method')) {
             method = args[0].method;
         }
-        else if(typeof args[1] == 'object' && Object.prototype.hasOwnProperty.call(args[1], 'method')) {
+        else if (typeof args[1] == 'object' && Object.prototype.hasOwnProperty.call(args[1], 'method')) {
             method = args[1].method;
         }
 
@@ -171,7 +171,7 @@ HttpApi.Response = class Response {
         try {
             this.response.body = JSON.parse(this.response.body);
         }
-        catch(e) {
+        catch (e) {
             // ignore
         }
 
@@ -188,26 +188,29 @@ HttpApi.Response = class Response {
      */
     verify(expectedObj) {
         let headersLog = '';
-        if(this.response.headers) {
-            for(const headerName in this.response.headers) {
-                if(Object.prototype.hasOwnProperty.call(this.response.headers, headerName)) {
+        if (this.response.headers) {
+            for (const headerName in this.response.headers) {
+                if (Object.prototype.hasOwnProperty.call(this.response.headers, headerName)) {
                     headersLog += `  ${headerName}: ${this.response.headers[headerName]}\n`;
                 }
             }
         }
 
         let rawBody = this.response.rawBody;
-        if(typeof rawBody == 'string') {
+        if (typeof rawBody == 'string') {
             // empty
         }
-        else if(typeof rawBody == 'object') {
+        else if (typeof rawBody == 'object') {
             rawBody = JSON.stringify(rawBody);
         }
         else {
             rawBody = `[${typeof rawBody}]`;
         }
 
-        const responseLog = `Response:\n  ${this.response.statusCode}\n\n${headersLog}\n\n${rawBody.replace(/(.*)/g, '  $1')}`;
+        const responseLog = `Response:\n  ${this.response.statusCode}\n\n${headersLog}\n\n${rawBody.replace(
+            /(.*)/g,
+            '  $1'
+        )}`;
         this.runInstance.log(responseLog);
 
         Comparer.expect(this.response, undefined, undefined, 'Actual response object:').to.match(expectedObj);
