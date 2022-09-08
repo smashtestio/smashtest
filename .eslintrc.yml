@@ -1,5 +1,6 @@
 env:
   node: true
+  browser: true
   es2021: true
 extends:
   - eslint:recommended
@@ -11,6 +12,11 @@ parserOptions:
   sourceType: script
 # plugins:
 #   - '@typescript-eslint'
+ignorePatterns:
+  - dist
+  - node_modules
+  - smashtest
+  - tests
 rules:
   indent:
     - error

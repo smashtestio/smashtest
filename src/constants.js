@@ -77,3 +77,7 @@ exports.FREQUENCIES = ['high', 'med', 'low'];
 exports.CONSOLE_END_COLOR = '\x1b[0m';
 exports.CONSOLE_START_RED = '\x1b[31m';
 exports.CONSOLE_START_GRAY = '\x1b[30m';
+
+exports.PROP_REGEX_COMMAS = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^,])*/g; // separate by commas
+exports.PROP_REGEX_SPACES = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^ ])*/g; // separate by spaces
+exports.ORD_REGEX = /^([0-9]+)(st|nd|rd|th)$/;

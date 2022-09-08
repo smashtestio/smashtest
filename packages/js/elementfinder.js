@@ -1,3 +1,4 @@
+/* globals f */
 const utils = require('../../src/utils.js');
 const Constants = require('../../src/constants.js');
 
@@ -64,7 +65,12 @@ class ElementFinder {
 
         // Parse str into this EF
         if(!noParse) {
-            this.parseIn(str, definedProps || ElementFinder.defaultProps(), this.usedDefinedProps, lineNumberOffset || 0);
+            this.parseIn(
+                str,
+                definedProps || ElementFinder.defaultProps(),
+                this.usedDefinedProps,
+                lineNumberOffset || 0
+            );
         }
     }
 
@@ -75,6 +81,20 @@ class ElementFinder {
      * @throws {Error} If there is a parse error
      */
     parseIn(str, definedProps, usedDefinedProps, lineNumberOffset) {
+        /**
+         * @return {Boolean} True if s matches one of the prop patterns (ord, 'text', or defined prop with no input), false otherwise
+         */
+        function isValidPattern(s) {
+            return  s.match(Constants.ORD_REGEX) ||
+                    s.match(Constants.QUOTED_STRING_LITERAL_WHOLE) ||
+                    (
+                        Object.prototype.hasOwnProperty.call(
+                            definedProps, ElementFinder.canonicalizePropStr(s)[0]
+                        ) &&
+                        !s.match(Constants.QUOTED_STRING_LITERAL) // we don't accept `prop 'with input'` in a space-separated list
+                    );
+        }
+
         if(!str || !str.trim()) {
             throw new Error('Cannot create an empty ElementFinder');
         }
@@ -157,7 +177,7 @@ class ElementFinder {
             }
 
             // Check for counter
-            const COUNTER_REGEX = /^([0-9]+)(\s*([\-\+])(\s*([0-9]+))?)?\s*x\s+/;
+            const COUNTER_REGEX = /^([0-9]+)(\s*([-+])(\s*([0-9]+))?)?\s*x\s+/;
             matches = parentLine.match(COUNTER_REGEX);
             if(matches) {
                 if(this.isElemArray) {
@@ -190,18 +210,12 @@ class ElementFinder {
                 }
             }
 
-            const PROP_REGEX_COMMAS = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^\,])*/g; // separate by commas
-            const PROP_REGEX_SPACES = /(((?<!(\\\\)*\\)('([^\\']|(\\\\)*\\.)*')|(?<!(\\\\)*\\)("([^\\"]|(\\\\)*\\.)*"))|[^ ])*/g; // separate by spaces
-            const ORD_REGEX = /^([0-9]+)(st|nd|rd|th)$/;
-
             // Split into comma-separated props
-            const propStrs = parentLine.match(PROP_REGEX_COMMAS).filter(propStr => propStr.trim() != '');
+            const propStrs = parentLine.match(Constants.PROP_REGEX_COMMAS).filter(propStr => propStr.trim() != '');
             let implicitVisible = true;
 
             for(let i = 0; i < propStrs.length; i++) {
                 let propStr = propStrs[i].trim();
-                const prop = {};
-
                 let canonPropStr = null;
                 let input = null;
                 let matches = null;
@@ -214,35 +228,27 @@ class ElementFinder {
                 }
 
                 // Decide which pattern propStr matches
-                if(matches = propStr.match(ORD_REGEX)) { // propStr is an ord (convert to `position 'N'`)
+                // eslint-disable-next-line no-cond-assign
+                if(matches = propStr.match(Constants.ORD_REGEX)) { // propStr is an ord (convert to `position 'N'`)
                     canonPropStr = 'position';
                     input = parseInt(matches[1]);
                 }
+                // eslint-disable-next-line no-cond-assign
                 else if(matches = propStr.match(Constants.QUOTED_STRING_LITERAL_WHOLE)) { // propStr is 'text' (convert to `contains 'text'`)
                     canonPropStr = 'contains';
                     input = utils.unescape(utils.stripQuotes(propStr));
                 }
-                else if(definedProps.hasOwnProperty(ElementFinder.canonicalizePropStr(propStr)[0])) { // propStr is a defined prop
+                else if(Object.prototype.hasOwnProperty.call(
+                    definedProps, ElementFinder.canonicalizePropStr(propStr)[0]
+                )) {
+                    // propStr is a defined prop
                     // do nothing
                 }
                 else { // propStr doesn't match any pattern
-
                     // Check if it's possible to further subdivide propStr by spaces into special format [ord]? [defined prop OR text]+
 
-                    /**
-                     * @return {Boolean} True if s matches one of the prop patterns (ord, 'text', or defined prop with no input), false otherwise
-                     */
-                    function isValidPattern(s) {
-                        return  s.match(ORD_REGEX) ||
-                                s.match(Constants.QUOTED_STRING_LITERAL_WHOLE) ||
-                                (
-                                    definedProps.hasOwnProperty(ElementFinder.canonicalizePropStr(s)[0]) &&
-                                    !s.match(Constants.QUOTED_STRING_LITERAL) // we don't accept `prop 'with input'` in a space-separated list
-                                );
-                    }
-
                     let isSpecialFormat = true;
-                    matches = propStr.match(PROP_REGEX_SPACES).filter(s => s.trim() != '');
+                    matches = propStr.match(Constants.PROP_REGEX_SPACES).filter(s => s.trim() != '');
                     const spaceSeparatedPropStrs = [];
                     if(matches && matches.length >= 2) {
                         outside:
@@ -267,7 +273,7 @@ class ElementFinder {
 
                     if(isSpecialFormat) {
                         // Put ord in back, if there is one
-                        if(spaceSeparatedPropStrs[0].match(ORD_REGEX)) {
+                        if(spaceSeparatedPropStrs[0].match(Constants.ORD_REGEX)) {
                             spaceSeparatedPropStrs.push(spaceSeparatedPropStrs.shift());
                         }
 
@@ -287,7 +293,7 @@ class ElementFinder {
                     [canonPropStr, input] = ElementFinder.canonicalizePropStr(propStr);
                 }
 
-                if(definedProps.hasOwnProperty(canonPropStr)) {
+                if(Object.prototype.hasOwnProperty.call(definedProps, canonPropStr)) {
                     this.addProp((isNot ? 'not ' : '') + propStr, canonPropStr, input, isNot, definedProps);
 
                     if(['visible', 'any visibility'].indexOf(canonPropStr) != -1) {
@@ -338,7 +344,9 @@ class ElementFinder {
         }
 
         childObjs.forEach(c => {
-            const childEF = new ElementFinder(c.str, definedProps, usedDefinedProps, this.logger, this, c.lineNumber + lineNumberOffset - 1);
+            const childEF = new ElementFinder(c.str, definedProps, usedDefinedProps,
+                this.logger, this, c.lineNumber + lineNumberOffset - 1
+            );
             if(!childEF.empty) {
                 this.children.push(childEF);
             }
@@ -360,7 +368,7 @@ class ElementFinder {
         const self = this;
 
         function addToUsedDefinedProps(def) {
-            if(!self.usedDefinedProps.hasOwnProperty(def)) {
+            if(!Object.prototype.hasOwnProperty.call(self.usedDefinedProps, def)) {
                 self.usedDefinedProps[def] = definedProps[def];
                 self.usedDefinedProps[def].forEach(d => {
                     if(d instanceof ElementFinder) {
@@ -783,7 +791,7 @@ class ElementFinder {
              */
             function findTopEF(ef, pool) {
                 const record = {};
-                const propRecord = [];
+
                 if(browserConsoleOutput) {
                     const props = [];
                     for(let i = 0; i < ef.props.length; i++) {
@@ -802,7 +810,7 @@ class ElementFinder {
                     const prop = ef.props[i];
                     let approvedElems = [];
 
-                    if(!definedProps.hasOwnProperty(prop.def)) {
+                    if(!Object.prototype.hasOwnProperty.call(definedProps, prop.def)) {
                         ef.error = 'ElementFinder prop \'' + prop.def + '\' is not defined';
                         return [];
                     }
@@ -813,7 +821,9 @@ class ElementFinder {
                         if(typeof def == 'object') { // def is an EF
                             def.counter = { min: 1 }; // match multiple elements
                             findEF(def, pool);
-                            const matched = def.matchMeElems && def.matchMeElems.length > 0 ? def.matchMeElems : def.matchedElems;
+                            const matched = def.matchMeElems && def.matchMeElems.length > 0
+                                ? def.matchMeElems
+                                : def.matchedElems;
                             approvedElems = approvedElems.concat(intersectArr(pool, matched));
                         }
                         else if(typeof def == 'string') { // stringified function
@@ -987,46 +997,42 @@ class ElementFinder {
      * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time (if isNot is set, only throws error is elements still found after timeout)
      *                 Includes ANSI escape codes in error's stacktrace to color -->'s as red in the console
      */
-    async find(driver, parentElem, isNot, isContinue, timeout, pollFrequency) {
+    find(driver, parentElem, isNot, isContinue, timeout, pollFrequency) {
         timeout = timeout || 0;
         pollFrequency = pollFrequency || 500;
 
         const start = new Date();
-        let results = null;
+        let results;
         const self = this;
 
-        return await new Promise(async (resolve, reject) => {
-            try {
-                await doFind();
-                async function doFind() {
-                    results = await self.getAll(driver, parentElem);
-                    results.ef = ElementFinder.parseObj(results.ef);
-                    if(!isNot ? results.ef.hasErrors() : (results.matches && results.matches.length > 0)) {
-                        const duration = (new Date()) - start;
-                        if(duration > timeout) {
-                            const error =
-                                !isNot ?
-                                    new Error(`Element${self.counter.max == 1 ? '' : 's'} not found${timeout > 0 ? ` in time (${timeout/1000} s)` : ''}:\n\n${results.ef.print(Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + '-->', Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY)}`) :
-                                    new Error(`Element${self.counter.max == 1 ? '' : 's'} still found${timeout > 0 ? ` after timeout (${timeout/1000} s)` : ''}`);
+        return new Promise((resolve, reject) => {
+            async function doFind() {
+                results = await self.getAll(driver, parentElem);
+                results.ef = ElementFinder.parseObj(results.ef);
+                if(!isNot ? results.ef.hasErrors() : (results.matches && results.matches.length > 0)) {
+                    const duration = (new Date()) - start;
+                    if(duration > timeout) {
+                        const error =
+                            !isNot ?
+                                new Error(`Element${self.counter.max == 1 ? '' : 's'} not found${timeout > 0 ? ` in time (${timeout/1000} s)` : ''}:\n\n${results.ef.print(Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + '-->', Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY)}`) :
+                                new Error(`Element${self.counter.max == 1 ? '' : 's'} still found${timeout > 0 ? ` after timeout (${timeout/1000} s)` : ''}`);
 
-                            if(isContinue) {
-                                error.continue = true;
-                            }
+                        if(isContinue) {
+                            error.continue = true;
+                        }
 
-                            reject(error);
-                        }
-                        else {
-                            setTimeout(doFind, pollFrequency);
-                        }
+                        reject(error);
                     }
                     else {
-                        resolve(results.matches);
+                        setTimeout(doFind, pollFrequency);
                     }
                 }
+                else {
+                    resolve(results.matches);
+                }
             }
-            catch(e) {
-                reject(e);
-            }
+
+            return doFind();
         });
     }
 
@@ -1038,7 +1044,7 @@ class ElementFinder {
     static defaultProps() {
         return {
             'visible': [
-                function(elems, input) {
+                function(elems) {
                     return elems.filter(function(elem) {
                         if(elem.offsetWidth == 0 || elem.offsetHeight == 0) {
                             return false;
@@ -1070,13 +1076,13 @@ class ElementFinder {
             ],
 
             'any visibility': [
-                function(elems, input) {
+                function(elems) {
                     return elems;
                 }
             ],
 
             'enabled': [
-                function(elems, input) {
+                function(elems) {
                     return elems.filter(function(elem) {
                         return elem.getAttribute('disabled') === null;
                     });
@@ -1084,7 +1090,7 @@ class ElementFinder {
             ],
 
             'disabled': [
-                function(elems, input) {
+                function(elems) {
                     return elems.filter(function(elem) {
                         return elem.getAttribute('disabled') !== null;
                     });
@@ -1092,7 +1098,7 @@ class ElementFinder {
             ],
 
             'checked': [
-                function(elems, input) {
+                function(elems) {
                     return elems.filter(function(elem) {
                         return elem.checked;
                     });
@@ -1100,7 +1106,7 @@ class ElementFinder {
             ],
 
             'unchecked': [
-                function(elems, input) {
+                function(elems) {
                     return elems.filter(function(elem) {
                         return !elem.checked;
                     });
@@ -1108,7 +1114,7 @@ class ElementFinder {
             ],
 
             'selected': [
-                function(elems, input) {
+                function(elems) {
                     return elems.filter(function(elem) {
                         return elem.selected;
                     });
@@ -1116,7 +1122,7 @@ class ElementFinder {
             ],
 
             'focused': [
-                function(elems, input) {
+                function(elems) {
                     return elems.filter(function(elem) {
                         return elem === document.activeElement;
                     });
@@ -1124,13 +1130,13 @@ class ElementFinder {
             ],
 
             'element': [
-                function(elems, input) {
+                function(elems) {
                     return elems;
                 }
             ],
 
             'clickable': [
-                function(elems, input) {
+                function(elems) {
                     return elems.filter(function(elem) {
                         const tagName = elem.tagName.toLowerCase();
                         return (tagName == 'a' ||
@@ -1161,7 +1167,7 @@ class ElementFinder {
 
             'page url': [
                 function(elems, input) { // absolute or relative
-                    return window.location.href == input || window.location.href.replace(/^https?:\/\/[^\/]*/, '') == input ? elems : [];
+                    return window.location.href == input || window.location.href.replace(/^https?:\/\/[^/]*/, '') == input ? elems : [];
                 }
             ],
 
@@ -1360,6 +1366,7 @@ class ElementFinder {
                     const result = document.evaluate(input, document, null, XPathResult.ANY_TYPE, null);
                     let node = null;
                     const nodes = [];
+                    // eslint-disable-next-line no-cond-assign
                     while(node = result.iterateNext()) {
                         nodes.push(node);
                     }
@@ -1395,7 +1402,7 @@ class ElementFinder {
             ],
 
             'textbox': [
-                function(elems, input) {
+                function(elems) {
                     const nodes = document.querySelectorAll('input, textarea');
                     const nodesArr = [];
                     for(let i = 0; i < nodes.length; i++) {

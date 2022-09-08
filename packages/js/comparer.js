@@ -114,7 +114,11 @@ class Comparer {
                             }
                             else {
                                 // corresponding actual item has to be at the same index
-                                actual[actualIndex] = this.comparison(actual[actualIndex], expected[expectedIndex], subsetMatching);
+                                actual[actualIndex] = this.comparison(
+                                    actual[actualIndex],
+                                    expected[expectedIndex],
+                                    subsetMatching
+                                );
                             }
 
                             actualIndex++;
@@ -311,7 +315,7 @@ class Comparer {
                         errors.push(`isn't an object, array, or string so can't have a $minLength of ${expected.$minLength}`);
                     }
                     else {
-                        if(actual.hasOwnProperty('length')) {
+                        if(Object.prototype.hasOwnProperty.call(actual, 'length')) {
                             if(actual.length < expected.$minLength) {
                                 errors.push(`is shorter than the $minLength of ${expected.$minLength}`);
                             }
@@ -353,7 +357,9 @@ class Comparer {
                     else {
                         // Make sure every key in expected matches every key in actual
                         for(const key of expectedKeys) {
-                            if(!actual || (!Object.prototype.hasOwnProperty.call(actual, key) && expected[key] !== undefined)) {
+                            if(!actual || (!Object.prototype.hasOwnProperty.call(actual, key) &&
+                                expected[key] !== undefined)
+                            ) {
                                 errors.push( { blockError: true, text: 'missing', key: key, obj: expected[key] } );
                             }
                             else {
@@ -528,7 +534,7 @@ class Comparer {
                 for(let i = 0; i < keys.length; i++) {
                     const key = keys[i];
                     if(Object.prototype.hasOwnProperty.call(value, key)) {
-                        const hasWeirdChars = key.match(/[^A-Za-z0-9\$]/); // put quotes around the key if there are non-standard chars in it
+                        const hasWeirdChars = key.match(/[^A-Za-z0-9$]/); // put quotes around the key if there are non-standard chars in it
                         ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(value[key], errorStart, errorEnd, indents + 1, i < keys.length - 1);
                     }
                 }

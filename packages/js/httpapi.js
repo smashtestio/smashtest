@@ -1,6 +1,5 @@
 const request = require('request');
 const Comparer = require('./comparer.js');
-const Constants = require('../../src/constants.js');
 
 /**
  * Wraps HTTP request/response functionality
@@ -44,16 +43,16 @@ class HttpApi {
         }
 
         let method = 'GET';
-        if(typeof args[0] == 'object' && args[0].hasOwnProperty('method')) {
+        if(typeof args[0] == 'object' && Object.prototype.hasOwnProperty.call(args[0], 'method')) {
             method = args[0].method;
         }
-        else if(typeof args[1] == 'object' && args[1].hasOwnProperty('method')) {
+        else if(typeof args[1] == 'object' && Object.prototype.hasOwnProperty.call(args[1], 'method')) {
             method = args[1].method;
         }
 
         this.runInstance.log(`Request:\n  ${method.toUpperCase()} ${uri}\n`);
 
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             func(...args, (error, response, body) => {
                 const responseObj = new HttpApi.Response(this.runInstance, error, response, body);
                 this.runInstance.g('response', responseObj);
@@ -172,7 +171,9 @@ HttpApi.Response = class Response {
         try {
             this.response.body = JSON.parse(this.response.body);
         }
-        catch(e) {}
+        catch(e) {
+            // ignore
+        }
 
         this.statusCode = this.response.statusCode;
         this.headers = this.response.headers;
@@ -189,7 +190,7 @@ HttpApi.Response = class Response {
         let headersLog = '';
         if(this.response.headers) {
             for(const headerName in this.response.headers) {
-                if(this.response.headers.hasOwnProperty(headerName)) {
+                if(Object.prototype.hasOwnProperty.call(this.response.headers, headerName)) {
                     headersLog += `  ${headerName}: ${this.response.headers[headerName]}\n`;
                 }
             }
@@ -197,6 +198,7 @@ HttpApi.Response = class Response {
 
         let rawBody = this.response.rawBody;
         if(typeof rawBody == 'string') {
+            // empty
         }
         else if(typeof rawBody == 'object') {
             rawBody = JSON.stringify(rawBody);

@@ -1,3 +1,4 @@
+/* globals sinon */
 const {Builder, By, Key, until} = require('selenium-webdriver');
 const chrome = require('selenium-webdriver/chrome');
 const firefox = require('selenium-webdriver/firefox');
@@ -12,8 +13,7 @@ const request = require('request-promise-native');
 const utils = require('../../src/utils.js');
 const ElementFinder = require('./elementfinder.js');
 const Comparer = require('./comparer.js');
-const {runner, tree, reporter} = require('../../src/instances.js');
-
+const {reporter} = require('../../src/instances.js');
 
 class BrowserInstance {
     // ***************************************
@@ -80,7 +80,9 @@ class BrowserInstance {
                     try {
                         await browser.driver.quit();
                     }
-                    catch(e) {} // ignore errors
+                    catch(e) {
+                        // ignore errors
+                    }
 
                     browser.driver = null;
                 }
@@ -126,7 +128,9 @@ class BrowserInstance {
             try {
                 params.options = this.runInstance.findVarValue('browser options', false, true); // look for {browser options}, above or below
             }
-            catch(e) {}
+            catch(e) {
+                // ignore
+            }
         }
         const options = {
             chrome: params.options || new chrome.Options(),
@@ -141,7 +145,9 @@ class BrowserInstance {
             try {
                 params.capabilities = this.runInstance.findVarValue('browser capabilities', false, true); // look for {browser capabilities}, above or below
             }
-            catch(e) {}
+            catch(e) {
+                // ignore
+            }
         }
 
         // Browser name
@@ -159,7 +165,9 @@ class BrowserInstance {
             try {
                 params.version = this.runInstance.findVarValue('browser version', false, true); // look for {browser version}, above or below
             }
-            catch(e) {}  // it's ok if the variable isn't found (simply don't set browser version)
+            catch(e) {
+                // it's ok if the variable isn't found (simply don't set browser version)
+            }
         }
 
         // Browser platform
@@ -167,7 +175,9 @@ class BrowserInstance {
             try {
                 params.platform = this.runInstance.findVarValue('browser platform', false, true); // look for {browser platform}, above or below
             }
-            catch(e) {}
+            catch(e) {
+                // ignore
+            }
         }
 
         // Mobile device emulation (Chrome only)
@@ -175,7 +185,9 @@ class BrowserInstance {
             try {
                 params.deviceEmulation = this.runInstance.findVarValue('device', false, true);
             }
-            catch(e) {}
+            catch(e) {
+                // ignore
+            }
         }
         if(params.deviceEmulation) {
             options.chrome.setMobileEmulation({deviceName: params.deviceEmulation});
@@ -186,13 +198,17 @@ class BrowserInstance {
             try {
                 params.width = parseInt(this.runInstance.findVarValue('browser width', false, true)); // look for {browser width}, above or below
             }
-            catch(e) {}
+            catch(e) {
+                // ignore
+            }
         }
         if(!params.height) {
             try {
                 params.height = parseInt(this.runInstance.findVarValue('browser height', false, true)); // look for {browser height}, above or below
             }
-            catch(e) {}
+            catch(e) {
+                // ignore
+            }
         }
 
         // Headless
@@ -271,7 +287,9 @@ class BrowserInstance {
                 this.driver = null;
             }
         }
-        catch(e) {}
+        catch(e) {
+            // ignore
+        }
 
         const browsers = this.runInstance.p('browsers');
         for(let i = 0; i < browsers.length; i++) {
@@ -286,7 +304,7 @@ class BrowserInstance {
      * @param {String} url - The absolute or relative url to navigate to. If relative, uses the browser's current domain. If http(s) is omitted, uses http://
      */
     async nav(url) {
-        const URL_REGEX = /^(https?:\/\/|file:\/\/)?([^\/]*(:[0-9]+)?)?(.*)/;
+        const URL_REGEX = /^(https?:\/\/|file:\/\/)?([^/]*(:[0-9]+)?)?(.*)/;
         let matches = url.match(URL_REGEX);
 
         const protocol = matches[1] || 'http://';
@@ -447,7 +465,9 @@ class BrowserInstance {
         if(this.runInstance.tree.stepDataMode == 'none') {
             return;
         }
-        if(this.runInstance.runner.screenshotCount >= this.runInstance.runner.maxScreenshots && this.runInstance.runner.maxScreenshots != -1) {
+        if(this.runInstance.runner.screenshotCount >= this.runInstance.runner.maxScreenshots
+            && this.runInstance.runner.maxScreenshots != -1
+        ) {
             return;
         }
         if(!this.runInstance.currStep || !this.runInstance.currBranch) {
@@ -468,7 +488,9 @@ class BrowserInstance {
         try {
             data = await this.driver.takeScreenshot();
         }
-        catch(e) {} // fail silently
+        catch(e) {
+            // fail silently
+        }
 
         if(!data) {
             return;
@@ -501,7 +523,9 @@ class BrowserInstance {
             try {
                 files = fs.readdirSync(screenshotsDir);
             }
-            catch(e) {} // it's ok if the directory doesn't exist
+            catch(e) {
+                // it's ok if the directory doesn't exist
+            }
 
             for(const file of files) {
                 if(file.startsWith(this.runInstance.currBranch.hash)) {
@@ -693,18 +717,19 @@ class BrowserInstance {
      */
     props(props, isAdd) {
         for(const prop in props) {
-            if(props.hasOwnProperty(prop)) {
+            if(Object.prototype.hasOwnProperty.call(props, prop)) {
                 if(typeof props[prop] == 'string') {
                     // parse it as an EF
                     props[prop] = new ElementFinder(props[prop], this.definedProps, undefined, this.runInstance.log);
                 }
                 else if(typeof props[prop] == 'function') {
+                    // empty
                 }
                 else {
                     throw new Error(`Invalid value of prop '${prop}'. Must be either a string ElementFinder or a function.`);
                 }
 
-                const [canonProp, canonInput] = ElementFinder.canonicalizePropStr(prop);
+                const [canonProp] = ElementFinder.canonicalizePropStr(prop);
                 if(isAdd) {
                     if(!this.definedProps[canonProp]) {
                         this.definedProps[canonProp] = [];
@@ -755,7 +780,8 @@ class BrowserInstance {
         try {
             await this.driver.wait(async () => {
                 obj = await this.executeScript(function(titleOrUrl) {
-                    let isMatched = document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) != -1 || window.location.href.indexOf(titleOrUrl) != -1;
+                    let isMatched = document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) != -1 ||
+                        window.location.href.indexOf(titleOrUrl) != -1;
                     if(!isMatched) { // try them as regexes
                         try {
                             isMatched = document.title.match(titleOrUrl) || window.location.href.match(titleOrUrl);
@@ -923,6 +949,7 @@ class BrowserInstance {
             url = url.toString();
         }
         else if(typeofUrl == 'string') {
+            // empty
         }
         else {
             throw new Error('Invalid url type');
@@ -934,6 +961,7 @@ class BrowserInstance {
             response = response.toString();
         }
         else if(typeofResponse == 'string') {
+            // empty
         }
         else if(typeofResponse == 'object') {
             if(response instanceof Array) {
@@ -964,7 +992,8 @@ class BrowserInstance {
                 response = JSON.parse(response);
             }
 
-            window.smashtestSinonFakeServer = window.smashtestSinonFakeServer || sinon.createFakeServer({ respondImmediately: true });
+            window.smashtestSinonFakeServer = window.smashtestSinonFakeServer ||
+                sinon.createFakeServer({ respondImmediately: true });
             window.smashtestSinonFakeServer.respondWith(method, url, response);
         }, method, url, response, typeofUrl, typeofResponse);
     }
