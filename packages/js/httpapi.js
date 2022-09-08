@@ -21,7 +21,7 @@ class HttpApi {
      * @return {Promise} Promise that resolves with a Response object, when it is received. Response will also be stored in {response} global variable.
      */
     makeReq(func) {
-        let args = Array.from(arguments).slice(1);
+        const args = Array.from(arguments).slice(1);
         let uri = '';
         if(typeof args[0] == 'string') {
             uri = args[0];
@@ -55,7 +55,7 @@ class HttpApi {
 
         return new Promise((resolve, reject) => {
             func(...args, (error, response, body) => {
-                let responseObj = new HttpApi.Response(this.runInstance, error, response, body);
+                const responseObj = new HttpApi.Response(this.runInstance, error, response, body);
                 this.runInstance.g('response', responseObj);
                 resolve(responseObj);
             });
@@ -186,9 +186,9 @@ HttpApi.Response = class Response {
      * @throws {Error} If expectedObj doesn't match json response (see comparer.js, Comparer.expect())
      */
     verify(expectedObj) {
-        let headersLog = ``;
+        let headersLog = '';
         if(this.response.headers) {
-            for(let headerName in this.response.headers) {
+            for(const headerName in this.response.headers) {
                 if(this.response.headers.hasOwnProperty(headerName)) {
                     headersLog += `  ${headerName}: ${this.response.headers[headerName]}\n`;
                 }
@@ -205,9 +205,9 @@ HttpApi.Response = class Response {
             rawBody = `[${typeof rawBody}]`;
         }
 
-        let responseLog = `Response:\n  ${this.response.statusCode}\n\n${headersLog}\n\n${rawBody.replace(/(.*)/g, '  $1')}`;
+        const responseLog = `Response:\n  ${this.response.statusCode}\n\n${headersLog}\n\n${rawBody.replace(/(.*)/g, '  $1')}`;
         this.runInstance.log(responseLog);
 
         Comparer.expect(this.response, undefined, undefined, 'Actual response object:').to.match(expectedObj);
     }
-}
+};

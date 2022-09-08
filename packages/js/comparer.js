@@ -39,13 +39,13 @@ class Comparer {
             to: {
                 match: (expectedObj) => {
                     actualObj = this.clone(actualObj, jsonClone);
-                    let comp = this.comparison(actualObj, expectedObj);
+                    const comp = this.comparison(actualObj, expectedObj);
                     if(this.hasErrors(comp)) {
                         throw new Error('\n' + (errorHeader ? errorHeader + '\n' : '') + this.print(comp, errorStart, errorEnd));
                     }
                 }
             }
-        }
+        };
     }
 
     /**
@@ -58,22 +58,22 @@ class Comparer {
      * @return {ComparerNode} A ComparerNode
      */
     static comparison(actual, expected, subsetMatching) {
-        let originalActual = actual;
+        const originalActual = actual;
         if(actual instanceof ComparerNode) { // we've already been here
             actual = actual.value;
         }
 
-        let errors = [];
+        const errors = [];
 
         if(typeof expected == 'object') {
             if(expected === null) { // remember, typeof null is "object"
                 if(actual !== null) {
-                    errors.push(`not null`);
+                    errors.push('not null');
                 }
             }
             else if(expected instanceof Array) {
                 if(!(actual instanceof Array)) {
-                    errors.push(`not an array`);
+                    errors.push('not an array');
                 }
                 else {
                     let subset = false;
@@ -91,15 +91,15 @@ class Comparer {
 
                     // Make sure every expected item has a corresponding actual item
                     for(let expectedIndex = 0, actualIndex = 0; expectedIndex < expected.length; expectedIndex++) {
-                        let expectedItem = expected[expectedIndex];
+                        const expectedItem = expected[expectedIndex];
                         if(['$subset', '$anyOrder'].indexOf(expectedItem) == -1) {
                             if(subset || anyOrder) {
                                 // corresponding actual item can be anywhere
-                                let actualClone = this.clone(actual);
+                                const actualClone = this.clone(actual);
                                 let found = false;
                                 for(let i = 0; i < actualClone.length; i++) {
-                                    let actualItem = actualClone[i];
-                                    let comparisonResult = this.comparison(actualItem, expectedItem, true);
+                                    const actualItem = actualClone[i];
+                                    const comparisonResult = this.comparison(actualItem, expectedItem, true);
                                     if(!this.hasErrors(comparisonResult)) {
                                         // we have a match
                                         found = true;
@@ -109,7 +109,7 @@ class Comparer {
                                 }
 
                                 if(!found) {
-                                    errors.push( { blockError: true, text: `missing`, obj: expectedItem } );
+                                    errors.push( { blockError: true, text: 'missing', obj: expectedItem } );
                                 }
                             }
                             else {
@@ -125,7 +125,7 @@ class Comparer {
                         // Make sure we don't have any items in actual that haven't been visited
                         for(let i = 0; i < actual.length; i++) {
                             if(!(actual[i] instanceof ComparerNode)) {
-                                actual[i] = this.createComparerNode([`not expected`], actual[i]);
+                                actual[i] = this.createComparerNode(['not expected'], actual[i]);
                             }
                         }
                     }
@@ -133,7 +133,7 @@ class Comparer {
             }
             else { // expected is a plain object
                 // { $typeof: "type" }
-                if(Object.prototype.hasOwnProperty.call(expected, "$typeof")) {
+                if(Object.prototype.hasOwnProperty.call(expected, '$typeof')) {
                     // Validate expected
                     if(typeof expected.$typeof != 'string') {
                         throw new Error(`$typeof has to be a string: ${expected.$typeof}`);
@@ -142,7 +142,7 @@ class Comparer {
                     // Validate actual matches expected
                     if(expected.$typeof.toLowerCase() == 'array') {
                         if(!(actual instanceof Array)) {
-                            errors.push(`not $typeof array`);
+                            errors.push('not $typeof array');
                         }
                     }
                     else if(typeof actual != expected.$typeof) {
@@ -151,7 +151,7 @@ class Comparer {
                 }
 
                 // { $regex: /regex/ } or { $regex: "regex" }
-                if(Object.prototype.hasOwnProperty.call(expected, "$regex")) {
+                if(Object.prototype.hasOwnProperty.call(expected, '$regex')) {
                     // Validate expected
                     let regex = null;
                     if(typeof expected.$regex == 'string') {
@@ -174,7 +174,7 @@ class Comparer {
                 }
 
                 // { $contains: "string" }
-                if(Object.prototype.hasOwnProperty.call(expected, "$contains")) {
+                if(Object.prototype.hasOwnProperty.call(expected, '$contains')) {
                     // Validate expected
                     if(typeof expected.$contains != 'string') {
                         throw new Error(`$contains has to be a string: ${JSON.stringify(expected.$contains)}`);
@@ -190,7 +190,7 @@ class Comparer {
                 }
 
                 // { $max: <number> }
-                if(Object.prototype.hasOwnProperty.call(expected, "$max")) {
+                if(Object.prototype.hasOwnProperty.call(expected, '$max')) {
                     // Validate expected
                     if(typeof expected.$max != 'number') {
                         throw new Error(`$max has to be a number: ${JSON.stringify(expected.$max)}`);
@@ -206,7 +206,7 @@ class Comparer {
                 }
 
                 // { $min: <number> }
-                if(Object.prototype.hasOwnProperty.call(expected, "$min")) {
+                if(Object.prototype.hasOwnProperty.call(expected, '$min')) {
                     // Validate expected
                     if(typeof expected.$min != 'number') {
                         throw new Error(`$min has to be a number: ${JSON.stringify(expected.$min)}`);
@@ -222,7 +222,7 @@ class Comparer {
                 }
 
                 // { $code: (actual)=>{ return true/false; } } or { $code: "...true/false" } or { $code: "...return true/false" }
-                if(Object.prototype.hasOwnProperty.call(expected, "$code")) {
+                if(Object.prototype.hasOwnProperty.call(expected, '$code')) {
                     let success = true;
 
                     // Validate expected
@@ -234,7 +234,7 @@ class Comparer {
                             success = eval(expected.$code);
                         }
                         catch(e) {
-                            if(e.message == "Illegal return statement") {
+                            if(e.message == 'Illegal return statement') {
                                 // The code has a return, so enclose it in a function and try again
                                 success = eval(`(()=>{${expected.$code}})()`);
                             }
@@ -254,7 +254,7 @@ class Comparer {
                 }
 
                 // { $length: <number> }
-                if(Object.prototype.hasOwnProperty.call(expected, "$length")) {
+                if(Object.prototype.hasOwnProperty.call(expected, '$length')) {
                     // Validate expected
                     if(typeof expected.$length != 'number') {
                         throw new Error(`$length has to be a number: ${JSON.stringify(expected.$length)}`);
@@ -265,7 +265,7 @@ class Comparer {
                         errors.push(`isn't an object, array, or string so can't have a $length of ${expected.$length}`);
                     }
                     else {
-                        if(Object.prototype.hasOwnProperty.call(actual, "length")) {
+                        if(Object.prototype.hasOwnProperty.call(actual, 'length')) {
                             if(actual.length != expected.$length) {
                                 errors.push(`doesn't have a $length of ${expected.$length}`);
                             }
@@ -277,7 +277,7 @@ class Comparer {
                 }
 
                 // { $maxLength: <number> }
-                if(Object.prototype.hasOwnProperty.call(expected, "$maxLength")) {
+                if(Object.prototype.hasOwnProperty.call(expected, '$maxLength')) {
                     // Validate expected
                     if(typeof expected.$maxLength != 'number') {
                         throw new Error(`$maxLength has to be a number: ${JSON.stringify(expected.$maxLength)}`);
@@ -288,7 +288,7 @@ class Comparer {
                         errors.push(`isn't an object, array, or string so can't have a $maxLength of ${expected.$maxLength}`);
                     }
                     else {
-                        if(Object.prototype.hasOwnProperty.call(actual, "length")) {
+                        if(Object.prototype.hasOwnProperty.call(actual, 'length')) {
                             if(actual.length > expected.$maxLength) {
                                 errors.push(`is longer than the $maxLength of ${expected.$maxLength}`);
                             }
@@ -300,7 +300,7 @@ class Comparer {
                 }
 
                 // { $minLength: <number> }
-                if(Object.prototype.hasOwnProperty.call(expected, "$minLength")) {
+                if(Object.prototype.hasOwnProperty.call(expected, '$minLength')) {
                     // Validate expected
                     if(typeof expected.$minLength != 'number') {
                         throw new Error(`$minLength has to be a number: ${JSON.stringify(expected.$minLength)}`);
@@ -323,13 +323,13 @@ class Comparer {
                 }
 
                 // { $every: <value> }
-                if(Object.prototype.hasOwnProperty.call(expected, "$every")) {
+                if(Object.prototype.hasOwnProperty.call(expected, '$every')) {
                     // Validate actual matches expected
                     if(typeof actual != 'object' || !(actual instanceof Array)) {
-                        errors.push(`not an array as needed for $every`);
+                        errors.push('not an array as needed for $every');
                     }
                     else if(actual.length == 0) {
-                        errors.push(`empty array cannot match $every`);
+                        errors.push('empty array cannot match $every');
                     }
                     else {
                         for(let i = 0; i < actual.length; i++) {
@@ -340,21 +340,21 @@ class Comparer {
 
                 // { $exact: true }
                 let exact = false;
-                if(Object.prototype.hasOwnProperty.call(expected, "$exact")) {
+                if(Object.prototype.hasOwnProperty.call(expected, '$exact')) {
                     exact = true;
                 }
 
                 // If there are non-$ keys in expected, then expected is a plain object that needs to be a subset of the actual object
-                let expectedKeys = Object.keys(expected).filter(key => RESERVED_KEYWORDS.indexOf(key) == -1);
+                const expectedKeys = Object.keys(expected).filter(key => RESERVED_KEYWORDS.indexOf(key) == -1);
                 if(exact || expectedKeys.length > 0) {
                     if(typeof actual != 'object' || actual === null) {
-                        errors.push(`not an object`);
+                        errors.push('not an object');
                     }
                     else {
                         // Make sure every key in expected matches every key in actual
-                        for(let key of expectedKeys) {
+                        for(const key of expectedKeys) {
                             if(!actual || (!Object.prototype.hasOwnProperty.call(actual, key) && expected[key] !== undefined)) {
-                                errors.push( { blockError: true, text: `missing`, key: key, obj: expected[key] } );
+                                errors.push( { blockError: true, text: 'missing', key: key, obj: expected[key] } );
                             }
                             else {
                                 actual[key] = this.comparison(actual[key], expected[key], subsetMatching);
@@ -363,10 +363,10 @@ class Comparer {
 
                         if(exact) {
                             // Make sure every key in actual exists in expected
-                            for(let key in actual) {
+                            for(const key in actual) {
                                 if(Object.prototype.hasOwnProperty.call(actual, key)) {
                                     if(!Object.prototype.hasOwnProperty.call(expected, key)) {
-                                        actual[key] = this.createComparerNode([`this key isn't in $exact object`], actual[key]);
+                                        actual[key] = this.createComparerNode(['this key isn\'t in $exact object'], actual[key]);
                                     }
                                 }
                             }
@@ -423,7 +423,7 @@ class Comparer {
                 return false;
             }
             else if(value instanceof Array) {
-                for(let item of value) {
+                for(const item of value) {
                     if(this.hasErrors(item, true)) {
                         this.endSeen(!isRecursive);
                         return true;
@@ -431,7 +431,7 @@ class Comparer {
                 }
             }
             else { // plain object
-                for(let key in value) {
+                for(const key in value) {
                     if(Object.prototype.hasOwnProperty.call(value, key)) {
                         if(this.hasErrors(value[key], true)) {
                             this.endSeen(!isRecursive);
@@ -497,10 +497,10 @@ class Comparer {
 
         if(this.wasSeen(value)) return '[Circular]\n';
 
-        let spaces = utils.getIndents(indents);
-        let nextSpaces = utils.getIndents(indents + 1);
+        const spaces = utils.getIndents(indents);
+        const nextSpaces = utils.getIndents(indents + 1);
         let ret = '';
-        let self = this;
+        const self = this;
 
         let errors = [];
         if(value instanceof ComparerNode) {
@@ -524,11 +524,11 @@ class Comparer {
             }
             else { // plain object
                 ret += '{' + outputErrors() + '\n';
-                let keys = Object.keys(value);
+                const keys = Object.keys(value);
                 for(let i = 0; i < keys.length; i++) {
-                    let key = keys[i];
+                    const key = keys[i];
                     if(Object.prototype.hasOwnProperty.call(value, key)) {
-                        let hasWeirdChars = key.match(/[^A-Za-z0-9\$]/); // put quotes around the key if there are non-standard chars in it
+                        const hasWeirdChars = key.match(/[^A-Za-z0-9\$]/); // put quotes around the key if there are non-standard chars in it
                         ret += nextSpaces + (hasWeirdChars ? '"' : '') + key + (hasWeirdChars ? '"' : '') + ': ' + this.print(value[key], errorStart, errorEnd, indents + 1, i < keys.length - 1);
                     }
                 }
@@ -561,14 +561,14 @@ class Comparer {
          * @return {String} Stringified normal errors, generated from the errors array
          */
         function outputErrors() {
-            let filteredErrors = errors.filter(error => !error.blockError);
+            const filteredErrors = errors.filter(error => !error.blockError);
 
             if(filteredErrors.length == 0) {
                 return '';
             }
 
             let ret = `  ${errorStart}  `;
-            for(let error of errors) {
+            for(const error of errors) {
                 ret += error.replace(/\n/g, ' ') + ', ';
             }
 
@@ -582,13 +582,13 @@ class Comparer {
          * @return {String} Stringified block errors, generated from the errors array
          */
         function outputBlockErrors() {
-            let filteredErrors = errors.filter(error => error.blockError);
+            const filteredErrors = errors.filter(error => error.blockError);
             if(filteredErrors.length == 0) {
                 return '';
             }
 
             let ret = '\n';
-            for(let error of errors) {
+            for(const error of errors) {
                 ret += nextSpaces + `${errorStart} ${error.text}\n`;
                 ret += nextSpaces + (error.key ? error.key + ': ' : '') + self.print(error.obj, errorStart, errorEnd, indents + 1) + errorEnd + '\n';
             }

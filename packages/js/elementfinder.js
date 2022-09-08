@@ -15,11 +15,13 @@ class ElementFinder {
      * @param {Boolean} [noParse] - If true, do not parse str
      * @throws {Error} If there is a parse error
      */
+    // prettier-ignore
     constructor(str, definedProps, usedDefinedProps, logger, parent, lineNumberOffset, noParse) {
         this.line = '';                     // The full line representing this EF
 
         this.counter = { min: 1, max: 1, default: true };  // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
 
+        /* eslint-disable */
         this.props = [];                    // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
                                             // Each object in the array has the following format:
                                             //   { prop: 'full prop text', def: 'name of prop', input: 'input text if any', not: true or undefined }
@@ -30,6 +32,7 @@ class ElementFinder {
 
         this.parent = parent;               // Parent EF, if one exists
         this.children = [];                 // Array of ElementFinder. The children of this EF.
+        /* eslint-enable */
 
         /*
         OPTIONAL
@@ -73,7 +76,7 @@ class ElementFinder {
      */
     parseIn(str, definedProps, usedDefinedProps, lineNumberOffset) {
         if(!str || !str.trim()) {
-            throw new Error(`Cannot create an empty ElementFinder`);
+            throw new Error('Cannot create an empty ElementFinder');
         }
 
         let lines = str.split(/\n/);
@@ -82,7 +85,7 @@ class ElementFinder {
         for(let k = 0; k < lines.length; k++) {
             let line = lines[k];
             line = line.replace(Constants.QUOTED_STRING_LITERAL, ''); // remove strings, since a // inside a string doesn't count
-            let matches = line.match(/\/\/.*$/);
+            const matches = line.match(/\/\/.*$/);
             if(matches) {
                 lines[k] = line.replace(matches[0], '');
             }
@@ -93,7 +96,7 @@ class ElementFinder {
         let parentLineNumber = null;
 
         for(let i = 0; i < lines.length; i++) {
-            let line = lines[i];
+            const line = lines[i];
             if(line.trim() != '') {
                 parentLine = line;
                 parentLineNumber = i + 1;
@@ -101,16 +104,16 @@ class ElementFinder {
             }
         }
 
-        let filename = 'line';
-        let baseIndent = utils.numIndents(parentLine, filename, parentLineNumber);
+        const filename = 'line';
+        const baseIndent = utils.numIndents(parentLine, filename, parentLineNumber);
 
         // If there is more than one line at baseIndent, make this a body EF and all of str will be its children
         for(let i = parentLineNumber; i < lines.length; i++) {
-            let line = lines[i];
+            const line = lines[i];
             if(line.trim() != '') {
-                let indents = utils.numIndents(line, filename, i + 1);
+                const indents = utils.numIndents(line, filename, i + 1);
                 if(indents == baseIndent) {
-                    let spaces = utils.getIndents(1);
+                    const spaces = utils.getIndents(1);
                     lines = lines.map(line => spaces + line);
 
                     lines.unshift(utils.getIndents(baseIndent) + 'body');
@@ -132,7 +135,7 @@ class ElementFinder {
             parentLine = parentLine.substr(1).trim(); // drop the *
 
             if(this.parent && this.parent.isElemArray) {
-                utils.error(`Cannot have element array inside element array`, filename, parentLineNumber + lineNumberOffset);
+                utils.error('Cannot have element array inside element array', filename, parentLineNumber + lineNumberOffset);
             }
         }
 
@@ -142,7 +145,7 @@ class ElementFinder {
                 this.empty = true;
             }
             else {
-                utils.error(`The 'any order' keyword must have a parent element`, filename, parentLineNumber + lineNumberOffset);
+                utils.error('The \'any order\' keyword must have a parent element', filename, parentLineNumber + lineNumberOffset);
             }
         }
         else {
@@ -158,14 +161,14 @@ class ElementFinder {
             matches = parentLine.match(COUNTER_REGEX);
             if(matches) {
                 if(this.isElemArray) {
-                    utils.error(`An element array is not allowed to have a counter`, filename, parentLineNumber + lineNumberOffset);
+                    utils.error('An element array is not allowed to have a counter', filename, parentLineNumber + lineNumberOffset);
                 }
 
                 parentLine = parentLine.replace(COUNTER_REGEX, ''); // remove counter
 
-                let min = matches[1];
-                let middle = matches[3];
-                let max = matches[5];
+                const min = matches[1];
+                const middle = matches[3];
+                const max = matches[5];
 
                 if(middle == '-') {
                     if(typeof max == 'undefined') { // N-
@@ -183,7 +186,7 @@ class ElementFinder {
                 }
 
                 if(this.counter.max < this.counter.min) {
-                    utils.error(`A counter's max cannot be less than its min`, filename, parentLineNumber + lineNumberOffset);
+                    utils.error('A counter\'s max cannot be less than its min', filename, parentLineNumber + lineNumberOffset);
                 }
             }
 
@@ -192,12 +195,12 @@ class ElementFinder {
             const ORD_REGEX = /^([0-9]+)(st|nd|rd|th)$/;
 
             // Split into comma-separated props
-            let propStrs = parentLine.match(PROP_REGEX_COMMAS).filter(propStr => propStr.trim() != '');
+            const propStrs = parentLine.match(PROP_REGEX_COMMAS).filter(propStr => propStr.trim() != '');
             let implicitVisible = true;
 
             for(let i = 0; i < propStrs.length; i++) {
                 let propStr = propStrs[i].trim();
-                let prop = {};
+                const prop = {};
 
                 let canonPropStr = null;
                 let input = null;
@@ -212,11 +215,11 @@ class ElementFinder {
 
                 // Decide which pattern propStr matches
                 if(matches = propStr.match(ORD_REGEX)) { // propStr is an ord (convert to `position 'N'`)
-                    canonPropStr = `position`;
+                    canonPropStr = 'position';
                     input = parseInt(matches[1]);
                 }
                 else if(matches = propStr.match(Constants.QUOTED_STRING_LITERAL_WHOLE)) { // propStr is 'text' (convert to `contains 'text'`)
-                    canonPropStr = `contains`;
+                    canonPropStr = 'contains';
                     input = utils.unescape(utils.stripQuotes(propStr));
                 }
                 else if(definedProps.hasOwnProperty(ElementFinder.canonicalizePropStr(propStr)[0])) { // propStr is a defined prop
@@ -240,12 +243,12 @@ class ElementFinder {
 
                     let isSpecialFormat = true;
                     matches = propStr.match(PROP_REGEX_SPACES).filter(s => s.trim() != '');
-                    let spaceSeparatedPropStrs = [];
+                    const spaceSeparatedPropStrs = [];
                     if(matches && matches.length >= 2) {
                         outside:
                         for(let j = 0; j < matches.length; j++) {
                             for(let len = matches.length - j; len > 0; len--) {
-                                let possibleProp = matches.slice(j, j + len).join(' ');
+                                const possibleProp = matches.slice(j, j + len).join(' ');
                                 if(isValidPattern(possibleProp)) {
                                     spaceSeparatedPropStrs.push(possibleProp);
                                     j += len - 1;
@@ -273,7 +276,7 @@ class ElementFinder {
                         continue;
                     }
                     else { // propStr is a css selector (convert to `selector 'selector'`)
-                        canonPropStr = `selector`;
+                        canonPropStr = 'selector';
                         input = propStr;
                     }
                 }
@@ -303,10 +306,10 @@ class ElementFinder {
         }
 
         // Parse children
-        let childObjs = [];
+        const childObjs = [];
         for(let i = parentLineNumber; i < lines.length; i++) {
-            let line = lines[i];
-            let lineNumber = i + 1 + lineNumberOffset;
+            const line = lines[i];
+            const lineNumber = i + 1 + lineNumberOffset;
 
             if(line.trim() == '') {
                 if(childObjs.length != 0) {
@@ -316,17 +319,17 @@ class ElementFinder {
                 continue;
             }
 
-            let indents = utils.numIndents(line, filename, lineNumber) - baseIndent;
+            const indents = utils.numIndents(line, filename, lineNumber) - baseIndent;
 
             if(indents < 0) {
-                utils.error(`ElementFinder cannot have a line that's indented left of the first line`, filename, lineNumber);
+                utils.error('ElementFinder cannot have a line that\'s indented left of the first line', filename, lineNumber);
             }
             else if(indents == 1) {
                 childObjs.push({str: line, lineNumber: lineNumber}); // a new child is formed
             }
             else { // indents > 1
                 if(childObjs.length == 0) {
-                    utils.error(`ElementFinder cannot have a line that's indented more than once compared to the line above`, filename, lineNumber);
+                    utils.error('ElementFinder cannot have a line that\'s indented more than once compared to the line above', filename, lineNumber);
                 }
 
                 childObjs[childObjs.length - 1].str += `\n${line}`; // string goes onto the end of the last child
@@ -335,7 +338,7 @@ class ElementFinder {
         }
 
         childObjs.forEach(c => {
-            let childEF = new ElementFinder(c.str, definedProps, usedDefinedProps, this.logger, this, c.lineNumber + lineNumberOffset - 1);
+            const childEF = new ElementFinder(c.str, definedProps, usedDefinedProps, this.logger, this, c.lineNumber + lineNumberOffset - 1);
             if(!childEF.empty) {
                 this.children.push(childEF);
             }
@@ -354,7 +357,7 @@ class ElementFinder {
      * @param {Boolean} [toFront] - If true, append the prop to the front of this.props (as opposed to the back)
      */
     addProp(prop, def, input, isNot, definedProps, toFront) {
-        let self = this;
+        const self = this;
 
         function addToUsedDefinedProps(def) {
             if(!self.usedDefinedProps.hasOwnProperty(def)) {
@@ -372,7 +375,7 @@ class ElementFinder {
             ef.children.forEach(child => addEF(child));
         }
 
-        let propObj = {
+        const propObj = {
             prop: prop,
             def: def
         };
@@ -396,7 +399,7 @@ class ElementFinder {
      * @return {ElementFinder} The EF derived from obj
      */
     static parseObj(obj) {
-        let ef = new ElementFinder(undefined, undefined, undefined, undefined, undefined, undefined, true);
+        const ef = new ElementFinder(undefined, undefined, undefined, undefined, undefined, undefined, true);
         Object.assign(ef, obj);
         for(let i = 0; i < ef.children.length; i++) {
             ef.children[i] = ElementFinder.parseObj(ef.children[i]);
@@ -412,11 +415,11 @@ class ElementFinder {
      */
     print(errorStart, errorEnd, indents) {
         indents = indents || 0;
-        let errorStartStr = errorStart || '-->';
-        let errorEndStr = errorEnd || '';
+        const errorStartStr = errorStart || '-->';
+        const errorEndStr = errorEnd || '';
 
-        let spaces = utils.getIndents(indents);
-        let nextSpaces = utils.getIndents(indents + 1);
+        const spaces = utils.getIndents(indents);
+        const nextSpaces = utils.getIndents(indents + 1);
 
         let error = '';
         if(this.error && this.error !== true) {
@@ -455,7 +458,7 @@ class ElementFinder {
             return true;
         }
 
-        for(let child of this.children) {
+        for(const child of this.children) {
             if(child.hasErrors()) {
                 return true;
             }
@@ -468,7 +471,7 @@ class ElementFinder {
      * @return {Object} An object representing this EF and its children, ready to be fed into JSON.stringify()
      */
     serialize() {
-        let o = {
+        const o = {
             line: this.line,
             counter: this.counter,
             props: this.props,
@@ -516,45 +519,45 @@ class ElementFinder {
      * @throws {Error} If an element array wasn't properly matched
      */
     async getAll(driver, parentElem) {
-        let obj = await driver.executeScript(function(payload, parentElem, browserConsoleOutput) {
+        const obj = await driver.executeScript(function(payload, parentElem, browserConsoleOutput) {
             payload = JSON.parse(payload);
-            let ef = payload.ef;
-            let definedProps = payload.definedProps;
+            const ef = payload.ef;
+            const definedProps = payload.definedProps;
 
-            let searchRecord = [];
+            const searchRecord = [];
 
             findEF(ef, parentElem ?
                 toArray(parentElem.querySelectorAll('*')).concat([parentElem]) :
                 toArray(document.querySelectorAll('*'))
             );
-            let matches = (ef.matchMeElems && ef.matchMeElems.length > 0) ? ef.matchMeElems : ef.matchedElems;
+            const matches = (ef.matchMeElems && ef.matchMeElems.length > 0) ? ef.matchMeElems : ef.matchedElems;
 
             if(browserConsoleOutput) {
-                console.log("");
-                console.log("%c-- Finding ElementFinder --", "color: blueviolet");
+                console.log('');
+                console.log('%c-- Finding ElementFinder --', 'color: blueviolet');
                 console.log(ef.fullStr);
 
                 if(parentElem) {
-                    console.log("Within parent element:");
+                    console.log('Within parent element:');
                     console.log(parentElem);
                 }
 
                 if(matches.length == 0) {
-                    console.log("%cNo matches found", "color: red");
+                    console.log('%cNo matches found', 'color: red');
                 }
                 else if(matches.length == 1) {
-                    console.log("%cMatch found", "color: green");
+                    console.log('%cMatch found', 'color: green');
                     console.log(matches[0]);
                 }
                 else {
-                    console.log("%cMatches found", "color: green");
+                    console.log('%cMatches found', 'color: green');
                     console.log(matches);
                 }
 
-                console.log("Search details");
+                console.log('Search details');
                 console.log(searchRecord);
 
-                console.log("Advanced");
+                console.log('Advanced');
                 console.log({
                     ef: ef,
                     definedProps: definedProps
@@ -596,8 +599,8 @@ class ElementFinder {
                     max = 1;
                 }
 
-                let topElems = findTopEF(ef, pool);
-                let originalTopElemCount = topElems.length;
+                const topElems = findTopEF(ef, pool);
+                const originalTopElemCount = topElems.length;
 
                 if(!hasTopErrors(ef)) {
                     if(ef.isElemArray) {
@@ -605,7 +608,7 @@ class ElementFinder {
                             // Remove from topElems the elems that match up with a child EF
                             let foundElems = [];
                             for(let i = 0; i < ef.children.length; i++) {
-                                let childEF = ef.children[i];
+                                const childEF = ef.children[i];
                                 findEF(childEF, topElems);
                                 removeFromArr(topElems, childEF.matchedElems);
                                 foundElems = foundElems.concat(childEF.matchedElems);
@@ -614,7 +617,7 @@ class ElementFinder {
                             if(topElems.length > 0) {
                                 // Set block error for each of topElems still around (these elems weren't matched by the elem array)
                                 for(let i = 0; i < topElems.length; i++) {
-                                    let topElem = topElems[i];
+                                    const topElem = topElems[i];
                                     ef.blockErrors.push({ header: 'missing', body: elemSummary(topElem) });
                                 }
                             }
@@ -628,8 +631,8 @@ class ElementFinder {
                             let indexC = 0; // index within ef.children
 
                             while(indexE < topElems.length || indexC < ef.children.length) { // while at least one index is valid
-                                let currTopElem = topElems[indexE];
-                                let currChildEF = ef.children[indexC];
+                                const currTopElem = topElems[indexE];
+                                const currChildEF = ef.children[indexC];
 
                                 if(!currChildEF) { // indexC went over the edge
                                     ef.blockErrors.push({ header: 'missing', body: elemSummary(currTopElem) });
@@ -650,7 +653,7 @@ class ElementFinder {
                                     indexC++;
                                 }
                                 else { // both indexes still good
-                                    let matchesBefore = [].concat(currChildEF.matchedElems || []);
+                                    const matchesBefore = [].concat(currChildEF.matchedElems || []);
                                     findEF(currChildEF, [currTopElem], true, true);
 
                                     if(currChildEF.matchedElems.length > matchesBefore.length) { // currChildEF matches currTopElem
@@ -666,7 +669,7 @@ class ElementFinder {
                                                 currChildEF.error = true;
                                             }
                                             else {
-                                                currChildEF.error = "doesn't match " + elemSummary(currTopElem);
+                                                currChildEF.error = 'doesn\'t match ' + elemSummary(currTopElem);
                                             }
                                             ef.error = true;
                                             indexE++;
@@ -684,12 +687,12 @@ class ElementFinder {
                     }
                     else { // Normal EF
                         for(let i = 0; i < topElems.length && (typeof max == 'undefined' || i < max);) {
-                            let topElem = topElems[i];
-                            let pool = toArray(topElem.querySelectorAll('*')); // all elements under topElem
+                            const topElem = topElems[i];
+                            const pool = toArray(topElem.querySelectorAll('*')); // all elements under topElem
                             let remove = false;
 
                             for(let j = 0; j < ef.children.length; j++) {
-                                let childEF = ef.children[j];
+                                const childEF = ef.children[j];
                                 if(pool.length == 0) {
                                     remove = true; // topElem has no children left, but more children are expected, so remove topElem from contention
                                     break;
@@ -702,7 +705,7 @@ class ElementFinder {
                                     break;
                                 }
 
-                                let elemsMatchingChild = childEF.matchedElems;
+                                const elemsMatchingChild = childEF.matchedElems;
                                 if(ef.isAnyOrder) {
                                     // Remove all elemsMatchingChild and their descendants from pool
                                     removeFromArr(pool, elemsMatchingChild);
@@ -727,15 +730,15 @@ class ElementFinder {
                         if(topElems.length == 0) {
                             if(min > 0) {
                                 if(originalTopElemCount == 1) {
-                                    ef.error = "found, but doesn't contain the right children";
+                                    ef.error = 'found, but doesn\'t contain the right children';
                                 }
                                 else {
-                                    ef.error = originalTopElemCount + " found, but none contain the right children";
+                                    ef.error = originalTopElemCount + ' found, but none contain the right children';
                                     clearErrorsOfChildren(ef);
                                 }
 
                                 if(!ef.isAnyOrder) {
-                                    ef.error += " (in the right order)";
+                                    ef.error += ' (in the right order)';
                                 }
                             }
                         }
@@ -763,7 +766,7 @@ class ElementFinder {
                     ef.children.forEach(function(childEF) {
                         if(childEF.matchMeElems) {
                             for(let i = 0; i < childEF.matchMeElems.length; i++) {
-                                let matchMeElem = childEF.matchMeElems[i];
+                                const matchMeElem = childEF.matchMeElems[i];
                                 if(ef.matchMeElems.indexOf(matchMeElem) == -1) {
                                     ef.matchMeElems.push(matchMeElem);
                                 }
@@ -779,10 +782,10 @@ class ElementFinder {
              * @return {Array of Element} Elements from pool that match the top line in ef. Ignores the counter.
              */
             function findTopEF(ef, pool) {
-                let record = {};
-                let propRecord = [];
+                const record = {};
+                const propRecord = [];
                 if(browserConsoleOutput) {
-                    let props = [];
+                    const props = [];
                     for(let i = 0; i < ef.props.length; i++) {
                         props.push(ef.props[i].prop);
                     }
@@ -796,21 +799,21 @@ class ElementFinder {
                 }
 
                 for(let i = 0; i < ef.props.length; i++) {
-                    let prop = ef.props[i];
+                    const prop = ef.props[i];
                     let approvedElems = [];
 
                     if(!definedProps.hasOwnProperty(prop.def)) {
-                        ef.error = "ElementFinder prop '" + prop.def + "' is not defined";
+                        ef.error = 'ElementFinder prop \'' + prop.def + '\' is not defined';
                         return [];
                     }
 
-                    let defs = definedProps[prop.def];
+                    const defs = definedProps[prop.def];
                     for(let j = 0; j < defs.length; j++) {
-                        let def = defs[j];
+                        const def = defs[j];
                         if(typeof def == 'object') { // def is an EF
                             def.counter = { min: 1 }; // match multiple elements
                             findEF(def, pool);
-                            let matched = def.matchMeElems && def.matchMeElems.length > 0 ? def.matchMeElems : def.matchedElems;
+                            const matched = def.matchMeElems && def.matchMeElems.length > 0 ? def.matchMeElems : def.matchedElems;
                             approvedElems = approvedElems.concat(intersectArr(pool, matched));
                         }
                         else if(typeof def == 'string') { // stringified function
@@ -830,11 +833,11 @@ class ElementFinder {
                     pool = prop.not ? intersectArrNot(pool, approvedElems) : intersectArr(pool, approvedElems);
 
                     if(browserConsoleOutput) {
-                        let props = [];
+                        const props = [];
                         for(let i = 0; i < ef.props.length; i++) {
                             props.push(ef.props[i].prop);
                         }
-                        let propApplication = {};
+                        const propApplication = {};
                         propApplication['Applying prop'] = prop.prop;
                         propApplication['[1] definitions'] = defs;
                         propApplication['[2] before' ] = fromPool;
@@ -867,7 +870,7 @@ class ElementFinder {
              */
             function hasChildErrors(ef) {
                 for(let i = 0; i < ef.children.length; i++) {
-                    let childEF = ef.children[i];
+                    const childEF = ef.children[i];
                     if(childEF.error || (childEF.blockErrors && childEF.blockErrors.length > 0)) {
                         return true;
                     }
@@ -889,7 +892,7 @@ class ElementFinder {
              */
             function clearErrorsOfChildren(ef) {
                 for(let i = 0; i < ef.children.length; i++) {
-                    let childEF = ef.children[i];
+                    const childEF = ef.children[i];
                     childEF.error = null;
                     childEF.blockErrors = [];
                     clearErrorsOfChildren(childEF);
@@ -901,9 +904,9 @@ class ElementFinder {
              * @return {Array} Array with same contents as arr
              */
             function toArray(list) {
-                let newArr = [];
+                const newArr = [];
                 for(let i = 0; i < list.length; i++) {
-                    let item = list[i];
+                    const item = list[i];
                     newArr.push(item);
                 }
                 return newArr;
@@ -915,7 +918,7 @@ class ElementFinder {
              * @return {Array} Array consisting of items found in both arr1 and arr2
              */
             function intersectArr(arr1, arr2) {
-                let newArr = [];
+                const newArr = [];
                 for(let i = 0; i < arr1.length; i++) {
                     for(let j = 0; j < arr2.length; j++) {
                         if(arr1[i] === arr2[j]) {
@@ -934,7 +937,7 @@ class ElementFinder {
              * @return {Array} Array consisting of items found in arr1 and not in arr2
              */
             function intersectArrNot(arr1, arr2) {
-                let newArr = [];
+                const newArr = [];
                 for(let i = 0; i < arr1.length; i++) {
                     let found = false;
                     for(let j = 0; j < arr2.length; j++) {
@@ -988,9 +991,9 @@ class ElementFinder {
         timeout = timeout || 0;
         pollFrequency = pollFrequency || 500;
 
-        let start = new Date();
+        const start = new Date();
         let results = null;
-        let self = this;
+        const self = this;
 
         return await new Promise(async (resolve, reject) => {
             try {
@@ -999,12 +1002,12 @@ class ElementFinder {
                     results = await self.getAll(driver, parentElem);
                     results.ef = ElementFinder.parseObj(results.ef);
                     if(!isNot ? results.ef.hasErrors() : (results.matches && results.matches.length > 0)) {
-                        let duration = (new Date()) - start;
+                        const duration = (new Date()) - start;
                         if(duration > timeout) {
-                            let error =
+                            const error =
                                 !isNot ?
-                                new Error(`Element${self.counter.max == 1 ? `` : `s`} not found${timeout > 0 ? ` in time (${timeout/1000} s)` : ``}:\n\n${results.ef.print(Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + `-->`, Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY)}`) :
-                                new Error(`Element${self.counter.max == 1 ? `` : `s`} still found${timeout > 0 ? ` after timeout (${timeout/1000} s)` : ``}`);
+                                    new Error(`Element${self.counter.max == 1 ? '' : 's'} not found${timeout > 0 ? ` in time (${timeout/1000} s)` : ''}:\n\n${results.ef.print(Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + '-->', Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY)}`) :
+                                    new Error(`Element${self.counter.max == 1 ? '' : 's'} still found${timeout > 0 ? ` after timeout (${timeout/1000} s)` : ''}`);
 
                             if(isContinue) {
                                 error.continue = true;
@@ -1129,7 +1132,7 @@ class ElementFinder {
             'clickable': [
                 function(elems, input) {
                     return elems.filter(function(elem) {
-                        let tagName = elem.tagName.toLowerCase();
+                        const tagName = elem.tagName.toLowerCase();
                         return (tagName == 'a' ||
                             tagName == 'button' ||
                             tagName == 'label' ||
@@ -1139,7 +1142,7 @@ class ElementFinder {
                             tagName == 'option' ||
                             window.getComputedStyle(elem).getPropertyValue('cursor') == 'pointer')
                             && !elem.disabled;
-                            // TODO: handle cursor:pointer when hovered over
+                        // TODO: handle cursor:pointer when hovered over
                     });
                 }
             ],
@@ -1186,14 +1189,16 @@ class ElementFinder {
                     let atBody = false;
 
                     while(!atBody) { // if a container reaches document.body and nothing is still found, input doesn't exist on the page
-                        containers = containers.map(function(container) { return container.parentElement });
+                        containers = containers.map(function(container) {
+                            return container.parentElement;
+                        });
                         containers.forEach(function(container) {
                             if(container === document.body) {
                                 atBody = true;
                             }
                         });
 
-                        let matchedElems = [];
+                        const matchedElems = [];
 
                         containers.forEach(function(container, index) {
                             if(canon(innerTextCanon(container)).indexOf(input) != -1) {
@@ -1236,14 +1241,16 @@ class ElementFinder {
                     }
 
                     return elems.filter(function(elem) {
-                        let innerText = innerTextCanon(elem);
+                        const innerText = innerTextCanon(elem);
                         let labelText = '';
                         if(elem.id) {
-                            let escape = function(s) { return s; }
+                            let escape = function(s) {
+                                return s;
+                            };
                             if(CSS && CSS.escape) {
                                 escape = CSS.escape;
                             }
-                            let labelElem = document.querySelector('label[for="' + escape(elem.id) + '"]');
+                            const labelElem = document.querySelector('label[for="' + escape(elem.id) + '"]');
                             if(labelElem) {
                                 labelText = labelElem.innerText;
                             }
@@ -1281,13 +1288,15 @@ class ElementFinder {
                     }
 
                     return elems.filter(function(elem) {
-                        let innerText = innerTextCanon(elem);
+                        const innerText = innerTextCanon(elem);
                         let labelText = '';
-                        let escape = function(s) { return s; }
+                        let escape = function(s) {
+                            return s;
+                        };
                         if(CSS && CSS.escape) {
                             escape = CSS.escape;
                         }
-                        let labelElem = document.querySelector('label[for="' + escape(elem.id) + '"]');
+                        const labelElem = document.querySelector('label[for="' + escape(elem.id) + '"]');
                         if(labelElem) {
                             labelText = labelElem.innerText;
                         }
@@ -1319,7 +1328,7 @@ class ElementFinder {
                     }
 
                     return elems.filter(function(elem) {
-                        let text = innerTextCanon(elem);
+                        const text = innerTextCanon(elem);
                         return (text || '').indexOf(input) != -1;
                     });
                 }
@@ -1335,9 +1344,9 @@ class ElementFinder {
                         return [];
                     }
 
-                    let nodesArr = [];
+                    const nodesArr = [];
                     for(let i = 0; i < nodes.length; i++) {
-                        let node = nodes[i];
+                        const node = nodes[i];
                         nodesArr.push(node);
                     }
                     return nodesArr.filter(function(node) {
@@ -1348,9 +1357,9 @@ class ElementFinder {
 
             'xpath': [
                 function(elems, input) {
-                    let result = document.evaluate(input, document, null, XPathResult.ANY_TYPE, null);
+                    const result = document.evaluate(input, document, null, XPathResult.ANY_TYPE, null);
                     let node = null;
-                    let nodes = [];
+                    const nodes = [];
                     while(node = result.iterateNext()) {
                         nodes.push(node);
                     }
@@ -1364,13 +1373,13 @@ class ElementFinder {
             // Has css style 'name:value'
             'style': [
                 function(elems, input) {
-                    let matches = input.match(/^([^: ]+):(.*)$/);
+                    const matches = input.match(/^([^: ]+):(.*)$/);
                     if(!matches) {
                         return [];
                     }
 
-                    let name = matches[1];
-                    let value = matches[2];
+                    const name = matches[1];
+                    const value = matches[2];
 
                     return elems.filter(function(elem) {
                         return window.getComputedStyle(elem)[name].toString() == value;
@@ -1387,11 +1396,11 @@ class ElementFinder {
 
             'textbox': [
                 function(elems, input) {
-                    let nodes = document.querySelectorAll('input, textarea');
-                    let nodesArr = [];
+                    const nodes = document.querySelectorAll('input, textarea');
+                    const nodesArr = [];
                     for(let i = 0; i < nodes.length; i++) {
-                        let node = nodes[i];
-                        let tagName = node.tagName.toLowerCase();
+                        const node = nodes[i];
+                        const tagName = node.tagName.toLowerCase();
                         if(
                             (tagName == 'input' && (node.type == 'text' || node.type == 'password' || node.type == 'search')) ||
                             (tagName == 'textarea')
@@ -1412,7 +1421,7 @@ class ElementFinder {
      * @return {Array} Where index 0 contains the canonicalized prop name, and index 1 contains the input (undefined if no input)
      */
     static canonicalizePropStr(str) {
-        let canonStr = str
+        const canonStr = str
             .replace(Constants.QUOTED_STRING_LITERAL, '')
             .trim()
             .replace(/\s+/g, ' ')

@@ -25,16 +25,16 @@ class BrowserInstance {
      * @return {BrowserInstance} The newly created BrowserInstance
      */
     static create(runInstance) {
-        let browser = runInstance.g('browser', new BrowserInstance(runInstance));
+        const browser = runInstance.g('browser', new BrowserInstance(runInstance));
 
         // Register this browser in the persistent array browsers
         // Used to kill all open browsers if the runner is stopped
-        let browsers = runInstance.p("browsers");
+        let browsers = runInstance.p('browsers');
         if(!browsers) {
-            browsers = runInstance.p("browsers", []);
+            browsers = runInstance.p('browsers', []);
         }
         browsers.push(browser);
-        runInstance.p("browsers", browsers);
+        runInstance.p('browsers', browsers);
 
         // Set commonly-used global vars
         runInstance.g('Comparer', Comparer);
@@ -72,10 +72,10 @@ class BrowserInstance {
      * Kills all open browsers
      */
     static async killAllBrowsers(runner) {
-        let browsers = runner.p("browsers");
+        const browsers = runner.p('browsers');
         if(browsers) {
             for(let i = 0; i < browsers.length; i++) {
-                let browser = browsers[i];
+                const browser = browsers[i];
                 if(browser.driver) {
                     try {
                         await browser.driver.quit();
@@ -124,11 +124,11 @@ class BrowserInstance {
         // Options
         if(!params.options) {
             try {
-                params.options = this.runInstance.findVarValue("browser options", false, true); // look for {browser options}, above or below
+                params.options = this.runInstance.findVarValue('browser options', false, true); // look for {browser options}, above or below
             }
             catch(e) {}
         }
-        let options = {
+        const options = {
             chrome: params.options || new chrome.Options(),
             firefox: params.options || new firefox.Options(),
             safari: params.options || new safari.Options(),
@@ -139,7 +139,7 @@ class BrowserInstance {
         // Capabilities
         if(!params.capabilities) {
             try {
-                params.capabilities = this.runInstance.findVarValue("browser capabilities", false, true); // look for {browser capabilities}, above or below
+                params.capabilities = this.runInstance.findVarValue('browser capabilities', false, true); // look for {browser capabilities}, above or below
             }
             catch(e) {}
         }
@@ -147,17 +147,17 @@ class BrowserInstance {
         // Browser name
         if(!params.name) {
             try {
-                params.name = this.runInstance.findVarValue("browser name", false, true); // look for {browser name}, above or below
+                params.name = this.runInstance.findVarValue('browser name', false, true); // look for {browser name}, above or below
             }
             catch(e) {
-                params.name = "chrome"; // defaults to chrome
+                params.name = 'chrome'; // defaults to chrome
             }
         }
 
         // Browser version
         if(!params.version) {
             try {
-                params.version = this.runInstance.findVarValue("browser version", false, true); // look for {browser version}, above or below
+                params.version = this.runInstance.findVarValue('browser version', false, true); // look for {browser version}, above or below
             }
             catch(e) {}  // it's ok if the variable isn't found (simply don't set browser version)
         }
@@ -165,7 +165,7 @@ class BrowserInstance {
         // Browser platform
         if(!params.platform) {
             try {
-                params.platform = this.runInstance.findVarValue("browser platform", false, true); // look for {browser platform}, above or below
+                params.platform = this.runInstance.findVarValue('browser platform', false, true); // look for {browser platform}, above or below
             }
             catch(e) {}
         }
@@ -173,7 +173,7 @@ class BrowserInstance {
         // Mobile device emulation (Chrome only)
         if(!params.deviceEmulation) {
             try {
-                params.deviceEmulation = this.runInstance.findVarValue("device", false, true);
+                params.deviceEmulation = this.runInstance.findVarValue('device', false, true);
             }
             catch(e) {}
         }
@@ -184,13 +184,13 @@ class BrowserInstance {
         // Dimensions
         if(!params.width) {
             try {
-                params.width = parseInt(this.runInstance.findVarValue("browser width", false, true)); // look for {browser width}, above or below
+                params.width = parseInt(this.runInstance.findVarValue('browser width', false, true)); // look for {browser width}, above or below
             }
             catch(e) {}
         }
         if(!params.height) {
             try {
-                params.height = parseInt(this.runInstance.findVarValue("browser height", false, true)); // look for {browser height}, above or below
+                params.height = parseInt(this.runInstance.findVarValue('browser height', false, true)); // look for {browser height}, above or below
             }
             catch(e) {}
         }
@@ -225,7 +225,7 @@ class BrowserInstance {
         params.deviceEmulation && (logStr += `, device '${params.deviceEmulation}'`);
         params.width && (logStr += `, width '${params.width}'`);
         params.height && (logStr += `, height '${params.height}'`);
-        params.isHeadless && !['safari', 'internet explorer', 'MicrosoftEdge'].includes(params.name) && (logStr += `, headless mode`);
+        params.isHeadless && !['safari', 'internet explorer', 'MicrosoftEdge'].includes(params.name) && (logStr += ', headless mode');
         params.serverUrl && (logStr += `, server url '${params.serverUrl}'`);
 
         this.runInstance.log(logStr);
@@ -273,7 +273,7 @@ class BrowserInstance {
         }
         catch(e) {}
 
-        let browsers = this.runInstance.p("browsers");
+        const browsers = this.runInstance.p('browsers');
         for(let i = 0; i < browsers.length; i++) {
             if(browsers[i] === this) {
                 browsers.splice(i, 1);
@@ -289,17 +289,17 @@ class BrowserInstance {
         const URL_REGEX = /^(https?:\/\/|file:\/\/)?([^\/]*(:[0-9]+)?)?(.*)/;
         let matches = url.match(URL_REGEX);
 
-        let protocol = matches[1] || 'http://';
+        const protocol = matches[1] || 'http://';
         let domain = matches[2];
-        let path = matches[4];
+        const path = matches[4];
 
         if(protocol != 'file://') {
             if(!domain) {
-                let currUrl = await this.driver.getCurrentUrl();
+                const currUrl = await this.driver.getCurrentUrl();
                 matches = currUrl.match(URL_REGEX);
                 domain = matches[2];
                 if(!domain) {
-                    throw new Error(`Cannot determine domain to navigate to. Either include a domain or have the browser already be at a page with a domain.`)
+                    throw new Error('Cannot determine domain to navigate to. Either include a domain or have the browser already be at a page with a domain.');
                 }
             }
 
@@ -319,9 +319,9 @@ class BrowserInstance {
     async type(text, element) {
         let items = text.split(/(?=(?<=[^\\])\[)|(?<=(?=[^\\])\])/g);
         items = items.map(item => {
-            let matches = item.match(/^\[(.*)\]$/);
+            const matches = item.match(/^\[(.*)\]$/);
             if(matches && matches[1]) {
-                let key = Key[matches[1].toUpperCase()];
+                const key = Key[matches[1].toUpperCase()];
                 if(!key) {
                     throw new Error(`Invalid key ${item}`);
                 }
@@ -347,24 +347,24 @@ class BrowserInstance {
         const FOUND_LOG = `Found item that contains '${value}'`;
 
         dropdownElement = await this.$(dropdownElement, true);
-        let dropdownCoords = this.runInstance.currStep ? this.runInstance.currStep.targetCoords : null;
+        const dropdownCoords = this.runInstance.currStep ? this.runInstance.currStep.targetCoords : null;
 
-        let tagName = await dropdownElement.getTagName();
+        const tagName = await dropdownElement.getTagName();
         if(tagName.toLowerCase() == 'select') {
             try {
-                let item = await this.$(`selector 'option', contains exact '${this.str(value)}', any visibility`, false, dropdownElement);
+                const item = await this.$(`selector 'option', contains exact '${this.str(value)}', any visibility`, false, dropdownElement);
                 this.runInstance.log(EXACT_LOG);
                 await item.click();
             }
             catch(e) {
                 this.runInstance.log(INEXACT_LOG);
-                let item = await this.$(`selector 'option', contains '${this.str(value)}', any visibility`, false, dropdownElement);
+                const item = await this.$(`selector 'option', contains '${this.str(value)}', any visibility`, false, dropdownElement);
                 this.runInstance.log(FOUND_LOG);
                 await item.click();
             }
         }
         else {
-            throw new Error(`Target element is not a <select>`);
+            throw new Error('Target element is not a <select>');
         }
 
         if(this.runInstance.currStep) {
@@ -381,7 +381,7 @@ class BrowserInstance {
         element = await this.$(element, true);
         dropdownElement = await this.$(dropdownElement, true);
 
-        let tagName = await dropdownElement.getTagName();
+        const tagName = await dropdownElement.getTagName();
         if(tagName.toLowerCase() != 'select') {
             // Click it open
             await dropdownElement.click();
@@ -458,7 +458,7 @@ class BrowserInstance {
         }
 
         // Create smashtest/screenshots if it doesn't already exist
-        const dir = path.join(reporter.getPathFolder(), "screenshots");
+        const dir = path.join(reporter.getPathFolder(), 'screenshots');
         if(!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
@@ -475,7 +475,7 @@ class BrowserInstance {
         }
 
         // Write screenshot to file
-        let filename = `${this.runInstance.currBranch.hash}_${this.runInstance.currBranch.steps.indexOf(this.runInstance.currStep) || `0`}_${isAfter ? `after` : `before`}.jpg`;
+        const filename = `${this.runInstance.currBranch.hash}_${this.runInstance.currBranch.steps.indexOf(this.runInstance.currStep) || '0'}_${isAfter ? 'after' : 'before'}.jpg`;
         const SCREENSHOT_WIDTH = 1000;
         await (await Jimp.read(Buffer.from(data, 'base64')))
             .resize(SCREENSHOT_WIDTH, Jimp.AUTO)
@@ -496,14 +496,14 @@ class BrowserInstance {
     async clearUnneededScreenshots() {
         if(this.runInstance.tree.stepDataMode == 'fail' && !this.runInstance.currBranch.isFailed) { // NOTE: for stepDataMode of 'none', a screenshot wasn't created in the first place
             // Delete all screenshots with a filename that begins with the currBranch's hash
-            const screenshotsDir = `${path.join(reporter.getPathFolder(), "screenshots")}`;
+            const screenshotsDir = `${path.join(reporter.getPathFolder(), 'screenshots')}`;
             let files = [];
             try {
                 files = fs.readdirSync(screenshotsDir);
             }
             catch(e) {} // it's ok if the directory doesn't exist
 
-            for(let file of files) {
+            for(const file of files) {
                 if(file.startsWith(this.runInstance.currBranch.hash)) {
                     fs.unlinkSync(path.join(screenshotsDir, file));
                     this.runInstance.runner.screenshotCount--; // decrement screenshotCount for every screenshot deleted
@@ -520,8 +520,8 @@ class BrowserInstance {
             return;
         }
 
-        let rect = await this.executeScript(function(elem) {
-            let rect = elem.getBoundingClientRect();
+        const rect = await this.executeScript(function(elem) {
+            const rect = elem.getBoundingClientRect();
             return {
                 top: rect.top,
                 left: rect.left,
@@ -534,7 +534,7 @@ class BrowserInstance {
 
         this.runInstance.currStep.targetCoords = {
             x: (rect.left + (rect.width/2)) / rect.clientWidth * 100,
-            y: (rect.top + (rect.height/2)) / rect.clientHeight * 100,
+            y: (rect.top + (rect.height/2)) / rect.clientHeight * 100
         };
     }
 
@@ -542,9 +542,9 @@ class BrowserInstance {
      * If the given WebElement is not currently scrolled into view, scrolls it into view and retakes the before screenshot
      */
     async scrollIntoView(elem) {
-        let isScrolledIntoView = await this.executeScript(function(elem) {
+        const isScrolledIntoView = await this.executeScript(function(elem) {
             var rect = elem.getBoundingClientRect();
-            let isScrolledIntoView = (rect.top >= 0) && (rect.bottom <= window.innerHeight);
+            const isScrolledIntoView = (rect.top >= 0) && (rect.bottom <= window.innerHeight);
             if(!isScrolledIntoView) {
                 elem.scrollIntoView();
             }
@@ -594,7 +594,7 @@ class BrowserInstance {
             try {
                 results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
                 this.runInstance.log(`Clickable element found for \`${ef.print()}\``);
-                let result = results[0];
+                const result = results[0];
 
                 await this.scrollIntoView(result);
                 await this.setCrosshairs(result);
@@ -608,7 +608,7 @@ class BrowserInstance {
         }
 
         results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
-        let result = results[0];
+        const result = results[0];
 
         await this.scrollIntoView(result);
         await this.setCrosshairs(result);
@@ -644,7 +644,7 @@ class BrowserInstance {
             ef.counter = { min: 1 };
         }
 
-        let results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
+        const results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
         return results;
     }
 
@@ -692,7 +692,7 @@ class BrowserInstance {
      * @param {Boolean} [isAdd] - If true, does not override existing defintions, but adds to them
      */
     props(props, isAdd) {
-        for(let prop in props) {
+        for(const prop in props) {
             if(props.hasOwnProperty(prop)) {
                 if(typeof props[prop] == 'string') {
                     // parse it as an EF
@@ -704,7 +704,7 @@ class BrowserInstance {
                     throw new Error(`Invalid value of prop '${prop}'. Must be either a string ElementFinder or a function.`);
                 }
 
-                let [canonProp, canonInput] = ElementFinder.canonicalizePropStr(prop);
+                const [canonProp, canonInput] = ElementFinder.canonicalizePropStr(prop);
                 if(isAdd) {
                     if(!this.definedProps[canonProp]) {
                         this.definedProps[canonProp] = [];
@@ -827,9 +827,9 @@ class BrowserInstance {
      * @throws {Error} If element doesn't match state within the given time
      */
     async verifyState(element, state, timeout) {
-        let elem = await this.$(element, undefined, undefined, timeout, true);
+        const elem = await this.$(element, undefined, undefined, timeout, true);
         let stateElems = [];
-        const ERR = `The given element doesn't match the given state`;
+        const ERR = 'The given element doesn\'t match the given state';
 
         try {
             stateElems = await this.$$(state, elem, timeout, true);
@@ -848,10 +848,10 @@ class BrowserInstance {
      * See verifyState() for param details
      */
     async verifyEveryState(element, state, timeout) {
-        let elems = await this.$$(element, undefined, timeout, true);
+        const elems = await this.$$(element, undefined, timeout, true);
 
         for(let i = 0; i < elems.length; i++) {
-            let elem = elems[i];
+            const elem = elems[i];
             let stateElems = [];
             const ERR = `Matched element number ${i+1} doesn't match the given state`;
 
@@ -877,12 +877,12 @@ class BrowserInstance {
      * Sinon will be available inside the browser at the global js var 'sinon'
      */
     async injectSinon() {
-        let sinonExists = await this.executeScript(function() {
+        const sinonExists = await this.executeScript(function() {
             return typeof sinon != 'undefined';
         });
 
         if(!sinonExists) {
-            let sinonCode = await request.get('https://cdnjs.cloudflare.com/ajax/libs/sinon.js/7.3.2/sinon.min.js');
+            const sinonCode = await request.get('https://cdnjs.cloudflare.com/ajax/libs/sinon.js/7.3.2/sinon.min.js');
             await this.executeScript(sinonCode);
         }
     }
@@ -958,7 +958,7 @@ class BrowserInstance {
 
             // Deserialize response
             if(typeofResponse == 'function') {
-                eval(`response = ` + response.trim());
+                eval('response = ' + response.trim());
             }
             else if(typeofResponse == 'array') {
                 response = JSON.parse(response);
@@ -1007,7 +1007,7 @@ class BrowserInstance {
                     },
                     timestamp: (new Date()).valueOf()
                 });
-            }
+            };
         }, latitude, longitude);
     }
 
