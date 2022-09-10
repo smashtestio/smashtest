@@ -1,10 +1,10 @@
 import chalk from 'chalk';
 import date from 'date-and-time';
 import fs from 'fs';
-import getPort from 'get-port';
+import getPort, { portNumbers } from 'get-port';
 import path from 'path';
 import readFiles from 'read-files-promise';
-import WebSocket from 'ws';
+import { WebSocketServer } from 'ws';
 import * as utils from './utils.js';
 
 // prettier-ignore
@@ -156,7 +156,7 @@ class Reporter {
     async startServer() {
         // Set port and fill reportDomain
         let port = null;
-        const portConfig = { port: getPort.makeRange(9000, 9999) }; // avoid 8000's, since that's where localhost apps tend to be run
+        const portConfig = { port: portNumbers(9000, 9999) }; // avoid 8000's, since that's where localhost apps tend to be run
         if (this.reportDomain) {
             const matches = this.reportDomain.match(/:([0-9]+)/);
             if (matches && matches[1]) {
@@ -175,7 +175,7 @@ class Reporter {
             this.reportDomain = `localhost:${port}`;
         }
 
-        this.wsServer = new WebSocket.Server({ port: port });
+        this.wsServer = new WebSocketServer({ port: port });
         //console.log(`Report server running on port ${port}`);
 
         this.wsServer.on('connection', (ws) => {
