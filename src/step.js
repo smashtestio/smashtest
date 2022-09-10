@@ -1,5 +1,5 @@
-import clonedeep from 'lodash/cloneDeep.js';
-import * as  utils from './utils.js';
+import cloneDeep from 'lodash/cloneDeep.js';
+import * as utils from './utils.js';
 
 /**
  * Represents a step within a Branch
@@ -36,7 +36,7 @@ class Step {
      * @return {Step} Clone of this step
      */
     clone() {
-        return clonedeep(this);
+        return cloneDeep(this);
     }
 
     /**

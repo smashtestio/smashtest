@@ -1,8 +1,8 @@
 import chalk from 'chalk';
 import date from 'date-and-time';
-import fs from 'fs';
 import getPort, { portNumbers } from 'get-port';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import readFiles from 'read-files-promise';
 import { WebSocketServer } from 'ws';
 import * as utils from './utils.js';

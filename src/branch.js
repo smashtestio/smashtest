@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import clonedeep from 'lodash/cloneDeep.js';
+import cloneDeep from 'lodash/cloneDeep.js';
 import * as Constants from './constants.js';
 import * as utils from './utils.js';
 
@@ -112,7 +112,7 @@ class Branch {
      * @return {Branch} A clone of this branch
      */
     clone() {
-        return clonedeep(this);
+        return cloneDeep(this);
     }
 
     /**

@@ -7,13 +7,13 @@ import ie from 'selenium-webdriver/ie.js';
 import safari from 'selenium-webdriver/safari.js';
 
 import Jimp from 'jimp';
+import fs from 'node:fs';
+import path from 'node:path';
 import request from 'request-promise-native';
+import { reporter } from '../../src/instances.js';
 import * as utils from '../../src/utils.js';
 import Comparer from './comparer.js';
 import ElementFinder from './elementfinder.js';
-import { reporter } from '../../src/instances.js';
-import fs from 'fs';
-import path from 'path';
 
 class BrowserInstance {
     // ***************************************

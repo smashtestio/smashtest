@@ -3,17 +3,17 @@
 import chalk from 'chalk';
 import progress from 'cli-progress';
 import clipboardy from 'clipboardy';
-import fs from 'fs';
+import { EventEmitter } from 'node:events';
 import glob from 'glob';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import readFiles from 'read-files-promise';
-import readline from 'readline';
-import repl from 'repl';
+import readline from 'node:readline';
+import repl from 'node:repl';
 import * as Constants from './constants.js';
 import { reporter, runner, tree } from './instances.js';
 import StepNode from './stepnode.js';
 import * as utils from './utils.js';
-import { EventEmitter } from 'events';
 
 // Reading package.json is way simpler already, but it's a parse error for
 // eslint, so even // eslint-disable doesn't work. Eslint only supports stage 4
@@ -546,13 +546,10 @@ function plural(count) {
         }
 
         const packageFilenames = await new Promise((resolve, reject) => {
-            glob(
-                new URL('../packages', import.meta.url).pathname + '/*.smash',
-                async (err, packageFilenames) => {
-                    // new array of filenames under packages/
-                    err ? reject(err) : resolve(packageFilenames);
-                }
-            );
+            glob(new URL('../packages', import.meta.url).pathname + '/*.smash', async (err, packageFilenames) => {
+                // new array of filenames under packages/
+                err ? reject(err) : resolve(packageFilenames);
+            });
         });
 
         if (!packageFilenames || packageFilenames.length == 0) {

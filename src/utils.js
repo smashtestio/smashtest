@@ -1,4 +1,4 @@
-import util from 'util';
+import util from 'node:util';
 import * as Constants from './constants.js';
 
 /**
@@ -195,11 +195,7 @@ export const numIndents = (line, filename, lineNumber) => {
     const whitespaceAtFront = line.match(/^(\s*)([^\s]|$)/);
 
     if (spacesAtFront[1] != whitespaceAtFront[1]) {
-        error(
-            'Spaces are the only type of whitespace allowed at the beginning of a step',
-            filename,
-            lineNumber
-        );
+        error('Spaces are the only type of whitespace allowed at the beginning of a step', filename, lineNumber);
     }
     else {
         const numSpaces = spacesAtFront[1].length;

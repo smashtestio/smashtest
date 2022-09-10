@@ -1,4 +1,4 @@
-import clonedeep from 'lodash/cloneDeep.js';
+import cloneDeep from 'lodash/cloneDeep.js';
 import * as Constants from '../../src/constants.js';
 import * as utils from '../../src/utils.js';
 
@@ -661,7 +661,7 @@ class Comparer {
      * NOTE: In non-json-clone, if there are multiple references to a shared object in value, that object will be shared in the clone as well
      */
     static clone(value, jsonClone) {
-        return jsonClone ? this.jsonClone(value) : clonedeep(value);
+        return jsonClone ? this.jsonClone(value) : cloneDeep(value);
     }
 
     /**

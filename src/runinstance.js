@@ -1,10 +1,10 @@
 import chalk from 'chalk';
-import path from 'path';
+import { createRequire } from 'node:module';
+import path from 'node:path';
 import Branch from './branch.js';
 import * as Constants from './constants.js';
 import Step from './step.js';
 import * as utils from './utils.js';
-import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 
