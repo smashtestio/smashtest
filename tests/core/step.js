@@ -5,18 +5,18 @@ import Step from '../../src/step.js';
 const expect = chai.expect;
 const assert = chai.assert;
 
-describe("Step", () => {
-    describe("serialize()", () => {
-        it("returns a serialized object", () => {
-            let s = new Step(1);
+describe('Step', () => {
+    describe('serialize()', () => {
+        it('returns a serialized object', () => {
+            const s = new Step(1);
 
             s.fid = 6;
             s.level = 1;
 
             s.isPassed = true;
 
-            s.error = new Error("oops");
-            s.log = [ { text: 'log1' }, { text: 'log2' } ];
+            s.error = new Error('oops');
+            s.log = [{ text: 'log1' }, { text: 'log2' }];
 
             s.elapsed = 65;
             s.timeStarted = new Date();
@@ -24,7 +24,7 @@ describe("Step", () => {
 
             s.targetCoords = { x: 2, y: 4 };
 
-            let o = s.serialize();
+            const o = s.serialize();
 
             Comparer.expect(o).to.match({
                 $exact: true,
@@ -36,7 +36,7 @@ describe("Step", () => {
                 isPassed: true,
 
                 error: { message: 'oops' },
-                log: [ { text: 'log1' }, { text: 'log2' } ],
+                log: [{ text: 'log1' }, { text: 'log2' }],
 
                 elapsed: 65,
 
