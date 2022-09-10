@@ -1,12 +1,11 @@
-const chai = require('chai');
-const chaiAsPromised = require("chai-as-promised");
+import chai from 'chai';
+import Comparer from '../../packages/js/comparer.js';
+import Runner from '../../src/runner.js';
+import Tree from '../../src/tree.js';
+import chaiAsPromised from 'chai-as-promised';
+
 const expect = chai.expect;
 const assert = chai.assert;
-const util = require('util');
-const Tree = require('../../src/tree.js');
-const Runner = require('../../src/runner.js');
-const Comparer = require('../../packages/js/comparer.js');
-const utils = require('../../src/utils.js');
 
 chai.use(chaiAsPromised);
 

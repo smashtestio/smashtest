@@ -1,5 +1,5 @@
-const clonedeep = require('lodash/cloneDeep');
-const utils = require('./utils.js');
+import clonedeep from 'lodash/cloneDeep.js';
+import * as  utils from './utils.js';
 
 /**
  * Represents a step within a Branch
@@ -109,4 +109,5 @@ class Step {
         return o;
     }
 }
-module.exports = Step;
+
+export default Step;

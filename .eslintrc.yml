@@ -9,7 +9,7 @@ overrides: []
 # parser: '@typescript-eslint/parser'
 parserOptions:
   ecmaVersion: latest
-  sourceType: script
+  sourceType: module
 # plugins:
 #   - '@typescript-eslint'
 ignorePatterns:

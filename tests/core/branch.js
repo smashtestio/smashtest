@@ -1,12 +1,12 @@
-const chai = require('chai');
+import chai from 'chai';
+import Comparer from '../../packages/js/comparer.js';
+import Branch from '../../src/branch.js';
+import Step from '../../src/step.js';
+import StepNode from '../../src/stepnode.js';
+import Tree from '../../src/tree.js';
+
 const expect = chai.expect;
 const assert = chai.assert;
-const utils = require('../../src/utils.js');
-const Step = require('../../src/step.js');
-const StepNode = require('../../src/stepnode.js');
-const Branch = require('../../src/branch.js');
-const Tree = require('../../src/tree.js');
-const Comparer = require('../../packages/js/comparer.js');
 
 describe("Branch", () => {
     describe("mergeToEnd()", () => {

@@ -1,4 +1,4 @@
-const StepNode = require('./stepnode.js');
+import StepNode from './stepnode.js';
 
 /**
  * Represents a plain step block (non-multi-level) within a Tree
@@ -17,4 +17,5 @@ class StepBlockNode extends StepNode {
         */
     }
 }
-module.exports = StepBlockNode;
+
+export default StepBlockNode;

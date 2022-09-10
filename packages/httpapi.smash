@@ -3,7 +3,7 @@
 // ***************************************
 
 *** Before Every Branch {
-    const HttpApi = i('HttpApi', './js/httpapi.js');
+    const HttpApi = await i('HttpApi', './js/httpapi.js');
     const api = g('api', new HttpApi(runInstance));
 
     g('request', api.request.bind(api));

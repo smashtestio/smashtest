@@ -1,13 +1,14 @@
-const chai = require('chai');
-const chaiAsPromised = require("chai-as-promised");
+import chai from 'chai';
+import Branch from '../../src/branch.js';
+import RunInstance from '../../src/runinstance.js';
+import Runner from '../../src/runner.js';
+import Step from '../../src/step.js';
+import Tree from '../../src/tree.js';
+import chaiAsPromised from"chai-as-promised"
+import e from 'express'
+
 const expect = chai.expect;
 const assert = chai.assert;
-const util = require('util');
-const Step = require('../../src/step.js');
-const Branch = require('../../src/branch.js');
-const Tree = require('../../src/tree.js');
-const Runner = require('../../src/runner.js');
-const RunInstance = require('../../src/runinstance.js');
 
 chai.use(chaiAsPromised);
 
@@ -4357,7 +4358,7 @@ tree.parseIn(`
                 let tree = new Tree();
                 tree.parseIn(`
 Something {
-    let BF = require(process.cwd().replace(/smashtest.*/, 'smashtest/tests/core/badfunc.js')); // using process.cwd() because the relative path varies depending on if you run the tests with mocha vs. nyc
+    let BF = await import(process.cwd().replace(/smashtest.*/, 'smashtest/tests/core/examples/badfunc.js')); // using process.cwd() because the relative path varies depending on if you run the tests with mocha vs. nyc
     BF.badFunc();
 }
                 `, "file.txt");
@@ -4382,7 +4383,7 @@ Something {
                 let tree = new Tree();
                 tree.parseIn(`
 Something {
-    let BF = require(process.cwd().replace(/smashtest.*/, 'smashtest/tests/core/badfunc.js')); // using process.cwd() because the relative path varies depending on if you run the tests with mocha vs. nyc
+    let BF = await import(process.cwd().replace(/smashtest.*/, 'smashtest/tests/core/examples/badfunc.js')); // using process.cwd() because the relative path varies depending on if you run the tests with mocha vs. nyc
     BF.badFunc();
 }
                 `, "file.txt");
@@ -5689,7 +5690,7 @@ First step {
             let tree = new Tree();
             tree.parseIn(`
 Step {
-    i('chalk');
+    await i('chalk');
     runInstance.one = p('chalk');
 }
             `, "file.txt");
@@ -5710,7 +5711,7 @@ Step {
             let tree = new Tree();
             tree.parseIn(`
 Step {
-    i('colorful', 'chalk');
+    await i('colorful', 'chalk');
     runInstance.one = p('colorful');
 }
             `, "file.txt");
@@ -5731,8 +5732,8 @@ Step {
             let tree = new Tree();
             tree.parseIn(`
 Step {
-    i('chalk');
-    i('chalk');
+    await i('chalk');
+    await i('chalk');
     runInstance.one = p('chalk');
 }
             `, "file.txt");
@@ -5753,7 +5754,7 @@ Step {
             let tree = new Tree();
             tree.parseIn(`
 Step {
-    runInstance.one = i('chalk');
+    runInstance.one = await i('chalk');
 }
             `, "file.txt");
 
@@ -5794,7 +5795,7 @@ Step {
             let tree = new Tree();
             tree.parseIn(`
 Step {
-    runInstance.one = i('./branch.js');
+    runInstance.one = await i('./branch.js');
 }
             `, "file.txt");
 
@@ -5810,11 +5811,12 @@ Step {
             expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
         });
 
-        it("includes a file with a relative path that starts with ..", async () => {
+        it("includes a CJS-compatible package with a directory import", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Step {
-    runInstance.one = i('../../smashtest/node_modules/chalk');
+    runInstance.one = i('../../smashtest/node_modules/chai');
+    runInstance.two = await i('../../smashtest/node_modules/chai');
 }
             `, "file.txt");
 
@@ -5825,16 +5827,36 @@ Step {
 
             await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
-            expect(typeof runInstance.one).to.equal("function");
+            expect(typeof runInstance.one.version).to.equal("string");
+            expect(typeof runInstance.two.version).to.equal("string");
             expect(tree.branches[0].isFailed).to.equal(undefined);
-            expect(tree.branches[0].steps[0].isFailed).to.equal(undefined);
+        });
+
+        it("includes ESM-only package with a directory import", async () => {
+            let tree = new Tree();
+            tree.parseIn(`
+Step {
+    runInstance.one = await i('../../smashtest/node_modules/chalk');
+}
+            `, "file.txt");
+
+            let runner = new Runner(tree);
+            runner.init(tree, true);
+
+            let runInstance = new RunInstance(runner);
+
+            await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+            expect(typeof runInstance.one).to.equal('undefined');
+            expect(tree.branches[0].isFailed).to.be.true;
+            expect(tree.branches[0].steps[0].error.message).to.match(/^Directory import '.*?' is not supported resolving ES modules/);
         });
 
         it("includes a file using a module name, where the file resides in the executable's node_modules", async () => {
             let tree = new Tree();
             tree.parseIn(`
 Step {
-    runInstance.one = i('chalk');
+    runInstance.one = await i('chalk');
 }
             `, "file.txt");
 
@@ -5855,7 +5877,7 @@ Step {
             let tree = new Tree();
             tree.parseIn(`
 Step {
-    runInstance.one = i('chalk');
+    runInstance.one = await i('chalk');
 }
             `, "/ABSOLUTE-PATH-HERE/file.txt");
 
@@ -5930,6 +5952,171 @@ Step {
             expect(tree.branches[0].steps[0].isFailed).to.be.true;
             expect(tree.branches[0].steps[0].error.message).to.contain(`Cannot find module 'node_modules/bad-module'`);
         });
+    });
+
+    it("includes a CJS module file", async () => {
+        let tree = new Tree();
+        tree.parseIn(`
+Step {
+    runInstance.one = i('./examples/module-cjs.cjs');
+}
+        `, "../tests/core/file.txt");
+
+        let runner = new Runner(tree);
+        runner.init(tree, true);
+
+        let runInstance = new RunInstance(runner);
+
+        await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+        expect(runInstance.one).to.equal('this is a cjs module');
+        expect(tree.branches[0].isPassed).to.be.true;
+        expect(tree.branches[0].steps[0].isPassed).to.be.true;
+    });
+
+    it("includes a CJS module file with wrong extension", async () => {
+        let tree = new Tree();
+        tree.parseIn(`
+Step {
+    runInstance.one = i('./examples/module-cjs.js');
+}
+        `, "../tests/core/file.txt");
+
+        let runner = new Runner(tree);
+        runner.init(tree, true);
+
+        let runInstance = new RunInstance(runner);
+
+        await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+        expect(runInstance.one instanceof Promise).to.be.true;
+        expect(tree.branches[0].isPassed).to.be.true;
+        expect(tree.branches[0].steps[0].isPassed).to.be.true;
+    });
+
+    it("includes a CJS module file with wrong extension + await (as it were an ES module)", async () => {
+        let tree = new Tree();
+        tree.parseIn(`
+Step {
+    runInstance.one = await i('./examples/module-cjs.js');
+}
+        `, "../tests/core/file.txt");
+
+        let runner = new Runner(tree);
+        runner.init(tree, true);
+
+        let runInstance = new RunInstance(runner);
+
+        await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+        expect(runInstance.one).to.be.equal(undefined);
+        expect(tree.branches[0].isFailed).to.be.true;
+        expect(tree.branches[0].steps[0].isFailed).to.be.true;
+        expect(tree.branches[0].steps[0].error.message).to.contain("This file is being treated as an ES module because it has a '.js' file extension");
+    });
+
+    it("includes an ESM module file's default export", async () => {
+        let tree = new Tree();
+        tree.parseIn(`
+Step {
+    runInstance.one = await i('./examples/module-esm.js');
+}
+        `, "../tests/core/file.txt");
+
+        let runner = new Runner(tree);
+        runner.init(tree, true);
+
+        let runInstance = new RunInstance(runner);
+
+        await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+        expect(runInstance.one).to.equal('this is the default export');
+        expect(tree.branches[0].isPassed).to.be.true;
+        expect(tree.branches[0].steps[0].isPassed).to.be.true;
+    });
+
+    it("includes an ESM module file's namespace object", async () => {
+        let tree = new Tree();
+        tree.parseIn(`
+Step {
+    runInstance.one = await i(['./examples/module-esm.js', '*']);
+}
+        `, "../tests/core/file.txt");
+
+        let runner = new Runner(tree);
+        runner.init(tree, true);
+
+        let runInstance = new RunInstance(runner);
+
+        await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+        expect(typeof runInstance.one).to.equal('object');
+        expect(runInstance.one.default).to.equal('this is the default export');
+        expect(runInstance.one.namedExport1).to.equal('named export 1');
+        expect(tree.branches[0].isPassed).to.be.true;
+        expect(tree.branches[0].steps[0].isPassed).to.be.true;
+    });
+
+    it("includes a CJS module file with 'await' as a safety way", async () => {
+        let tree = new Tree();
+        tree.parseIn(`
+Step {
+    runInstance.one = i('./examples/module-cjs.cjs');
+}
+        `, "../tests/core/file.txt");
+
+        let runner = new Runner(tree);
+        runner.init(tree, true);
+
+        let runInstance = new RunInstance(runner);
+
+        await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+        expect(runInstance.one).to.equal('this is a cjs module');
+        expect(tree.branches[0].isPassed).to.be.true;
+        expect(tree.branches[0].steps[0].isPassed).to.be.true;
+    });
+
+    it("includes a CJS+ESM package", async () => {
+        let tree = new Tree();
+        tree.parseIn(`
+Step {
+    runInstance.one = i('chai');
+    runInstance.two = await i('chai');
+}
+        `, "../tests/core/examples/file.txt");
+
+        let runner = new Runner(tree);
+        runner.init(tree, true);
+
+        let runInstance = new RunInstance(runner);
+
+        await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+        expect(typeof runInstance.one.version).to.equal('string');
+        expect(typeof runInstance.two.version).to.equal('string');
+        expect(tree.branches[0].isPassed).to.be.true;
+        expect(tree.branches[0].steps[0].isPassed).to.be.true;
+    });
+
+    it("includes a ESM-only package", async () => {
+        let tree = new Tree();
+        tree.parseIn(`
+Step {
+    runInstance.one = await i('chalk');
+}
+        `, "../tests/core/examples/file.txt");
+
+        let runner = new Runner(tree);
+        runner.init(tree, true);
+
+        let runInstance = new RunInstance(runner);
+
+        await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
+
+        expect(runInstance.one.name).to.equal('chalk');
+        expect(tree.branches[0].isPassed).to.be.true;
+        expect(tree.branches[0].steps[0].isPassed).to.be.true;
     });
 
     describe("replaceVars()", () => {

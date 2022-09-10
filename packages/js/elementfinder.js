@@ -1,6 +1,6 @@
 /* globals f */
-const utils = require('../../src/utils.js');
-const Constants = require('../../src/constants.js');
+import * as Constants from '../../src/constants.js';
+import * as utils from '../../src/utils.js';
 
 class ElementFinder {
     /**
@@ -1545,6 +1545,7 @@ class ElementFinder {
         return [canonStr, input];
     }
 }
-module.exports = ElementFinder;
+
+export default ElementFinder;
 
 ElementFinder.browserConsoleOutput = false;

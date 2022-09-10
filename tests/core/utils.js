@@ -1,8 +1,8 @@
-const chai = require('chai');
+import chai from 'chai';
+import * as utils from '../../src/utils.js';
+
 const expect = chai.expect;
 const assert = chai.assert;
-const util = require('util');
-const utils = require('../../src/utils.js');
 
 describe("Utils", () => {
     describe("stripQuotes()", () => {

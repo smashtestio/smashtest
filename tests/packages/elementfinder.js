@@ -1,12 +1,10 @@
-const chai = require('chai');
+import chai from 'chai';
+import Comparer from '../../packages/js/comparer.js';
+import ElementFinder from '../../packages/js/elementfinder.js';
+
 const expect = chai.expect;
 const assert = chai.assert;
-const util = require('util');
-const utils = require('../../src/utils.js');
-const {Builder, By, Key, until} = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
-const ElementFinder = require('../../packages/js/elementfinder.js');
-const Comparer = require('../../packages/js/comparer.js');
+import {Builder, By, Key, until} from 'selenium-webdriver'
 
 describe("ElementFinder", function() {
     before(() => {

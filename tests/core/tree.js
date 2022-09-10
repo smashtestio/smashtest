@@ -1,12 +1,12 @@
-const chai = require('chai');
+import chai from 'chai';
+import Comparer from '../../packages/js/comparer.js';
+import Branch from '../../src/branch.js';
+import Step from '../../src/step.js';
+import StepNode from '../../src/stepnode.js';
+import Tree from '../../src/tree.js';
+
 const expect = chai.expect;
 const assert = chai.assert;
-const utils = require('../../src/utils.js');
-const Tree = require('../../src/tree.js');
-const Branch = require('../../src/branch.js');
-const Step = require('../../src/step.js');
-const StepNode = require('../../src/stepnode.js');
-const Comparer = require('../../packages/js/comparer.js');
 
 function mergeStepNodesInTree(tree) {
     mergeStepNodesInBranches(tree, tree.branches);
@@ -14787,7 +14787,7 @@ A - !
         });
 
         it("returns null on an empty tree", () => {
-            tree = new Tree();
+            let tree = new Tree();
             tree.noRandom = true;
             tree.generateBranches();
 

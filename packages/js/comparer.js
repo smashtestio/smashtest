@@ -1,6 +1,6 @@
-const Constants = require('../../src/constants.js');
-const clonedeep = require('lodash/cloneDeep');
-const utils = require('../../src/utils.js');
+import clonedeep from 'lodash/cloneDeep.js';
+import * as Constants from '../../src/constants.js';
+import * as utils from '../../src/utils.js';
 
 const RESERVED_KEYWORDS = [
     '$typeof',
@@ -675,7 +675,8 @@ class Comparer {
         return JSON.parse(JSON.stringify(value));
     }
 }
-module.exports = Comparer;
+
+export default Comparer;
 
 Comparer.defaultErrorStart = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + '-->';
 Comparer.defaultErrorEnd = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY;

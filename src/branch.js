@@ -1,7 +1,7 @@
-const clonedeep = require('lodash/cloneDeep');
-const crypto = require('crypto');
-const Constants = require('./constants.js');
-const utils = require('./utils.js');
+import crypto from 'crypto';
+import clonedeep from 'lodash/cloneDeep.js';
+import * as Constants from './constants.js';
+import * as utils from './utils.js';
 
 /**
  * Represents a single branch containing steps
@@ -460,4 +460,5 @@ class Branch {
         return o;
     }
 }
-module.exports = Branch;
+
+export default Branch;

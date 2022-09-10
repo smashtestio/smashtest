@@ -1,9 +1,12 @@
-const Constants = require('./constants.js');
-const Branch = require('./branch.js');
-const Step = require('./step.js');
-const utils = require('./utils.js');
-const chalk = require('chalk');
-const path = require('path');
+import chalk from 'chalk';
+import path from 'path';
+import Branch from './branch.js';
+import * as Constants from './constants.js';
+import Step from './step.js';
+import * as utils from './utils.js';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
 
 const darkGray = chalk.hex('#303030');
 const brightGray = chalk.hex('#B6B6B6');
@@ -779,60 +782,81 @@ class RunInstance {
 
     /**
      * i(varName, packageName, filename) or i(packageName, undefined, filename)
-     * Imports (via require()) the given package, sets persistent var varName to the imported object and returns the imported object
+     * Imports (via require() or import()) the given package, sets persistent var varName to the imported object and returns the imported object
      * If a persistent var with that name already exists, this function only returns the value of that var
      * If only a package name is included, the var name is generated from packageName, but camel cased (e.g., one-two-three --> oneTwoThree)
      * The filename is the filename of the step being executed
      */
     i(name1, name2, filename) {
-        let packageName = null;
-        let varName = null;
-        if (typeof name2 == 'undefined') {
-            packageName = name1;
-            varName = packageName.replace(/-([a-z])/g, (m) => m.toUpperCase()).replace(/-/g, ''); // camelCasing
-        }
-        else {
-            packageName = name2;
-            varName = name1;
-        }
-
-        if (!this.getPersistent(varName)) {
-            const isPath = packageName.match(/^(\.|\/)/);
-            if (packageName.match(/^\.\/|^\.\.\//)) {
-                // local file (non-npm package)
-                packageName = `${path.dirname(filename)}/${packageName}`;
-            }
-
+        const requireOrImportAndSet = (packageName, exportName, varName) => {
             try {
-                this.setPersistent(varName, require(packageName));
+                const value = require(packageName);
+                this.setPersistent(varName, value);
+                return value;
             }
             catch (e) {
-                if (!isPath) {
-                    // search for node_modules in every directory up the file's path
-                    let currPath = path.dirname(filename);
-                    // eslint-disable-next-line no-constant-condition
-                    while (true) {
-                        try {
-                            const packageNameAttempt = path.join(currPath, 'node_modules', packageName);
-                            this.setPersistent(varName, require(packageNameAttempt));
-                            break;
-                        }
-                        catch (e) {
-                            if (currPath == path.dirname(currPath)) {
-                                // we're at the highest directory, break out of the loop and throw an error
-                                throw e;
-                            }
-                        }
-
-                        currPath = path.dirname(currPath); // go up a directory
-                    }
+                if (e.code === 'ERR_REQUIRE_ESM') {
+                    return import(packageName).then((module) => {
+                        const value = exportName === '*' ? module : module[exportName];
+                        this.setPersistent(varName, value);
+                        return value;
+                    });
                 }
                 else {
+                    // e.code === 'MODULE_NOT_FOUND'
                     throw e;
                 }
             }
+        };
+
+        const hasVarName = typeof name2 != 'undefined';
+        const wrappedPackageName = hasVarName ? name2 : name1;
+        let packageName = Array.isArray(wrappedPackageName) ? wrappedPackageName[0] : wrappedPackageName;
+        const exportName = Array.isArray(wrappedPackageName) ? wrappedPackageName[1] : 'default';
+        const varName = hasVarName
+            ? name1
+            : packageName
+                .replace(/-([a-z])/g, (m) => m.toUpperCase()) // camelCasing
+                .replace(/-/g, '')
+                .replace(/.*\//, ''); // remove path
+
+        if (this.getPersistent(varName)) {
+            return this.getPersistent(varName);
         }
-        return this.getPersistent(varName);
+
+        const isPath = packageName.match(/^(\.|\/)/);
+        if (packageName.match(/^\.\/|^\.\.\//)) {
+            // local file (non-npm package)
+            packageName = `${path.dirname(filename)}/${packageName}`;
+        }
+
+        try {
+            return requireOrImportAndSet(packageName, exportName, varName);
+        }
+        catch (e) {
+            if (!isPath) {
+                // search for node_modules in every directory up the file's path
+                let currPath = path.dirname(filename);
+                // eslint-disable-next-line no-constant-condition
+                while (true) {
+                    try {
+                        const packageNameAttempt = path.join(currPath, 'node_modules', packageName);
+                        return requireOrImportAndSet(packageNameAttempt, exportName, varName);
+                    }
+                    catch (e) {
+                        if (currPath == path.dirname(currPath)) {
+                            // we're at the highest directory, break out of the loop and throw an error
+                            throw e;
+                        }
+                    }
+
+                    currPath = path.dirname(currPath); // go up a directory
+                }
+            }
+            else {
+                throw e;
+            }
+        }
     }
 
     /**
@@ -1398,4 +1422,5 @@ class RunInstance {
         }
     }
 }
-module.exports = RunInstance;
+
+export default RunInstance;

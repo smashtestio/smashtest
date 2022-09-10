@@ -3,7 +3,7 @@
 // ***************************************
 
 *** Before Everything {
-    i('BrowserInstance', './js/browserinstance.js');
+    await i('BrowserInstance', './js/browserinstance.js');
 }
 
 *** After Everything {

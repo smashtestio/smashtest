@@ -1,8 +1,9 @@
-const chai = require('chai');
+import chai from 'chai';
+import Comparer from '../../packages/js/comparer.js';
+import StepNode from '../../src/stepnode.js';
+
 const expect = chai.expect;
 const assert = chai.assert;
-const StepNode = require('../../src/stepnode.js');
-const Comparer = require('../../packages/js/comparer.js');
 
 describe("StepNode", () => {
     describe("parseLine()", () => {

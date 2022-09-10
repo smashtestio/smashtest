@@ -1,20 +1,29 @@
 #!/usr/bin/env node
 
-const readFiles = require('read-files-promise');
-const fs = require('fs');
-const path = require('path');
-const glob = require('glob');
-const utils = require('./utils');
-const chalk = require('chalk');
-const progress = require('cli-progress');
-const repl = require('repl');
-const readline = require('readline');
-// clipboardy is ESM only, so we have to use import() here
-const clipboardyModule = import('clipboardy');
+import chalk from 'chalk';
+import progress from 'cli-progress';
+import clipboardy from 'clipboardy';
+import fs from 'fs';
+import glob from 'glob';
+import path from 'path';
+import readFiles from 'read-files-promise';
+import readline from 'readline';
+import repl from 'repl';
+import * as Constants from './constants.js';
+import { reporter, runner, tree } from './instances.js';
+import StepNode from './stepnode.js';
+import * as utils from './utils.js';
+import { EventEmitter } from 'events';
 
-const { runner, tree, reporter } = require('./instances.js');
-const StepNode = require('./stepnode.js');
-const Constants = require('./constants.js');
+// Reading package.json is way simpler already, but it's a parse error for
+// eslint, so even // eslint-disable doesn't work. Eslint only supports stage 4
+// features, and it's stage 3 atm.
+// import packageJson from '../package.json' assert { type: 'json' };
+import { readFileSync } from 'fs';
+const filePath = new URL('../package.json', import.meta.url).pathname;
+const packageJson = JSON.parse(readFileSync(filePath));
+
+const { version } = packageJson;
 
 // ***************************************
 //  Globals
@@ -30,8 +39,6 @@ const CONFIG_FILENAME = 'smashtest.json';
 
 const PROGRESS_BAR_ON = true;
 let fullRun = false;
-
-const version = require('../package.json').version;
 
 console.log(hRule);
 console.log(yellowChalk.bold('Smashtest ' + version));
@@ -363,7 +370,6 @@ function plural(count) {
 }
 
 (async () => {
-    const clipboardy = (await clipboardyModule).default;
     const passedReplCommands = [];
     let isBranchComplete;
     let replServer;
@@ -541,7 +547,7 @@ function plural(count) {
 
         const packageFilenames = await new Promise((resolve, reject) => {
             glob(
-                path.join(path.dirname(require.main.filename), '../packages', '*.smash'),
+                new URL('../packages', import.meta.url).pathname + '/*.smash',
                 async (err, packageFilenames) => {
                     // new array of filenames under packages/
                     err ? reject(err) : resolve(packageFilenames);
@@ -625,7 +631,7 @@ function plural(count) {
         }
 
         // Suppress maxlisteners warning from node
-        require('events').EventEmitter.defaultMaxListeners = runner.maxParallel + 5;
+        EventEmitter.defaultMaxListeners = runner.maxParallel + 5;
 
         // ***************************************
         //  Output initial counts and other messages

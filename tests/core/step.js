@@ -1,8 +1,9 @@
-const chai = require('chai');
+import chai from 'chai';
+import Comparer from '../../packages/js/comparer.js';
+import Step from '../../src/step.js';
+
 const expect = chai.expect;
 const assert = chai.assert;
-const Step = require('../../src/step.js');
-const Comparer = require('../../packages/js/comparer.js');
 
 describe("Step", () => {
     describe("serialize()", () => {

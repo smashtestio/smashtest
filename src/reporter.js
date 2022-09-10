@@ -1,11 +1,11 @@
-const fs = require('fs');
-const path = require('path');
-const readFiles = require('read-files-promise');
-const utils = require('./utils.js');
-const chalk = require('chalk');
-const getPort = require('get-port');
-const WebSocket = require('ws');
-const date = require('date-and-time');
+import chalk from 'chalk';
+import date from 'date-and-time';
+import fs from 'fs';
+import getPort from 'get-port';
+import path from 'path';
+import readFiles from 'read-files-promise';
+import WebSocket from 'ws';
+import * as utils from './utils.js';
 
 // prettier-ignore
 let reportFilename,
@@ -106,7 +106,7 @@ class Reporter {
         }
 
         // Load template
-        const buffers = await readFiles([path.join(path.dirname(require.main.filename), 'report-template.html')], {
+        const buffers = await readFiles([new URL('report-template.html', import.meta.url).pathname], {
             encoding: 'utf8'
         });
         if (!buffers || !buffers[0]) {
@@ -325,4 +325,5 @@ class Reporter {
         this.tree.markPassedFromPrevRun(fileBuffers[0]);
     }
 }
-module.exports = Reporter;
+
+export default Reporter;

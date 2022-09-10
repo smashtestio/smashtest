@@ -1,9 +1,7 @@
-const Tree = require('./tree.js');
-const Runner = require('./runner.js');
-const Reporter = require('./reporter.js');
+import Reporter from './reporter.js';
+import Runner from './runner.js';
+import Tree from './tree.js';
 
-const tree = new Tree();
-const runner = new Runner();
-const reporter = new Reporter(tree, runner);
-
-module.exports = { runner, tree, reporter };
+export const tree = new Tree();
+export const runner = new Runner();
+export const reporter = new Reporter(tree, runner);

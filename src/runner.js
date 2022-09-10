@@ -1,6 +1,6 @@
-const RunInstance = require('./runinstance.js');
-const chalk = require('chalk');
-const utils = require('./utils.js');
+import chalk from 'chalk';
+import RunInstance from './runinstance.js';
+import * as utils from './utils.js';
 
 /**
  * Test runner
@@ -378,4 +378,5 @@ class Runner {
         }
     }
 }
-module.exports = Runner;
+
+export default Runner;

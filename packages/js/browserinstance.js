@@ -1,19 +1,19 @@
 /* globals sinon */
-const { Builder, By, Key, until } = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
-const firefox = require('selenium-webdriver/firefox');
-const safari = require('selenium-webdriver/safari');
-const ie = require('selenium-webdriver/ie');
-const edge = require('selenium-webdriver/edge');
-const fs = require('fs');
-const path = require('path');
+import { Builder, By, Key, until } from 'selenium-webdriver';
+import chrome from 'selenium-webdriver/chrome.js';
+import edge from 'selenium-webdriver/edge.js';
+import firefox from 'selenium-webdriver/firefox.js';
+import ie from 'selenium-webdriver/ie.js';
+import safari from 'selenium-webdriver/safari.js';
 
-const Jimp = require('jimp');
-const request = require('request-promise-native');
-const utils = require('../../src/utils.js');
-const ElementFinder = require('./elementfinder.js');
-const Comparer = require('./comparer.js');
-const { reporter } = require('../../src/instances.js');
+import Jimp from 'jimp';
+import request from 'request-promise-native';
+import * as utils from '../../src/utils.js';
+import Comparer from './comparer.js';
+import ElementFinder from './elementfinder.js';
+import { reporter } from '../../src/instances.js';
+import fs from 'fs';
+import path from 'path';
 
 class BrowserInstance {
     // ***************************************
@@ -1123,4 +1123,5 @@ class BrowserInstance {
         await this.mockLocationStop();
     }
 }
-module.exports = BrowserInstance;
+
+export default BrowserInstance;

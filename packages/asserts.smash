@@ -3,8 +3,8 @@
 // ***************************************
 
 *** Before Everything {
-    let Comparer = i('Comparer', './js/comparer.js');
-    let chai = i('chai');
+    let Comparer = await i('Comparer', './js/comparer.js');
+    let chai = await i('chai');
 
     p("expect", chai.expect);
     p("assert", chai.assert);

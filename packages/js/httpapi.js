@@ -1,5 +1,5 @@
-const request = require('request');
-const Comparer = require('./comparer.js');
+import request from 'request';
+import Comparer from './comparer.js';
 
 /**
  * Wraps HTTP request/response functionality
@@ -150,7 +150,6 @@ class HttpApi {
         return request.jar();
     }
 }
-module.exports = HttpApi;
 
 /**
  * Response that comes from an API call
@@ -216,3 +215,5 @@ HttpApi.Response = class Response {
         Comparer.expect(this.response, undefined, undefined, 'Actual response object:').to.match(expectedObj);
     }
 };
+
+export default HttpApi;

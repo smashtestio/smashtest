@@ -1,6 +1,7 @@
 {
   "name": "smashtest",
   "version": "1.7.0",
+  "type": "module",
   "description": "smashtest",
   "keywords": [
     "smashtest",
@@ -32,9 +33,9 @@
   "license": "MIT",
   "homepage": "smashtest.io",
   "dependencies": {
-    "chai": "^4.2.0",
+    "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
-    "chalk": "^2.4.2",
+    "chalk": "^5.0.1",
     "cli-progress": "^2.1.1",
     "clipboardy": "^3.0.0",
     "date-and-time": "^0.10.0",
@@ -47,7 +48,7 @@
     "read-files-promise": "^1.1.1",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
-    "selenium-webdriver": "^4.0.0-alpha.1",
+    "selenium-webdriver": "^4.4.0",
     "ws": "^7.0.0"
   },
   "devDependencies": {

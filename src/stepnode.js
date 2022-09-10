@@ -1,5 +1,5 @@
-const utils = require('./utils.js');
-const Constants = require('./constants.js');
+import * as Constants from './constants.js';
+import * as utils from './utils.js';
 
 /**
  * Represents a step node within a Tree or StepBlock
@@ -484,4 +484,5 @@ class StepNode {
         return o;
     }
 }
-module.exports = StepNode;
+
+export default StepNode;

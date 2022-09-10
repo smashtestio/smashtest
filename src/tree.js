@@ -1,9 +1,9 @@
-const StepNode = require('./stepnode.js');
-const StepBlockNode = require('./stepblocknode.js');
-const Step = require('./step.js');
-const Branch = require('./branch.js');
-const Constants = require('./constants.js');
-const utils = require('./utils.js');
+import Branch from './branch.js';
+import * as Constants from './constants.js';
+import Step from './step.js';
+import StepBlockNode from './stepblocknode.js';
+import StepNode from './stepnode.js';
+import * as utils from './utils.js';
 
 /**
  * Represents the test tree
@@ -1893,4 +1893,5 @@ ${branchAbove.output(this.stepNodeIndex)}
         };
     }
 }
-module.exports = Tree;
+
+export default Tree;
