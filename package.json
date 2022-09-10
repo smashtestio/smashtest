@@ -69,7 +69,7 @@
   ],
   "scripts": {
     "test": "nyc --reporter=lcov mocha tests/core/*.js tests/packages/*.js",
-    "test:browser:chrome": "PATH=$PATH:node_modules/chromedriver/lib/chromedriver node ./src/cli.js tests/packages/*.smash --groups=chrome"
+    "test:browser:chrome": "node ./src/cli.js tests/packages/*.smash --groups=chrome"
   },
   "bin": {
     "smashtest": "./src/cli.js"
