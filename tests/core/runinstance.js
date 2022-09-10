@@ -1,3 +1,4 @@
+/* globals describe, it, context */
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import Branch from '../../src/branch.js';
@@ -1704,7 +1705,7 @@ My [{{N}}th 'Login {{A}}' {b} next to '{{ C }}'] Function [ big { d d } ]
                 const tree = new Tree();
                 tree.parseIn(
                     `
-My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six '6' \\\"66\\\"" [{{seventh}} seven 'th']
+My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six '6' \\"66\\"" [{{seventh}} seven 'th']
 
 * My {{one}} Function {{two}} {{three}} {{fo ur}} Is {{five}} Here! {{six}} {{seven}} {
     runInstance.one = one;
@@ -1745,7 +1746,7 @@ My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six 
                 const tree = new Tree();
                 tree.parseIn(
                     `
-My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six '6' \\\"66\\\"" [{{seventh}} seven 'th']
+My 'first' Function "second" [third] { four th} Is {{fifth}} Here! "{sixth} six '6' \\"66\\"" [{{seventh}} seven 'th']
 
 * My {{one}} Function {{two}} {{three}} {{fo ur}} Is {{five}} Here! {{six}} {{seven}}
     {A}='{{one}}', {B}='{{two}}'
@@ -2542,7 +2543,7 @@ A textual step {{var1}} -
                 tree.parseIn(
                     `
 My 'string with {var:}' Function
-    {var} = 'string with apos \\\' '
+    {var} = 'string with apos \\' '
 
 * My {{one}} Function {
     runInstance.one = one;
@@ -4661,12 +4662,14 @@ Something {
                 runner.init(tree, true);
                 const runInstance = new RunInstance(runner);
 
+                /* eslint-disable */
                 runInstance.badFunc = () => {
                     const a = 'a';
                     const b = 'b';
                     cc;
                     const d = 'd';
                 };
+                /* eslint-enable */
 
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
@@ -7416,7 +7419,6 @@ A -
         });
 
         it('fails silently when there is no step or branch', () => {
-            const step = new Step();
             const runner = new Runner(new Tree());
             const runInstance = new RunInstance(runner);
 

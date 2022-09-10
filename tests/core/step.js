@@ -1,9 +1,6 @@
-import chai from 'chai';
+/* globals describe, it */
 import Comparer from '../../packages/js/comparer.js';
 import Step from '../../src/step.js';
-
-const expect = chai.expect;
-const assert = chai.assert;
 
 describe('Step', () => {
     describe('serialize()', () => {

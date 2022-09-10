@@ -1,3 +1,4 @@
+/* eslint-disable */
 export const badFunc = () => {
     const a = 'a';
     const b = 'b';

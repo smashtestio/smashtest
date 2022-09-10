@@ -1,3 +1,4 @@
+/* globals describe, it, context, beforeEach */
 import chai from 'chai';
 import Comparer from '../../packages/js/comparer.js';
 import Branch from '../../src/branch.js';
@@ -54,7 +55,7 @@ describe('Tree', () => {
         let sn2 = null;
 
         let s1 = null;
-        let s2 = null;
+        // let s2 = null;
 
         beforeEach(() => {
             tree = new Tree();
@@ -62,7 +63,7 @@ describe('Tree', () => {
             sn2 = tree.newStepNode();
 
             s1 = new Step(1);
-            s2 = new Step(2);
+            // s2 = new Step(2);
 
             s1.fid = 2;
         });
@@ -94,7 +95,7 @@ describe('Tree', () => {
         let sn2 = null;
 
         let s1 = null;
-        let s2 = null;
+        // let s2 = null;
 
         beforeEach(() => {
             tree = new Tree();
@@ -102,7 +103,7 @@ describe('Tree', () => {
             sn2 = tree.newStepNode();
 
             s1 = new Step(1);
-            s2 = new Step(2);
+            // s2 = new Step(2);
 
             s1.fid = 2;
         });
@@ -13814,9 +13815,9 @@ A -
 
             console.log('serialize() took ' + (end - start) + ' ms');
 
-            var start = new Date().getTime();
+            start = new Date().getTime();
             const stringifiedTree = JSON.stringify(tree);
-            var end = new Date().getTime();
+            end = new Date().getTime();
 
             console.log('stringify() took ' + (end - start) + ' ms');
 

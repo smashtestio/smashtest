@@ -1,12 +1,11 @@
+/* globals describe, it, context, beforeEach */
 import chai from 'chai';
 import Comparer from '../../packages/js/comparer.js';
 import Branch from '../../src/branch.js';
 import Step from '../../src/step.js';
 import StepNode from '../../src/stepnode.js';
-import Tree from '../../src/tree.js';
 
 const expect = chai.expect;
-const assert = chai.assert;
 
 describe('Branch', () => {
     describe('mergeToEnd()', () => {
@@ -496,8 +495,6 @@ describe('Branch', () => {
 
     describe('markStep()', () => {
         it('marks a step passed', () => {
-            const tree = new Tree();
-
             const stepA = new Step(1);
             stepA.isRunning = true;
 
@@ -524,8 +521,6 @@ describe('Branch', () => {
         });
 
         it('marks a branch passed when the last step is passed', () => {
-            const tree = new Tree();
-
             const stepA = new Step(1);
             stepA.isPassed = true;
 
@@ -557,8 +552,6 @@ describe('Branch', () => {
         });
 
         it('marks a branch failed when the last step is passed', () => {
-            const tree = new Tree();
-
             const stepA = new Step(1);
             stepA.isPassed = true;
 
@@ -590,8 +583,6 @@ describe('Branch', () => {
         });
 
         it('marks a step failed and sets its error', () => {
-            const tree = new Tree();
-
             const stepA = new Step(1);
             stepA.isRunning = true;
 
@@ -620,8 +611,6 @@ describe('Branch', () => {
         });
 
         it('marks a branch failed when the last step is failed', () => {
-            const tree = new Tree();
-
             const stepA = new Step(1);
             stepA.isPassed = true;
 
@@ -655,8 +644,6 @@ describe('Branch', () => {
         });
 
         it('marks a branch failed before we reach the last step', () => {
-            const tree = new Tree();
-
             const stepA = new Step(1);
             stepA.isPassed = true;
 
@@ -689,8 +676,6 @@ describe('Branch', () => {
         });
 
         it('marks a step skipped', () => {
-            const tree = new Tree();
-
             const stepA = new Step(1);
             stepA.isRunning = true;
 
@@ -717,8 +702,6 @@ describe('Branch', () => {
         });
 
         it('marks a branch passed when the last step is skipped', () => {
-            const tree = new Tree();
-
             const stepA = new Step(1);
             stepA.isPassed = true;
 

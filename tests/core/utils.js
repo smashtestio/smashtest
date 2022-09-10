@@ -1,3 +1,4 @@
+/* globals describe, it */
 import chai from 'chai';
 import * as utils from '../../src/utils.js';
 
