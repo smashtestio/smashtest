@@ -1,6 +1,6 @@
 /* globals describe, it, context */
 import chai from 'chai';
-import Comparer from '../../packages/js/comparer.js';
+import Comparer from '../../src/packages/js/comparer.js';
 
 const expect = chai.expect;
 const assert = chai.assert;

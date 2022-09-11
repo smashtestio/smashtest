@@ -1,6 +1,6 @@
 /* globals describe, it */
 import chai from 'chai';
-import * as utils from '../../src/utils.js';
+import * as utils from '../../src/core/utils.js';
 
 const expect = chai.expect;
 const assert = chai.assert;

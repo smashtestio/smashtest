@@ -1,6 +1,6 @@
 /* globals f */
-import * as Constants from '../../src/constants.js';
-import * as utils from '../../src/utils.js';
+import * as Constants from '../../core/constants.js';
+import * as utils from '../../core/utils.js';
 
 class ElementFinder {
     /**

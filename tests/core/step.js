@@ -1,6 +1,6 @@
 /* globals describe, it */
-import Comparer from '../../packages/js/comparer.js';
-import Step from '../../src/step.js';
+import Comparer from '../../src/packages/js/comparer.js';
+import Step from '../../src/core/step.js';
 
 describe('Step', () => {
     describe('serialize()', () => {

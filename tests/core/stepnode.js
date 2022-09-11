@@ -1,7 +1,7 @@
 /* globals describe, it, context, beforeEach */
 import chai from 'chai';
-import Comparer from '../../packages/js/comparer.js';
-import StepNode from '../../src/stepnode.js';
+import Comparer from '../../src/packages/js/comparer.js';
+import StepNode from '../../src/core/stepnode.js';
 
 const expect = chai.expect;
 const assert = chai.assert;

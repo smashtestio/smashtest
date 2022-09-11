@@ -1,11 +1,11 @@
 /* globals describe, it, context */
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import Branch from '../../src/branch.js';
-import RunInstance from '../../src/runinstance.js';
-import Runner from '../../src/runner.js';
-import Step from '../../src/step.js';
-import Tree from '../../src/tree.js';
+import Branch from '../../src/core/branch.js';
+import RunInstance from '../../src/core/runinstance.js';
+import Runner from '../../src/core/runner.js';
+import Step from '../../src/core/step.js';
+import Tree from '../../src/core/tree.js';
 
 const expect = chai.expect;
 const assert = chai.assert;
@@ -6416,11 +6416,11 @@ Step {
             tree.parseIn(
                 `
 Step {
-    runInstance.one = i('../../smashtest/node_modules/chai');
-    runInstance.two = await i('../../smashtest/node_modules/chai');
+    runInstance.one = i('../../node_modules/chai');
+    runInstance.two = await i('../../node_modules/chai');
 }
 `,
-                'file.txt'
+                '../../tests/core/file.txt'
             );
 
             const runner = new Runner(tree);
@@ -6440,10 +6440,10 @@ Step {
             tree.parseIn(
                 `
 Step {
-    runInstance.one = await i('../../smashtest/node_modules/chalk');
+    runInstance.one = await i('../../node_modules/chalk');
 }
 `,
-                'file.txt'
+                '../../tests/core/file.txt'
             );
 
             const runner = new Runner(tree);
@@ -6584,7 +6584,7 @@ Step {
     runInstance.one = i('./examples/module-cjs.cjs');
 }
 `,
-                '../tests/core/file.txt'
+                '../../tests/core/file.txt'
             );
 
             const runner = new Runner(tree);
@@ -6607,7 +6607,7 @@ Step {
     runInstance.one = i('./examples/module-cjs.js');
 }
 `,
-                '../tests/core/file.txt'
+                '../../tests/core/file.txt'
             );
 
             const runner = new Runner(tree);
@@ -6630,7 +6630,7 @@ Step {
     runInstance.one = await i('./examples/module-cjs.js');
 }
 `,
-                '../tests/core/file.txt'
+                '../../tests/core/file.txt'
             );
 
             const runner = new Runner(tree);
@@ -6656,7 +6656,7 @@ Step {
     runInstance.one = await i('./examples/module-esm.js');
 }
 `,
-                '../tests/core/file.txt'
+                '../../tests/core/file.txt'
             );
 
             const runner = new Runner(tree);
@@ -6679,7 +6679,7 @@ Step {
     runInstance.one = await i(['./examples/module-esm.js', '*']);
 }
 `,
-                '../tests/core/file.txt'
+                '../../tests/core/file.txt'
             );
 
             const runner = new Runner(tree);
@@ -6704,7 +6704,7 @@ Step {
     runInstance.one = i('./examples/module-cjs.cjs');
 }
 `,
-                '../tests/core/file.txt'
+                '../../tests/core/file.txt'
             );
 
             const runner = new Runner(tree);
@@ -6728,7 +6728,7 @@ Step {
     runInstance.two = await i('chai');
 }
 `,
-                '../tests/core/examples/file.txt'
+                'file.txt'
             );
 
             const runner = new Runner(tree);
@@ -6752,7 +6752,7 @@ Step {
     runInstance.one = await i('chalk');
 }
 `,
-                '../tests/core/examples/file.txt'
+                'file.txt'
             );
 
             const runner = new Runner(tree);

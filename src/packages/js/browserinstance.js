@@ -10,8 +10,8 @@ import Jimp from 'jimp';
 import fs from 'node:fs';
 import path from 'node:path';
 import request from 'request-promise-native';
-import { reporter } from '../../src/instances.js';
-import * as utils from '../../src/utils.js';
+import { reporter } from '../../core/instances.js';
+import * as utils from '../../core/utils.js';
 import Comparer from './comparer.js';
 import ElementFinder from './elementfinder.js';
 

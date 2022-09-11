@@ -12,7 +12,7 @@
     "skipLibCheck": true,
     "sourceMap": false,
   },
-  "include": ["src/**/*", "packages"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"],
   "ts-node": {
     "transpileOnly": true

@@ -1,10 +1,10 @@
 /* globals describe, it, context, beforeEach */
 import chai from 'chai';
-import Comparer from '../../packages/js/comparer.js';
-import Branch from '../../src/branch.js';
-import Step from '../../src/step.js';
-import StepNode from '../../src/stepnode.js';
-import Tree from '../../src/tree.js';
+import Comparer from '../../src/packages/js/comparer.js';
+import Branch from '../../src/core/branch.js';
+import Step from '../../src/core/step.js';
+import StepNode from '../../src/core/stepnode.js';
+import Tree from '../../src/core/tree.js';
 
 const expect = chai.expect;
 const assert = chai.assert;

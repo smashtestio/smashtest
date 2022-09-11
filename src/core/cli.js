@@ -20,20 +20,8 @@ import * as utils from './utils.js';
 // features, and it's stage 3 atm.
 // import packageJson from '../package.json' assert { type: 'json' };
 import { readFileSync } from 'fs';
-let filePath;
-// TODO: This distinction will be removed by renaming src to core, then
-// grouping packages + core into a new src folder
-let packageJson;
-try {
-    // running from src
-    filePath = new URL('../package.json', import.meta.url).pathname;
-    packageJson = JSON.parse(readFileSync(filePath));
-}
-catch {
-    // running from dist/src
-    filePath = new URL('../../package.json', import.meta.url).pathname;
-    packageJson = JSON.parse(readFileSync(filePath));
-}
+const filePath = new URL('../../package.json', import.meta.url).pathname;
+const packageJson = JSON.parse(readFileSync(filePath));
 
 const { version } = packageJson;
 

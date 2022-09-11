@@ -1,6 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep.js';
-import * as Constants from '../../src/constants.js';
-import * as utils from '../../src/utils.js';
+import * as Constants from '../../core/constants.js';
+import * as utils from '../../core/utils.js';
 
 const RESERVED_KEYWORDS = [
     '$typeof',

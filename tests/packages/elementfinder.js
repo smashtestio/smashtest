@@ -1,7 +1,7 @@
 /* globals describe, before, context, it */
 import chai from 'chai';
-import Comparer from '../../packages/js/comparer.js';
-import ElementFinder from '../../packages/js/elementfinder.js';
+import Comparer from '../../src/packages/js/comparer.js';
+import ElementFinder from '../../src/packages/js/elementfinder.js';
 
 const expect = chai.expect;
 const assert = chai.assert;
