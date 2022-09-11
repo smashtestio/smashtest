@@ -8,6 +8,15 @@ import * as utils from './utils.js';
 
 const require = createRequire(import.meta.url);
 
+tsNode.register({
+    transpileOnly: true,
+    compilerOptions: {
+        // Make i('esm.js') work from non-module host projects. I don't know why
+        // it's not picking it up from tsconfig.json
+        allowJs: true
+    }
+});
+
 const darkGray = chalk.hex('#303030');
 const brightGray = chalk.hex('#B6B6B6');
 
@@ -790,7 +799,10 @@ class RunInstance {
     i(name1, name2, filename) {
         const requireOrImportAndSet = (packageName, exportName, varName) => {
             try {
-                const value = require(packageName);
+                const module = require(packageName);
+                // See https://2ality.com/2017/01/babel-esm-spec-mode.html#how-does-the-spec-mode-work%3F
+                const moduleIsTranspiledEsm = module?.__esModule === true;
+                const value = !moduleIsTranspiledEsm || exportName === '*' ? module : module[exportName];
                 this.setPersistent(varName, value);
                 return value;
             }

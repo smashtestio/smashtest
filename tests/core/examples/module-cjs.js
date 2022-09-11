@@ -1,1 +1,1 @@
-module.exports = 'this is a cjs module with wrong extension';
+module.exports = 'this is module-cjs.js';

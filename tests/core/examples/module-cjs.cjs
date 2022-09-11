@@ -1,1 +1,1 @@
-module.exports = 'this is a cjs module';
+module.exports = 'this is module-cjs.cjs';
