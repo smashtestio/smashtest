@@ -15,29 +15,29 @@ const brightGray = chalk.hex('#B6B6B6');
  * Represents a running test instance. Kind of like a "thread".
  */
 class RunInstance {
+    // prettier-ignore
     constructor(runner) {
         this.runner = runner;
 
-        this.tree = this.runner.tree; // Tree currently being executed
-        this.currBranch = null; // Branch currently being executed
-        this.currStep = null; // Step currently being executed
+        this.tree = this.runner.tree;                   // Tree currently being executed
+        this.currBranch = null;                         // Branch currently being executed
+        this.currStep = null;                           // Step currently being executed
 
-        this.isPaused = false; // true if we're currently paused (and we can only pause if there's just one branch in this.tree)
-        this.isStopped = false; // true if we're permanently stopping this RunInstance
+        this.isPaused = false;                          // true if we're currently paused (and we can only pause if there's just one branch in this.tree)
+        this.isStopped = false;                         // true if we're permanently stopping this RunInstance
 
-        this.persistent = this.runner.persistent; // persistent variables
-        this.global = {}; // global variables
-        this.local = {}; // local variables
+        this.persistent = this.runner.persistent;       // persistent variables
+        this.global = {};                               // global variables
+        this.local = {};                                // local variables
 
-        this.localStack = []; // Array of objects, where each object stores local vars
-        this.localsPassedIntoFunc = {}; // local variables being passed into the function at the current step
+        this.localStack = [];                           // Array of objects, where each object stores local vars
+        this.localsPassedIntoFunc = {};                 // local variables being passed into the function at the current step
 
-        this.stepsRan = new Branch(); // record of all steps ran by this RunInstance, for inject()
+        this.stepsRan = new Branch();                   // record of all steps ran by this RunInstance, for inject()
 
-        this.stepTimeout = 60; // default timeout for steps, in secs
-        this.timer = null; // timer used to enforce step timeout
+        this.stepTimeout = 60;                          // default timeout for steps, in secs
+        this.timer = null;                              // timer used to enforce step timeout
     }
-
     /**
      * Grabs branches and steps from this.tree and executes them
      * Exits when there's nothing left to execute, or if a pause or stop occurs
@@ -882,75 +882,76 @@ class RunInstance {
      */
     evalCodeBlock(code, funcName, filename, lineNumber = 1, logHere, isSync) {
         // Functions accessible from a code block
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         var runInstance = this; // var so it's accesible in the eval()
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function log(text) {
             runInstance.appendToLog(text, logHere);
         }
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function getPersistent(varname) {
             return runInstance.getPersistent(varname);
         }
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function getGlobal(varname) {
             return runInstance.getGlobal(varname);
         }
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function getLocal(varname) {
             return runInstance.getLocal(varname);
         }
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function setPersistent(varname, value) {
             return runInstance.setPersistent(varname, value);
         }
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function setGlobal(varname, value) {
             return runInstance.setGlobal(varname, value);
         }
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function setLocal(varname, value) {
             return runInstance.setLocal(varname, value);
         }
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function p(varname, value) {
             return runInstance.p(varname, value);
         }
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function g(varname, value) {
             return runInstance.g(varname, value);
         }
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function l(varname, value) {
             return runInstance.l(varname, value);
         }
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function getCurrStepNode() {
             return runInstance.getCurrStepNode();
         }
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function i(name1, name2) {
             return runInstance.i(name1, name2, filename);
         }
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function dir() {
             // Absolute directory of the file where the currently executing step is
             return path.dirname(filename);
         }
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function c(s) {
             console.log(''); // outputs empty lines so s is completely clear of the progress bar in the console
             console.log('');
@@ -958,7 +959,7 @@ class RunInstance {
             console.log('');
         }
 
-        // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function setStepTimeout(secs) {
             runInstance.setStepTimeout(secs);
         }

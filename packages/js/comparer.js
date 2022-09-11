@@ -541,6 +541,7 @@ class Comparer {
         const spaces = utils.getIndents(indents);
         const nextSpaces = utils.getIndents(indents + 1);
         let ret = '';
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this;
 
         let errors = [];

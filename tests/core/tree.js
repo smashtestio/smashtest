@@ -13592,9 +13592,9 @@ K-1 -
                     'file.txt'
                 );
 
-                var start = new Date().getTime();
+                const start = new Date().getTime();
                 tree.generateBranches();
-                var end = new Date().getTime();
+                const end = new Date().getTime();
 
                 console.log('generateBranches() took  ' + (end - start) + ' ms');
                 console.log(
@@ -13809,9 +13809,9 @@ A -
                 tree.branches.push(branch);
             }
 
-            var start = new Date().getTime();
+            let start = new Date().getTime();
             const serializedTree = tree.serialize(); // NOTE: also try putting a max value into serialize(), e.g., 500
-            var end = new Date().getTime();
+            let end = new Date().getTime();
 
             console.log('serialize() took ' + (end - start) + ' ms');
 
@@ -14117,9 +14117,9 @@ G -
 
             const prevSnapshot = tree.serializeSnapshot(100);
 
-            var start = new Date().getTime();
+            const start = new Date().getTime();
             const snapshot = tree.serializeSnapshot(100, prevSnapshot);
-            var end = new Date().getTime();
+            const end = new Date().getTime();
 
             console.log('serializeSnapshot() took ' + (end - start) + ' ms');
             console.log('Size of snapshot:        ' + JSON.stringify(snapshot).length / (1024 * 1024) + ' MB');
@@ -14188,9 +14188,9 @@ G -
                 tree.branches.push(branch);
             }
 
-            var start = new Date().getTime();
+            const start = new Date().getTime();
             const str = tree.serializePassed();
-            var end = new Date().getTime();
+            const end = new Date().getTime();
 
             console.log('serializePassed() took ' + (end - start) + ' ms');
             console.log('Size of output:        ' + str.length / (1024 * 1024) + ' MB');

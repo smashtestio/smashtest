@@ -469,7 +469,10 @@ describe('Comparer', () => {
             });
 
             it('actual=simple array, expected=same simple array', () => {
-                const obj = Comparer.comparison([1, '2', 3, null, false, undefined], [1, '2', 3, null, false, undefined]);
+                const obj = Comparer.comparison(
+                    [1, '2', 3, null, false, undefined],
+                    [1, '2', 3, null, false, undefined]
+                );
                 expect(Comparer.print(obj)).to.equal(`[
     1,
     "2",
@@ -481,7 +484,10 @@ describe('Comparer', () => {
             });
 
             it('actual=simple array, expected=same simple array but in a different order', () => {
-                const obj = Comparer.comparison([1, '2', 3, null, false, undefined], [null, 1, '2', undefined, 3, false]);
+                const obj = Comparer.comparison(
+                    [1, '2', 3, null, false, undefined],
+                    [null, 1, '2', undefined, 3, false]
+                );
                 expect(Comparer.print(obj)).to.equal(`[
     1,  -->  not null
     "2",  -->  not 1
@@ -1671,7 +1677,10 @@ describe('Comparer', () => {
                 });
 
                 it('actual=array of primitives, expected=incorrect $anyOrder by excess items', () => {
-                    const obj = Comparer.comparison([2, '3', undefined, null], ['$anyOrder', undefined, '3', null, 2, 4]);
+                    const obj = Comparer.comparison(
+                        [2, '3', undefined, null],
+                        ['$anyOrder', undefined, '3', null, 2, 4]
+                    );
                     expect(Comparer.print(obj)).to.equal(`[
     2,
     "3",

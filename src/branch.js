@@ -141,6 +141,7 @@ class Branch {
         branch.isOnly && (this.isOnly = true);
         branch.isDebug && (this.isDebug = true);
 
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this;
 
         copyHooks('beforeEveryBranch', true); // Copy branch.beforeEveryBranch to the beginning of newBranch.beforeEveryBranch (so that packages comes first)

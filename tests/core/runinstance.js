@@ -4677,7 +4677,7 @@ Something {
                 expect(tree.branches[0].steps[0].error.filename).to.equal('file.txt');
                 expect(tree.branches[0].steps[0].error.lineNumber).to.equal(5);
 
-                expect(!!tree.branches[0].steps[0].error.stack.match(/at runInstance\.badFunc/)).to.equal(true);
+                expect(tree.branches[0].steps[0].error.stack).to.contain('at RunInstance.runInstance.badFunc');
                 expect(
                     !!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:5:17\)/)
                 ).to.equal(true);
@@ -4719,12 +4719,8 @@ First {
                 expect(tree.branches[0].steps[1].error.filename).to.equal('file.txt');
                 expect(tree.branches[0].steps[1].error.lineNumber).to.equal(14);
 
-                expect(
-                    !!tree.branches[0].steps[1].error.stack.match(/at runInstance\.badFunc[^\n]+<anonymous>:6:9\)/)
-                ).to.equal(true);
-                expect(
-                    !!tree.branches[0].steps[1].error.stack.match(/at CodeBlock_for_Second[^\n]+<anonymous>:14:21\)/)
-                ).to.equal(true);
+                expect(tree.branches[0].steps[1].error.stack).to.match(/at RunInstance\.runInstance\.badFunc[^\n]+<anonymous>:6:9\)/);
+                expect(tree.branches[0].steps[1].error.stack).to.match(/at CodeBlock_for_Second[^\n]+<anonymous>:14:21\)/);
 
                 expect(tree.branches[0].error).to.equal(undefined);
             });
@@ -6460,7 +6456,7 @@ Step {
             expect(typeof runInstance.one).to.equal('undefined');
             expect(tree.branches[0].isFailed).to.be.true;
             expect(tree.branches[0].steps[0].error.message).to.match(
-                /^Directory import '.*?' is not supported resolving ES modules/
+                /ERR_UNSUPPORTED_DIR_IMPORT|^Directory import '.*?' is not supported resolving ES modules/
             );
         });
 

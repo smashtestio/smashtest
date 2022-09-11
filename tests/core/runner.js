@@ -1,4 +1,5 @@
-/* globals describe, it */import chai from 'chai';
+/* globals describe, it */
+import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import Comparer from '../../packages/js/comparer.js';
 import Runner from '../../src/runner.js';

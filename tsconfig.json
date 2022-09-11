@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "es2021",
+    "module": "node16",
+    "moduleResolution": "Node16",
+    "allowJs": true,
+    "checkJs": false,
+    "esModuleInterop": true,
+    "outDir": "./dist",
+    "forceConsistentCasingInFileNames": true,
+    "strict": false,
+    "skipLibCheck": true,
+    "sourceMap": false,
+  },
+  "include": ["src/**/*", "packages"],
+  "exclude": ["node_modules", "**/*.spec.ts"],
+  "ts-node": {
+    "transpileOnly": true
+  }
+}

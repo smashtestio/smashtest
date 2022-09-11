@@ -408,18 +408,16 @@ class ElementFinder {
      * @param {Boolean} [toFront] - If true, append the prop to the front of this.props (as opposed to the back)
      */
     addProp(prop, def, input, isNot, definedProps, toFront) {
-        const self = this;
-
-        function addToUsedDefinedProps(def) {
-            if (!Object.prototype.hasOwnProperty.call(self.usedDefinedProps, def)) {
-                self.usedDefinedProps[def] = definedProps[def];
-                self.usedDefinedProps[def].forEach((d) => {
+        const addToUsedDefinedProps = (def) => {
+            if (!Object.prototype.hasOwnProperty.call(this.usedDefinedProps, def)) {
+                this.usedDefinedProps[def] = definedProps[def];
+                this.usedDefinedProps[def].forEach((d) => {
                     if (d instanceof ElementFinder) {
                         addEF(d);
                     }
                 });
             }
-        }
+        };
 
         function addEF(ef) {
             ef.props.forEach((prop) => addToUsedDefinedProps(prop.def));
@@ -1084,18 +1082,19 @@ class ElementFinder {
 
         const start = new Date();
         let results;
-        const self = this;
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        // const self = this;
 
         return new Promise((resolve, reject) => {
-            async function doFind() {
-                results = await self.getAll(driver, parentElem);
+            const doFind = async () => {
+                results = await this.getAll(driver, parentElem);
                 results.ef = ElementFinder.parseObj(results.ef);
                 if (!isNot ? results.ef.hasErrors() : results.matches && results.matches.length > 0) {
                     const duration = new Date() - start;
                     if (duration > timeout) {
                         const error = !isNot
                             ? new Error(
-                                `Element${self.counter.max == 1 ? '' : 's'} not found${
+                                `Element${this.counter.max == 1 ? '' : 's'} not found${
                                     timeout > 0 ? ` in time (${timeout / 1000} s)` : ''
                                 }:\n\n${results.ef.print(
                                     Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + '-->',
@@ -1103,7 +1102,7 @@ class ElementFinder {
                                 )}`
                             )
                             : new Error(
-                                `Element${self.counter.max == 1 ? '' : 's'} still found${
+                                `Element${this.counter.max == 1 ? '' : 's'} still found${
                                     timeout > 0 ? ` after timeout (${timeout / 1000} s)` : ''
                                 }`
                             );
@@ -1121,7 +1120,7 @@ class ElementFinder {
                 else {
                     resolve(results.matches);
                 }
-            }
+            };
 
             return doFind();
         });
