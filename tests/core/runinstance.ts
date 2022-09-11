@@ -6393,7 +6393,7 @@ Step {
             tree.parseIn(
                 `
 Step {
-    runInstance.one = await i('./branch.js');
+    runInstance.one = await i('./branch.ts');
 }
 `,
                 'file.txt'
