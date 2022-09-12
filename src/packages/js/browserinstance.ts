@@ -5,15 +5,14 @@ import edge from 'selenium-webdriver/edge.js';
 import firefox from 'selenium-webdriver/firefox.js';
 import ie from 'selenium-webdriver/ie.js';
 import safari from 'selenium-webdriver/safari.js';
-
 import Jimp from 'jimp';
 import fs from 'node:fs';
 import path from 'node:path';
-import request from 'request-promise-native';
 import { reporter } from '../../core/instances.js';
 import * as utils from '../../core/utils.js';
 import Comparer from './comparer.js';
 import ElementFinder from './elementfinder.js';
+import { createRequire } from 'node:module';
 
 class BrowserInstance {
     // ***************************************
@@ -935,7 +934,11 @@ class BrowserInstance {
         });
 
         if (!sinonExists) {
-            const sinonCode = await request.get('https://cdnjs.cloudflare.com/ajax/libs/sinon.js/7.3.2/sinon.min.js');
+            const require = createRequire(import.meta.url);
+            const sinonCode = fs.readFileSync(
+                require.resolve('sinon').replace(/[^/]+$/, '') + '/../pkg/sinon-no-sourcemaps.js',
+                'utf-8'
+            );
             await this.executeScript(sinonCode);
         }
     }
