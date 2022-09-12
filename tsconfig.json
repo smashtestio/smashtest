@@ -1,14 +1,20 @@
+// Project tsconfig. This is used for development. It must be roughly in sync
+// with the one in src/core.
+
 {
   "compilerOptions": {
-    "target": "ES2021",
-    "module": "ESNext",
-    "moduleResolution": "NodeNext",
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "node",
+    "moduleDetection": "legacy",
     "esModuleInterop": true,
     "outDir": "./dist",
     "forceConsistentCasingInFileNames": true,
-    "strict": false,
+    "strict": true,
     "skipLibCheck": true,
     "sourceMap": false,
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"],

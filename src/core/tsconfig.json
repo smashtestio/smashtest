@@ -1,9 +1,24 @@
-// This applies to the Smashtest source files
+// tsconfig for the on-the-fly compiler when Smashtest is being run as a
+// dependency. It must be roughly in sync with the root tsconfig, because in
+// development, the files in this folder are checked against this tsconfig.
 {
   "compilerOptions": {
-    "allowJs": true,
-    "moduleDetection": "legacy",
     "module": "esnext",
-    "target": "esnext"
+    "target": "esnext",
+    "moduleResolution": "node",
+    "moduleDetection": "legacy",
+    "esModuleInterop": true,
+    "outDir": "./dist",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "sourceMap": false,
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts"],
+  "ts-node": {
+    "transpileOnly": true
   }
 }
