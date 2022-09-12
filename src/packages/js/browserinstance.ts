@@ -582,14 +582,14 @@ class BrowserInstance {
      * If the given WebElement is not currently scrolled into view, scrolls it into view and retakes the before screenshot
      */
     async scrollIntoView(elem) {
-        const isScrolledIntoView = await this.executeScript(function (elem) {
-            var rect = elem.getBoundingClientRect();
+        const isScrolledIntoView = await this.executeScript(utils.es5(function (elem) {
+            const rect = elem.getBoundingClientRect();
             const isScrolledIntoView = rect.top >= 0 && rect.bottom <= window.innerHeight;
             if (!isScrolledIntoView) {
                 elem.scrollIntoView();
             }
             return isScrolledIntoView;
-        }, elem);
+        }), elem);
 
         if (!isScrolledIntoView) {
             await this.takeScreenshot(false);
@@ -799,7 +799,7 @@ class BrowserInstance {
         let obj = null;
         try {
             await this.driver.wait(async () => {
-                obj = await this.executeScript(function (titleOrUrl) {
+                obj = await this.executeScript(utils.es5(function (titleOrUrl) {
                     let isMatched =
                         document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) != -1 ||
                         window.location.href.indexOf(titleOrUrl) != -1;
@@ -818,7 +818,7 @@ class BrowserInstance {
                         title: document.title,
                         url: window.location.href
                     };
-                }, titleOrUrl);
+                }), titleOrUrl);
                 return obj.isMatched;
             }, timeout);
         }

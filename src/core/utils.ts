@@ -1,4 +1,5 @@
 import util from 'node:util';
+import * as tsNode from 'ts-node';
 import * as Constants from './constants.js';
 
 /**
@@ -274,3 +275,22 @@ export const addWhitespaceToEnd = (s, len) => {
     }
     return s;
 };
+
+const compiler = tsNode.create({
+    transpileOnly: true,
+    compilerOptions: {
+        target: 'es5'
+    }
+});
+
+/**
+ * Compiles a function to ES5. It includes the helpers as well, so async/await
+ * and things like that can go as well.
+ * @param fn Function to be compiled
+ * @returns Compiled function
+ */
+export function es5(func) {
+    const script = `return (${func.toString()}).apply(null, arguments)`;
+    const compiled = compiler.compile(script, '');
+    return eval(`(function () { ${compiled}\n })`);
+}

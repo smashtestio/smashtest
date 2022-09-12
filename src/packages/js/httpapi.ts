@@ -19,8 +19,7 @@ class HttpApi {
      * See request() in https://github.com/request/request for details on functions that can be used
      * @return {Promise} Promise that resolves with a Response object, when it is received. Response will also be stored in {response} global variable.
      */
-    makeReq(func) {
-        const args = Array.from(arguments).slice(1);
+    makeReq(func, ...args) {
         let uri = '';
         if (typeof args[0] == 'string') {
             uri = args[0];
@@ -66,8 +65,8 @@ class HttpApi {
      * See request() in https://github.com/request/request for details
      * @return {Promise} Promise that resolves when response comes back. Response will be stored in {response} variable.
      */
-    request() {
-        return this.makeReq(request, ...Array.from(arguments));
+    request(...args) {
+        return this.makeReq(request, ...args);
     }
 
     /**
@@ -82,56 +81,56 @@ class HttpApi {
      * Makes an HTTP GET request
      * See this.makeReq() for details on args and return value
      */
-    get() {
-        return this.makeReq(request.get, ...Array.from(arguments));
+    get(...args) {
+        return this.makeReq(request.get, ...args);
     }
 
     /**
      * Makes an HTTP POST request
      * See this.makeReq() for details on args and return value
      */
-    post() {
-        return this.makeReq(request.post, ...Array.from(arguments));
+    post(...args) {
+        return this.makeReq(request.post, ...args);
     }
 
     /**
      * Makes an HTTP PUT request
      * See this.makeReq() for details on args and return value
      */
-    put() {
-        return this.makeReq(request.put, ...Array.from(arguments));
+    put(...args) {
+        return this.makeReq(request.put, ...args);
     }
 
     /**
      * Makes an HTTP PATCH request
      * See this.makeReq() for details on args and return value
      */
-    patch() {
-        return this.makeReq(request.patch, ...Array.from(arguments));
+    patch(...args) {
+        return this.makeReq(request.patch, ...args);
     }
 
     /**
      * Makes an HTTP DELETE request
      * See this.makeReq() for details on args and return value
      */
-    del() {
-        return this.makeReq(request.del, ...Array.from(arguments));
+    del(...args) {
+        return this.makeReq(request.del, ...args);
     }
 
     /**
      * Makes an HTTP HEAD request
      * See this.makeReq() for details on args and return value
      */
-    head() {
-        return this.makeReq(request.head, ...Array.from(arguments));
+    head(...args) {
+        return this.makeReq(request.head, ...args);
     }
 
     /**
      * Makes an HTTP OPTIONS request
      * See this.makeReq() for details on args and return value
      */
-    options() {
-        return this.makeReq(request.options, ...Array.from(arguments));
+    options(...args) {
+        return this.makeReq(request.options, ...args);
     }
 
     /**

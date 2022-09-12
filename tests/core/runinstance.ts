@@ -7456,7 +7456,7 @@ Second branch -
             const runInstance = new RunInstance(runner);
 
             // The branches take 20 ms to run, but will be stopped 10ms in
-            var runInstancePromise = runInstance.run();
+            const runInstancePromise = runInstance.run();
 
             // 10 ms in
             setTimeout(() => {
@@ -7512,7 +7512,7 @@ Big step {
             const runInstance = new RunInstance(runner);
 
             // The branches take 20 ms to run, but will be stopped 10ms in
-            var runInstancePromise = runInstance.run();
+            const runInstancePromise = runInstance.run();
 
             // 10 ms in
             setTimeout(() => {

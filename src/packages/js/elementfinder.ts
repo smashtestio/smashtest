@@ -1,4 +1,3 @@
-/* globals f */
 import * as Constants from '../../core/constants.js';
 import * as utils from '../../core/utils.js';
 
@@ -583,7 +582,7 @@ class ElementFinder {
      */
     async getAll(driver, parentElem) {
         const obj = await driver.executeScript(
-            function (payload, parentElem, browserConsoleOutput) {
+            utils.es5(function (payload, parentElem, browserConsoleOutput) {
                 payload = JSON.parse(payload);
                 const ef = payload.ef;
                 const definedProps = payload.definedProps;
@@ -899,7 +898,7 @@ class ElementFinder {
                             }
                             else if (typeof def == 'string') {
                                 // stringified function
-                                eval('var f = ' + def);
+                                const f = eval('(' + def + ')');
                                 approvedElems = approvedElems.concat(f(pool, prop.input));
                             }
                         }
@@ -1052,7 +1051,7 @@ class ElementFinder {
                         }
                     }
                 }
-            },
+            }),
             this.serializeJSON(),
             parentElem,
             ElementFinder.browserConsoleOutput
@@ -1134,13 +1133,13 @@ class ElementFinder {
     static defaultProps() {
         return {
             visible: [
-                function (elems) {
+                utils.es5(function (elems) {
                     return elems.filter(function (elem) {
                         if (elem.offsetWidth == 0 || elem.offsetHeight == 0) {
                             return false;
                         }
 
-                        var cs = window.getComputedStyle(elem);
+                        let cs = window.getComputedStyle(elem);
 
                         if (cs.visibility == 'hidden' || cs.visibility == 'collapse') {
                             return false;
@@ -1162,71 +1161,71 @@ class ElementFinder {
 
                         return true;
                     });
-                }
+                })
             ],
 
             'any visibility': [
-                function (elems) {
+                utils.es5(function (elems) {
                     return elems;
-                }
+                })
             ],
 
             enabled: [
-                function (elems) {
+                utils.es5(function (elems) {
                     return elems.filter(function (elem) {
                         return elem.getAttribute('disabled') === null;
                     });
-                }
+                })
             ],
 
             disabled: [
-                function (elems) {
+                utils.es5(function (elems) {
                     return elems.filter(function (elem) {
                         return elem.getAttribute('disabled') !== null;
                     });
-                }
+                })
             ],
 
             checked: [
-                function (elems) {
+                utils.es5(function (elems) {
                     return elems.filter(function (elem) {
                         return elem.checked;
                     });
-                }
+                })
             ],
 
             unchecked: [
-                function (elems) {
+                utils.es5(function (elems) {
                     return elems.filter(function (elem) {
                         return !elem.checked;
                     });
-                }
+                })
             ],
 
             selected: [
-                function (elems) {
+                utils.es5(function (elems) {
                     return elems.filter(function (elem) {
                         return elem.selected;
                     });
-                }
+                })
             ],
 
             focused: [
-                function (elems) {
+                utils.es5(function (elems) {
                     return elems.filter(function (elem) {
                         return elem === document.activeElement;
                     });
-                }
+                })
             ],
 
             element: [
-                function (elems) {
+                utils.es5(function (elems) {
                     return elems;
-                }
+                })
             ],
 
             clickable: [
-                function (elems) {
+                utils.es5(function (elems) {
                     return elems.filter(function (elem) {
                         const tagName = elem.tagName.toLowerCase();
                         return (
@@ -1242,41 +1241,41 @@ class ElementFinder {
                         );
                         // TODO: handle cursor:pointer when hovered over
                     });
-                }
+                })
             ],
 
             'page title': [
-                function (elems, input) {
+                utils.es5(function (elems, input) {
                     return document.title == input ? elems : [];
-                }
+                })
             ],
 
             'page title contains': [
-                function (elems, input) {
+                utils.es5(function (elems, input) {
                     return document.title.toLowerCase().indexOf(input.toLowerCase()) != -1 ? elems : [];
-                }
+                })
             ],
 
             'page url': [
-                function (elems, input) {
+                utils.es5(function (elems, input) {
                     // absolute or relative
                     return window.location.href == input ||
                         window.location.href.replace(/^https?:\/\/[^/]*/, '') == input
                         ? elems
                         : [];
-                }
+                })
             ],
 
             'page url contains': [
-                function (elems, input) {
+                utils.es5(function (elems, input) {
                     return window.location.href.indexOf(input) != -1 ? elems : [];
-                }
+                })
             ],
 
             // Takes each elem and expands the container around it to its parent, parent's parent etc. until a container
             // containing input is found. Matches multiple elems if there's a tie.
             'next to': [
-                function (elems, input) {
+                utils.es5(function (elems, input) {
                     function canon(str) {
                         return str ? str.trim().toLowerCase().replace(/\s+/g, ' ') : '';
                     }
@@ -1315,20 +1314,20 @@ class ElementFinder {
                     }
 
                     return [];
-                }
+                })
             ],
 
             value: [
-                function (elems, input) {
+                utils.es5(function (elems, input) {
                     return elems.filter(function (elem) {
                         return elem.value == input;
                     });
-                }
+                })
             ],
 
             // Text is contained in innerText, value (including selected item in a select), placeholder, or associated label innerText
             contains: [
-                function (elems, input) {
+                utils.es5(function (elems, input) {
                     function canon(str) {
                         return str ? str.trim().toLowerCase().replace(/\s+/g, ' ') : '';
                     }
@@ -1377,12 +1376,12 @@ class ElementFinder {
                             );
                         }
                     });
-                }
+                })
             ],
 
             // Text is the exclusive and exact text in innerText, value (including selected item in a select), placeholder, or associated label innerText
             'contains exact': [
-                function (elems, input) {
+                utils.es5(function (elems, input) {
                     function isMatch(str) {
                         return str == input;
                     }
@@ -1423,11 +1422,11 @@ class ElementFinder {
                             );
                         }
                     });
-                }
+                })
             ],
 
             innertext: [
-                function (elems, input) {
+                utils.es5(function (elems, input) {
                     function innerTextCanon(el) {
                         return el.innerText != undefined ? el.innerText : el.textContent;
                     }
@@ -1436,11 +1435,11 @@ class ElementFinder {
                         const text = innerTextCanon(elem);
                         return (text || '').indexOf(input) != -1;
                     });
-                }
+                })
             ],
 
             selector: [
-                function (elems, input) {
+                utils.es5(function (elems, input) {
                     let nodes = null;
                     try {
                         nodes = document.querySelectorAll(input);
@@ -1457,11 +1456,11 @@ class ElementFinder {
                     return nodesArr.filter(function (node) {
                         return elems.indexOf(node) != -1;
                     });
-                }
+                })
             ],
 
             xpath: [
-                function (elems, input) {
+                utils.es5(function (elems, input) {
                     const result = document.evaluate(input, document, null, XPathResult.ANY_TYPE, null);
                     let node = null;
                     const nodes = [];
@@ -1473,12 +1472,12 @@ class ElementFinder {
                     return elems.filter(function (elem) {
                         return nodes.indexOf(elem) != -1;
                     });
-                }
+                })
             ],
 
             // Has css style 'name:value'
             style: [
-                function (elems, input) {
+                utils.es5(function (elems, input) {
                     const matches = input.match(/^([^: ]+):(.*)$/);
                     if (!matches) {
                         return [];
@@ -1490,18 +1489,18 @@ class ElementFinder {
                     return elems.filter(function (elem) {
                         return window.getComputedStyle(elem)[name].toString() == value;
                     });
-                }
+                })
             ],
 
             // Same as an ord, returns nth elem, where n is 1-indexed
             position: [
-                function (elems, input) {
+                utils.es5(function (elems, input) {
                     return elems[parseInt(input) - 1];
-                }
+                })
             ],
 
             textbox: [
-                function (elems) {
+                utils.es5(function (elems) {
                     const nodes = document.querySelectorAll('input, textarea');
                     const nodesArr = [];
                     for (let i = 0; i < nodes.length; i++) {
@@ -1518,7 +1517,7 @@ class ElementFinder {
                     return elems.filter(function (elem) {
                         return nodesArr.indexOf(elem) != -1;
                     });
-                }
+                })
             ]
         };
     }

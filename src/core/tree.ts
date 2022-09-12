@@ -257,7 +257,8 @@ class Tree {
             potentialStepBlock.steps.push(lines[i]);
 
             // See how far down it goes
-            for (var j = i + 1; j < lines.length; j++) {
+            let j;
+            for (j = i + 1; j < lines.length; j++) {
                 // var so that j is accessible outside the for loop
                 if (lines[j].codeBlockLine) {
                     continue;

@@ -1,8 +1,9 @@
+// This applies to the Smashtest source files
 {
   "compilerOptions": {
     "allowJs": true,
     "moduleDetection": "legacy",
     "module": "esnext",
-    "target": "esnext",
+    "target": "esnext"
   }
 }

@@ -896,7 +896,7 @@ class RunInstance {
     evalCodeBlock(code, funcName, filename, lineNumber = 1, logHere, isSync) {
         // Functions accessible from a code block
         // eslint-disable-next-line @typescript-eslint/no-this-alias
-        var runInstance = this; // var so it's accesible in the eval()
+        const runInstance = this; // var so it's accesible in the eval()
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function log(text) {
@@ -1001,7 +1001,7 @@ class RunInstance {
         }
 
         // Pad the top of the code with empty comments so as to adjust line numbers in stack traces to match that of the code block's file
-        var padding = '';
+        let padding = '';
         for (let i = 1; i < lineNumber; i++) {
             padding += '//\n';
         }

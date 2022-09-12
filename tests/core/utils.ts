@@ -200,4 +200,11 @@ describe('Utils', () => {
             expect(utils.addWhitespaceToEnd('1234', 4)).to.equal('1234');
         });
     });
+
+    describe('es5()', () => {
+        it('converts a function to es5 with helpers included', () => {
+            const fn = async (...args) => args;
+            expect(utils.es5(fn).toString().length).to.be.gt(2000);
+        });
+    });
 });
