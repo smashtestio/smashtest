@@ -9,51 +9,45 @@ import * as utils from './utils.js';
  * Represents the test tree
  */
 class Tree {
-    // prettier-ignore
-    constructor() {
-        this.root = new StepNode();          // the root Step of the tree (parsed version of the text that got inputted)
-        this.stepNodeIndex = {};             // object where keys are ids and values are references to StepNodes under this.root
-        this.stepNodeCount = 0;              // number of StepNodes under this.root, used to generate StepNode ids
+    root = new StepNode(); // the root Step of the tree (parsed version of the text that got inputted)
+    stepNodeIndex: { [key: string]: StepNode } = {}; // object where keys are ids and values are references to StepNodes under this.root
+    stepNodeCount = 0; // number of StepNodes under this.root, used to generate StepNode ids
 
-        this.isDebug = false;                // true if at least one step has the debug or express debug modifier (~ or ~~) set
-        this.isExpressDebug = false;         // true if at least one step has the express debug modifier (~~) set
+    isDebug = false; // true if at least one step has the debug or express debug modifier (~ or ~~) set
+    isExpressDebug = false; // true if at least one step has the express debug modifier (~~) set
 
-        this.branches = [];                  // Array of Branch, generated from this.root
-        this.beforeEverything = [];          // Array of Step, the steps to execute before all branches
-        this.afterEverything = [];           // Array of Step, the steps to execute after all branches
+    branches: Branch[] = []; // Array of Branch, generated from this.root
+    beforeEverything: Step[] = []; // Array of Step, the steps to execute before all branches
+    afterEverything: Step[] = []; // Array of Step, the steps to execute after all branches
 
-        this.latestBranchifiedStepNode = null;   // Step most recently used by branchify(). Used to debug and track down infinite loops.
+    latestBranchifiedStepNode: StepNode | null = null; // Step most recently used by branchify(). Used to debug and track down infinite loops.
 
-        this.stepDataMode = 'all';            // Keep step data for all steps, failed steps only, or no steps ('all', 'fail', or 'none')
+    stepDataMode: 'all' | 'fail' | 'none' = 'all'; // Keep step data for all steps, failed steps only, or no steps
 
-        /*
-        OPTIONAL
+    // OPTIONAL
+    groups: string[]; // Array of array of string. Only generate branches whose groups match the expression, no restrictions if this is undefined, --groups=a,b+c === [ ['a'], ['b', 'c'] ] === A or (B and C)
+    minFrequency: string; // Only generate branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
+    noDebug?: boolean; // If true, throws an error if at least one ~, ~~, or $ is encountered in the tree at or below the given step
+    noRandom?: boolean; // If true, does not randomize the order of branches generated
+    debugHash?: string; // If set, only generate the one branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
+    noCondNonParallel?: boolean; // If true, conditional non-parallel modifiers (!!) are ignored
 
-        this.groups = [];                     // Array of array of string. Only generate branches whose groups match the expression, no restrictions if this is undefined, --groups=a,b+c === [ ['a'], ['b', 'c'] ] === A or (B and C)
-        this.minFrequency = '';               // Only generate branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
-        this.noDebug = false;                 // If true, throws an error if at least one ~, ~~, or $ is encountered in the tree at or below the given step
-        this.noRandom = false;                // If true, does not randomize the order of branches generated
-        this.debugHash = '';                  // If set, only generate the one branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
-        this.noCondNonParallel = false;       // If true, conditional non-parallel modifiers (!!) are ignored
+    elapsed?: number; // number of ms it took for all branches to execute, set to -1 if paused
+    timeStarted?; // Date object (time) of when this tree started being executed
+    timeEnded?; // Date object (time) of when this tree ended execution
 
-        this.elapsed = 0;                    // number of ms it took for all branches to execute, set to -1 if paused
-        this.timeStarted = {};               // Date object (time) of when this tree started being executed
-        this.timeEnded = {};                 // Date object (time) of when this tree ended execution
+    counts?: {
+        running: 0; // total number of branches currently running
+        passed: 0; // total number of passed branches in this tree (including the ones that passed last time)
+        failed: 0; // total number of failed branches in this tree
+        skipped: 0; // total number of skipped branches in this tree
+        complete: 0; // total number of complete branches in this tree (passed, failed, or skipped)
+        total: 0; // total number of branches in this tree
+        totalToRun: 0; // total number of branches that will be in the next run (total number of branches minus branches passed last time if we're doing a --skip-passed)
 
-        this.counts = {
-            running = 0,                    // total number of branches currently running
-            passed = 0,                     // total number of passed branches in this tree (including the ones that passed last time)
-            failed = 0,                     // total number of failed branches in this tree
-            skipped = 0,                    // total number of skipped branches in this tree
-            complete = 0,                   // total number of complete branches in this tree (passed, failed, or skipped)
-            total = 0,                      // total number of branches in this tree
-            totalToRun = 0,                 // total number of branches that will be in the next run (total number of branches minus branches passed last time if we're doing a --skip-passed)
-
-            totalStepsComplete = 0,         // total number of complete steps in this tree (not including steps that passed last time or are being skipped)
-            totalSteps = 0                  // total number of steps in this tree (not including steps that passed last time or are being skipped)
-        }
-        */
-    }
+        totalStepsComplete: 0; // total number of complete steps in this tree (not including steps that passed last time or are being skipped)
+        totalSteps: 0; // total number of steps in this tree (not including steps that passed last time or are being skipped)
+    };
 
     /**
      * Creates a new StepNode, assigns it an id, and inserts it into this.stepNodeIndex
@@ -84,7 +78,7 @@ class Tree {
         if (stepNode[modifierName]) {
             return true;
         }
-        else if (Object.prototype.hasOwnProperty.call(step, 'fid') && this.stepNodeIndex[step.fid][modifierName]) {
+        else if (step.fid !== undefined && this.stepNodeIndex[step.fid][modifierName]) {
             return true;
         }
 
@@ -101,7 +95,7 @@ class Tree {
         if (stepNode.hasCodeBlock()) {
             return stepNode.codeBlock;
         }
-        else if (Object.prototype.hasOwnProperty.call(step, 'fid')) {
+        else if (step.fid !== undefined) {
             const functionDeclarationNode = this.stepNodeIndex[step.fid];
             if (functionDeclarationNode.hasCodeBlock()) {
                 return functionDeclarationNode.codeBlock;
@@ -120,7 +114,7 @@ class Tree {
         if (stepNode.hasCodeBlock()) {
             return true;
         }
-        else if (Object.prototype.hasOwnProperty.call(step, 'fid')) {
+        else if (step.fid !== undefined) {
             const functionDeclarationNode = this.stepNodeIndex[step.fid];
             if (functionDeclarationNode.hasCodeBlock()) {
                 return true;

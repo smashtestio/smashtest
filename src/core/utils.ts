@@ -1,11 +1,13 @@
 import util from 'node:util';
 import * as tsNode from 'ts-node';
+import Branch from './branch.js'
 import * as Constants from './constants.js';
+import Tree from './tree.js'
 
 /**
  * @return {String} str but without leading whitespace and quotes ('', "", []), returns str if there are no quotes
  */
-export const stripQuotes = (str) => {
+export const stripQuotes = (str: string) => {
     if (hasQuotes(str)) {
         return str.trim().replace(/^'|^"|'$|"$|^\[|\]$/g, '');
     }
@@ -17,14 +19,14 @@ export const stripQuotes = (str) => {
 /**
  * @return {String} str but without {{, }}, {, or }, and then trimmed
  */
-export const stripBrackets = (str) => {
+export const stripBrackets = (str: string) => {
     return str.replace(/^\{\{|\}\}$|^\{|\}$/g, '').trim();
 };
 
 /**
  * @return {Boolean} true if str is in 'quotes', "quotes", or [quotes], false otherwise
  */
-export const hasQuotes = (str) => {
+export const hasQuotes = (str: string) => {
     return str.trim().match(/^'.*'$|^".*"$|^\[.*\]$/) != null;
 };
 
@@ -32,7 +34,7 @@ export const hasQuotes = (str) => {
  * Throws an Error with the given message, filename, and line number
  * @throws {Error}
  */
-export const error = (msg, filename, lineNumber) => {
+export const error = (msg: string, filename?: string, lineNumber?: number) => {
     if (filename || lineNumber) {
         throw new Error(`${msg} [${filename || ''}:${lineNumber || ''}]`);
     }
@@ -51,21 +53,21 @@ export const log = (obj) => {
 /**
  * @return {String} str, but with ` and & escaped to &#96; and &amp;
  */
-export const escapeBackticks = (str) => {
+export const escapeBackticks = (str: string) => {
     return str.replace(/&/g, '&amp;').replace(/`/g, '&#96;');
 };
 
 /**
  * @return {String} str, but with &#96; and &amp; unescaped to ` and &
  */
-export const unescapeBackticks = (str) => {
+export const unescapeBackticks = (str: string) => {
     return str.replace(/&#96;/g, '`').replace(/&amp;/g, '&');
 };
 
 /**
  * @return {String} str, but with \ escaped to \\, " escaped to \", etc.
  */
-export const escape = (str) => {
+export const escape = (str: string) => {
     let newStr = '';
     for (let i = 0; i < str.length; i++) {
         const c = str[i];
@@ -117,7 +119,7 @@ export const escape = (str) => {
 /**
  * @return {String} str, but with \\ unescaped to \, \" unescaped to ", etc.
  */
-export const unescape = (str) => {
+export const unescape = (str: string) => {
     return str.replace(/\\(.)/g, (match, p1) => {
         switch (match) {
         case '\\\\':
@@ -155,7 +157,7 @@ export const unescape = (str) => {
  * @param {Tree} tree - The tree in which the branches live
  * @param {Array} Array of Branch to print out
  */
-export const printBranches = (tree, branches) => {
+export const printBranches = (tree: Tree, branches: Branch[]) => {
     branches.forEach((b, i) => {
         console.log(b.output(tree.stepNodeIndex, 'Branch ' + i));
     });
@@ -164,14 +166,14 @@ export const printBranches = (tree, branches) => {
 /**
  * @return {String} text, but in a canonical format (trimmed, all lowercase, and all whitespace replaced with a single space)
  */
-export const canonicalize = (text) => {
+export const canonicalize = (text: string) => {
     return text.trim().toLowerCase().replace(/\s+/g, ' ');
 };
 
 /**
  * @return {String} text, but in a canonical format (trimmed, and all whitespace replaced with a single space)
  */
-export const keepCaseCanonicalize = (text) => {
+export const keepCaseCanonicalize = (text: string) => {
     return text.trim().replace(/\s+/g, ' ');
 };
 
@@ -182,7 +184,7 @@ export const keepCaseCanonicalize = (text) => {
  * @return {Integer} The number of indents in line (where each SPACES_PER_INDENT spaces counts as 1 indent). Always returns 0 for empty string or all whitespace.
  * @throws {Error} If there are an invalid number of spaces, or invalid whitespace chars, at the beginning of the step
  */
-export const numIndents = (line, filename, lineNumber) => {
+export const numIndents = (line: string, filename: string, lineNumber: number) => {
     if (line.match(/^\s*$/)) {
         // empty string or all whitespace
         return 0;
@@ -222,7 +224,7 @@ export const numIndents = (line, filename, lineNumber) => {
  * @param {Number} [s] - Spaces per indent, omit to use default
  * @return {String} n indents worth of spaces
  */
-export const getIndents = (n, s) => {
+export const getIndents = (n: number, s?: number) => {
     let spaces = '';
     for (let i = 0; i < (s || Constants.SPACES_PER_INDENT) * n; i++) {
         spaces += ' ';
@@ -242,7 +244,7 @@ export const breather = async () => {
  * @param {Object} source - The object whose properties to copy
  * @param {Array of String} props - The properties to copy over
  */
-export const copyProps = (destination, source, props) => {
+export const copyProps = (destination, source, props: string[]) => {
     props.forEach((prop) => {
         if (source[prop] !== undefined) {
             destination[prop] = source[prop];
@@ -269,7 +271,7 @@ export const serializeError = (error) => {
 /**
  * @return {String} The string s, with spaces added to the end to make it length len (only if the string's length is < len)
  */
-export const addWhitespaceToEnd = (s, len) => {
+export const addWhitespaceToEnd = (s: string, len: number) => {
     while (s.length < len) {
         s += ' ';
     }

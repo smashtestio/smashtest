@@ -1,55 +1,51 @@
 import chalk from 'chalk';
+import Reporter from './reporter.js';
 import RunInstance from './runinstance.js';
+import Tree from './tree.js';
 import * as utils from './utils.js';
 
 /**
  * Test runner
  */
 class Runner {
-    /**
-     * Generates the runner
-     */
-    // prettier-ignore
-    constructor() {
-        this.tree = null;                // The tree to run (just parsed in)
-        this.reporter = null;            // The Reporter to use
+    tree: Tree | null = null; // The tree to run (just parsed in)
+    reporter: Reporter | null = null; // The Reporter to use
 
-        this.flags = {};                 // Flags passed in through the command line (e.g., --max-parallel=7 --no-debug --groups="one,two" --> {"max-parallel": "7", "no-debug": "true", "groups": "one,two"})
+    flags = {}; // Flags passed in through the command line (e.g., --max-parallel=7 --no-debug --groups="one,two" --> {"max-parallel": "7", "no-debug": "true", "groups": "one,two"})
 
-        this.debugHash = undefined;      // Set to the hash of the branch to run as debug (overrides any $'s, ~'s, groups, or minFrequency)
-        this.groups = undefined;         // Array of array of string. Only run branches whose groups match the expression, no restrictions if this is undefined, --groups=a,b+c === [ ['a'], ['b', 'c'] ] === A or (B and C)
-        this.headless = undefined;       // If true, run external processes (e.g., browsers) as headless, if possible
-        this.maxParallel = 5;            // The maximum number of simultaneous branches to run
-        this.maxScreenshots = -1;        // The maximum number of screenshots to take, -1 for no limit
-        this.minFrequency = undefined;   // Only run branches at or above this frequency, no restrictions if this is undefined
-        this.noDebug = false;            // If true, a compile error will occur if a $, ~, or ~~ is present anywhere in the tree
-        this.outputErrors = true;        // If true, output errors to console
-        this.random = true;              // If true, randomize the order of branches
-        this.screenshots = false;        // If true, take screenshots before and after each step
-        this.skipPassed = undefined;     // If true, carry over branches that passed last time
-        this.testServer = undefined;     // Location of test server (e.g., http://localhost:4444/wd/hub for selenium server)
+    debugHash?; // Set to the hash of the branch to run as debug (overrides any $'s, ~'s, groups, or minFrequency)
+    groups?: string[][]; // Array of array of string. Only run branches whose groups match the expression, no restrictions if this is undefined, --groups=a,b+c === [ ['a'], ['b', 'c'] ] === A or (B and C)
+    headless?: boolean; // If true, run external processes (e.g., browsers) as headless, if possible
+    maxParallel = 5; // The maximum number of simultaneous branches to run
+    maxScreenshots = -1; // The maximum number of screenshots to take, -1 for no limit
+    minFrequency?; // Only run branches at or above this frequency, no restrictions if this is undefined
+    noDebug = false; // If true, a compile error will occur if a $, ~, or ~~ is present anywhere in the tree
+    outputErrors = true; // If true, output errors to console
+    random = true; // If true, randomize the order of branches
+    screenshots = false; // If true, take screenshots before and after each step
+    skipPassed?: boolean; // If true, carry over branches that passed last time
+    testServer?: string; // Location of test server (e.g., http://localhost:4444/wd/hub for selenium server)
 
-        this.pauseOnFail = false;        // If true, pause when a step fails (there must only be one branch in the tree)
-        this.consoleOutput = true;       // If true, output debug info to console
-        this.isRepl = false;             // If true, run in REPL mode
+    pauseOnFail = false; // If true, pause when a step fails (there must only be one branch in the tree)
+    consoleOutput = true; // If true, output debug info to console
+    isRepl = false; // If true, run in REPL mode
 
-        this.persistent = {};            // stores variables which persist from branch to branch, for the life of the Runner
-        this.globalInit = {};            // init each branch with these global variables
-        this.runInstances = [];          // the currently-running RunInstance objects, each running a branch
+    persistent = {}; // stores variables which persist from branch to branch, for the life of the Runner
+    globalInit = {}; // init each branch with these global variables
+    runInstances = []; // the currently-running RunInstance objects, each running a branch
 
-        this.isPaused = false;           // True if this runner has been paused (set by the RunInstance within this.runInstances)
-        this.isStopped = false;          // True if this runner has been stopped
-        this.isComplete = false;         // True if this runner is done running its tree
+    isPaused = false; // True if this runner has been paused (set by the RunInstance within this.runInstances)
+    isStopped = false; // True if this runner has been stopped
+    isComplete = false; // True if this runner is done running its tree
 
-        this.screenshotCount = 0;        // Number of screenshots taken
-    }
+    screenshotCount = 0; // Number of screenshots taken
 
     /**
      * Initializes the runner with a tree and reporter
      * @param {Tree} tree - The tree to use
      * @param {Boolean} [noRandom] - If true, does not randomly sort branches
      */
-    init(tree, noRandom) {
+    init(tree: Tree, noRandom?: boolean) {
         this.tree = tree;
 
         this.tree.groups = this.groups;
@@ -254,7 +250,7 @@ class Runner {
     /**
      * Set/Get a persistent variable
      */
-    p(varname, value) {
+    p(varname, value?) {
         return value !== undefined ? this.setPersistent(varname, value) : this.getPersistent(varname);
     }
 

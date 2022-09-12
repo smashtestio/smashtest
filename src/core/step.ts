@@ -5,31 +5,29 @@ import * as utils from './utils.js';
  * Represents a step within a Branch
  */
 class Step {
+    id; // id of the corresponding StepNode
+
+    // OPTIONAL
+    fid?: number; // id of StepNode that corresponds to the function declaration, if this step is a function call
+    level?: number; // number of function calls deep this step is within its branch
+
+    // SET AFTER STEP IS RUN
+    isPassed?: boolean; // true if this step passed after being run
+    isFailed?: boolean; // true if this step failed after being run
+    isSkipped?: boolean; // true if this step was skipped
+    isRunning?: boolean; // true if this step is currently running
+
+    error?; // if this step failed, this is the Error that was thrown
+    log?; // Array of objects that represent the logs of this step
+
+    elapsed?: number; // number of ms it took this step to execute
+    timeStarted?; // Date object (time) of when this step started being executed
+    timeEnded?; // Date object (time) of when this step ended execution
+
+    targetCoords?: { x: number; y: number }; // if this is set, set the crosshairs on the before screenshot to these coords (where x and y are a percentage of the total width and height respectively)
+
     constructor(id) {
-        this.id = id; // id of the corresponding StepNode
-
-        /*
-        OPTIONAL
-
-        this.fid = -1;                        // id of StepNode that corresponds to the function declaration, if this step is a function call
-        this.level = 0;                       // number of function calls deep this step is within its branch
-
-        SET AFTER STEP IS RUN
-
-        this.isPassed = false;                // true if this step passed after being run
-        this.isFailed = false;                // true if this step failed after being run
-        this.isSkipped = false;               // true if this step was skipped
-        this.isRunning = false;               // true if this step is currently running
-
-        this.error = {};                      // if this step failed, this is the Error that was thrown
-        this.log = [];                        // Array of objects that represent the logs of this step
-
-        this.elapsed = 0;                     // number of ms it took this step to execute
-        this.timeStarted = {};                // Date object (time) of when this step started being executed
-        this.timeEnded = {};                  // Date object (time) of when this step ended execution
-
-        this.targetCoords = { x: 0, y: 0 };   // if this is set, set the crosshairs on the before screenshot to these coords (where x and y are a percentage of the total width and height respectively)
-        */
+        this.id = id;
     }
 
     /**

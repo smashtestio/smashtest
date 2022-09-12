@@ -5,14 +5,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import readFiles from 'read-files-promise';
 import { WebSocketServer } from 'ws';
+import Runner from './runner.js'
+import Tree from './tree.js'
 import * as utils from './utils.js';
 
-// prettier-ignore
-let reportFilename,
-    reportDataFilename,            // absolute path of report-data.js file
-    passedDataFilename,            // absolute path of passed-data file
-    passedDataFilenameHistory,     // absolute path of passed-data file inside history, if report-history is on
-    smashtestSSDir; // absolute path of screenshots directory
+let reportFilename: string,
+    reportDataFilename: string, // absolute path of report-data.js file
+    passedDataFilename: string, // absolute path of passed-data file
+    passedDataFilenameHistory: string, // absolute path of passed-data file inside history, if report-history is on
+    smashtestSSDir: string; // absolute path of screenshots directory
 
 const now = new Date();
 const dateFormat = date.format(now, 'YYYY-MM-DDTHH-mm-ss');
@@ -21,27 +22,29 @@ const dateFormat = date.format(now, 'YYYY-MM-DDTHH-mm-ss');
  * Generates a report on the status of the tree and runner
  */
 class Reporter {
-    // prettier-ignore
-    constructor(tree, runner) {
-        this.tree = tree;               // the Tree object to report on
-        this.runner = runner;           // the Runner object to report on
+    tree; // the Tree object to report on
+    runner; // the Runner object to report on
 
-        this.reportTemplate = '';       // template for html reports
-        this.reportTime = null;         // Date when the report was generated
+    reportTemplate = ''; // template for html reports
+    reportTime = null; // Date when the report was generated
 
-        this.isReportServer = true;     // whether or not to run the report server
-        this.reportDomain = null;       // domain:port where report server's api is available
-        this.wsServer = null;           // websocket server object
+    isReportServer = true; // whether or not to run the report server
+    reportDomain = null; // domain:port where report server's api is available
+    wsServer = null; // websocket server object
 
-        this.prevSnapshot = null;       // previous snapshot sent over websockets
+    prevSnapshot = null; // previous snapshot sent over websockets
 
-        this.timerFull = null;          // timer that goes off when it's time to do a full write
-        this.timerSnapshot = null;      // timer that goes off when it's time to do a snapshot write
+    timerFull = null; // timer that goes off when it's time to do a full write
+    timerSnapshot = null; // timer that goes off when it's time to do a snapshot write
 
-        this.stopped = false;           // true if this Reporter has been stopped
+    stopped = false; // true if this Reporter has been stopped
 
-        this.reportPath = '';           // custom absolute path for the smashtest folder sent in by user
-        this.history = false;           // activate history for reporting
+    reportPath = ''; // custom absolute path for the smashtest folder sent in by user
+    history = false; // activate history for reporting
+
+    constructor(tree: Tree, runner: Runner) {
+        this.tree = tree; // the Tree object to report on
+        this.runner = runner; // the Runner object to report on
     }
 
     /**

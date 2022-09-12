@@ -1,4 +1,5 @@
 import request from 'request';
+import RunInstance from '../../core/runinstance.js';
 import Comparer from './comparer.js';
 
 /**
@@ -6,10 +7,12 @@ import Comparer from './comparer.js';
  * Stores response in a Response object, which can be quickly verified with a Comparer expected object
  */
 class HttpApi {
+    runInstance;
+
     /**
      * @param {RunInstance} [runInstance] - The current RunInstance
      */
-    constructor(runInstance) {
+    constructor(runInstance: RunInstance) {
         this.runInstance = runInstance;
     }
 
@@ -154,6 +157,16 @@ class HttpApi {
  * Response that comes from an API call
  */
 HttpApi.Response = class Response {
+    runInstance;
+    response;
+
+    statusCode;
+    headers;
+    error;
+    body;
+    rawBody;
+    responseObj;
+
     constructor(runInstance, error, response, body) {
         this.runInstance = runInstance;
         this.response = {

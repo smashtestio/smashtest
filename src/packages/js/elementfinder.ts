@@ -1,7 +1,47 @@
-import * as Constants from '../../core/constants.js'
-import * as utils from '../../core/utils.js'
+import * as Constants from '../../core/constants.js';
+import * as utils from '../../core/utils.js';
+
+type Prop = {
+    prop: string;
+    def: string;
+    input: string;
+    not?: true | undefined;
+};
 
 class ElementFinder {
+    line = ''; // The full line representing this EF
+
+    counter = { min: 1, max: 1, default: true }; // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
+
+    // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
+    // A prop of just `'text'` is converted to the prop `contains 'text'`
+    // A css selector is converted to the prop `selector 'text'`
+    // An ord is converted to the prop `position 'N'`
+    props: Prop[] = [];
+
+    parent; // Parent EF, if one exists
+    children: ElementFinder[] = []; // Array of ElementFinder. The children of this EF.
+
+    // OPTIONAL
+    matchMe?: boolean; // If true, this is an [element] (enclosed in brackets)
+    isElemArray?: boolean; // If true, this is an element array
+    isAnyOrder?: boolean; // If true, this.children can be in any order
+
+    usedDefinedProps?;
+    logger?;
+
+    fullStr?: string; // The full string representing the top EF and its children. Only set this for the top parent EF.
+
+    empty?: boolean;
+
+    // SET INSIDE BROWSER
+
+    error?; // Set to an error string if there was an error finding this EF, set to true if there's an error on a child
+    blockErrors?; // Set to an array of objs { header: '', body: '' } representing errors to be rendered as blocks
+
+    matchedElems?; // DOM Elements or WebElements that match this EF
+    matchMeElems?; // DOM Elements or WebElements that match [bracked lines] inside this EF. Use this instead of matchedElems if it has > 0 elements inside.
+
     /**
      * Constructs this EF and its child EFs from a string
      * An EF object represents a single line in an EF string (which may have multiple lines)
@@ -15,55 +55,29 @@ class ElementFinder {
      * @param {Boolean} [noParse] - If true, do not parse str
      * @throws {Error} If there is a parse error
      */
-    // prettier-ignore
-    constructor(str, definedProps, usedDefinedProps, logger, parent, lineNumberOffset, noParse) {
-        this.line = '';                     // The full line representing this EF
+    constructor(
+        str: string,
+        definedProps,
+        usedDefinedProps,
+        logger,
+        parent?: ElementFinder,
+        lineNumberOffset?: number,
+        noParse?: boolean
+    ) {
+        this.parent = parent;
 
-        this.counter = { min: 1, max: 1, default: true };  // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
-
-        /* eslint-disable */
-        this.props = [];                    // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
-                                            // Each object in the array has the following format:
-                                            //   { prop: 'full prop text', def: 'name of prop', input: 'input text if any', not: true or undefined }
-                                            //
-                                            // a prop of just `'text'` is converted to the prop `contains 'text'`
-                                            // a css selector is converted to the prop `selector 'text'`
-                                            // an ord is converted to the prop `position 'N'`
-
-        this.parent = parent;               // Parent EF, if one exists
-        this.children = [];                 // Array of ElementFinder. The children of this EF.
-        /* eslint-enable */
-
-        /*
-        OPTIONAL
-
-        this.matchMe = false;               // If true, this is an [element] (enclosed in brackets)
-        this.isElemArray = false;           // If true, this is an element array
-        this.isAnyOrder = false;            // If true, this.children can be in any order
-
-        this.usedDefinedProps = {};
-        this.logger = undefined;
-
-        this.fullStr = '';                  // The full string representing the top EF and its children. Only set this for the top parent EF.
-
-        SET INSIDE BROWSER
-
-        this.error = undefined;             // Set to an error string if there was an error finding this EF, set to true if there's an error on a child
-        this.blockErrors = undefined;       // Set to an array of objs { header: '', body: '' } representing errors to be rendered as blocks
-
-        this.matchedElems = [];             // DOM Elements or WebElements that match this EF
-        this.matchMeElems = [];             // DOM Elements or WebElements that match [bracked lines] inside this EF. Use this instead of matchedElems if it has > 0 elements inside.
-        */
-
-        if(!usedDefinedProps) { // only create one usedDefinedProps object, and only on the top parent
+        if (!usedDefinedProps) {
+            // only create one usedDefinedProps object, and only on the top parent
             usedDefinedProps = {};
         }
         this.usedDefinedProps = usedDefinedProps;
 
-        logger && (this.logger = logger);
+        if (logger) {
+            this.logger = logger;
+        }
 
         // Parse str into this EF
-        if(!noParse) {
+        if (!noParse) {
             this.parseIn(
                 str,
                 definedProps || ElementFinder.defaultProps(),
@@ -79,7 +93,7 @@ class ElementFinder {
      * @return This object
      * @throws {Error} If there is a parse error
      */
-    parseIn(str, definedProps, usedDefinedProps, lineNumberOffset) {
+    parseIn(str: string, definedProps, usedDefinedProps, lineNumberOffset: number) {
         /**
          * @return {Boolean} True if s matches one of the prop patterns (ord, 'text', or defined prop with no input), false otherwise
          */
@@ -114,7 +128,7 @@ class ElementFinder {
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
-            if (line.trim() != '') {
+            if (line.trim() !== '') {
                 parentLine = line;
                 parentLineNumber = i + 1;
                 break;

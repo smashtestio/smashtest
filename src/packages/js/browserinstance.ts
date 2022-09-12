@@ -1,20 +1,25 @@
 /* globals sinon */
-import Jimp from 'jimp';
-import fs from 'node:fs';
+import * as Jimp from 'jimp';
+import * as fs from 'node:fs';
 import { createRequire } from 'node:module';
-import path from 'node:path';
-import { Builder, By, Key, until } from 'selenium-webdriver';
-import chrome from 'selenium-webdriver/chrome.js';
-import edge from 'selenium-webdriver/edge.js';
-import firefox from 'selenium-webdriver/firefox.js';
-import ie from 'selenium-webdriver/ie.js';
-import safari from 'selenium-webdriver/safari.js';
+import * as path from 'node:path';
+import { Builder, By, Key, until, WebDriver } from 'selenium-webdriver';
+import * as chrome from 'selenium-webdriver/chrome.js';
+import * as edge from 'selenium-webdriver/edge.js';
+import * as firefox from 'selenium-webdriver/firefox.js';
+import * as ie from 'selenium-webdriver/ie.js';
+import * as safari from 'selenium-webdriver/safari.js';
 import { reporter } from '../../core/instances.js';
+import RunInstance from '../../core/runinstance.js';
+import Runner from '../../core/runner.js';
 import * as utils from '../../core/utils.js';
 import Comparer from './comparer.js';
 import ElementFinder from './elementfinder.js';
 
 class BrowserInstance {
+    driver: WebDriver | null;
+    runInstance;
+
     // ***************************************
     //  Static functions
     // ***************************************
@@ -23,7 +28,7 @@ class BrowserInstance {
      * Creates a new BrowserInstance and initializes global vars in runInstance
      * @return {BrowserInstance} The newly created BrowserInstance
      */
-    static create(runInstance) {
+    static create(runInstance: RunInstance) {
         const browser = runInstance.g('browser', new BrowserInstance(runInstance));
 
         // Register this browser in the persistent array browsers
@@ -70,7 +75,7 @@ class BrowserInstance {
     /**
      * Kills all open browsers
      */
-    static async killAllBrowsers(runner) {
+    static async killAllBrowsers(runner: Runner) {
         const browsers = runner.p('browsers');
         if (browsers) {
             for (let i = 0; i < browsers.length; i++) {

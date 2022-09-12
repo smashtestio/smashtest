@@ -5,6 +5,8 @@ import StepNode from './stepnode.js';
  * NOTE: Multi-level step blocks are implemented as function declaration/call pairs under the hood
  */
 class StepBlockNode extends StepNode {
+    steps: StepNode[];
+
     constructor() {
         super();
 

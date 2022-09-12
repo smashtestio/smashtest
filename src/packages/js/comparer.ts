@@ -22,7 +22,10 @@ const RESERVED_KEYWORDS = [
  * Replaces a value inside an object to mark that the Comparer was there, and to store any associated errors
  */
 class ComparerNode {
-    constructor(errors, value) {
+    errors;
+    value;
+
+    constructor(errors: string[], value) {
         this.errors = errors; // array of strings describing errors related to comparison
         this.value = value; // original actual value at the position of this ComparerNode
         //this.$comparerNode = true;
@@ -41,7 +44,7 @@ class Comparer {
      * @param {Boolean} [jsonClone] - If true, compares using the rough clone method, aka JSON.stringify + JSON.parse (which handles multiple references to the same object inside actualObj, but also removes functions and undefineds, and converts them to null in arrays)
      * @throws {Error} If actualObj doesn't match expectedObj
      */
-    static expect(actualObj, errorStart, errorEnd, errorHeader, jsonClone) {
+    static expect(actualObj, errorStart: string, errorEnd: string, errorHeader: string, jsonClone?: boolean) {
         if (errorStart === undefined) {
             errorStart = Comparer.defaultErrorStart;
         }
@@ -430,7 +433,7 @@ class Comparer {
      * @param {Anything} value - The value that will be replaced with the new ComparerNode
      * @return {ComparerNode} The ComparerNode that destination will be set to
      */
-    static createComparerNode(errors, value) {
+    static createComparerNode(errors: string[], value) {
         if (value instanceof ComparerNode) {
             return new ComparerNode(value.errors.concat(errors), value.value);
         }
@@ -661,7 +664,7 @@ class Comparer {
      * @return A clone of the given value
      * NOTE: In non-json-clone, if there are multiple references to a shared object in value, that object will be shared in the clone as well
      */
-    static clone(value, jsonClone) {
+    static clone(value, jsonClone?: boolean) {
         return jsonClone ? this.jsonClone(value) : cloneDeep(value);
     }
 

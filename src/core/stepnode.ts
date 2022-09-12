@@ -1,66 +1,65 @@
 import * as Constants from './constants.js';
+import StepBlockNode from './stepblocknode.js';
 import * as utils from './utils.js';
 
 /**
  * Represents a step node within a Tree or StepBlock
  */
 class StepNode {
-    // prettier-ignore
+    id; // number that uniquely identifies this step node (must be > 0)
+
+    indents = -1; // number of indents before this step node's text, where an indent consists of SPACES_PER_INDENT spaces
+
+    parent = null; // StepNode or StepBlockNode that's the parent of this StepNode (null if this StepNode is itself part of a StepBlockNode)
+    children: (StepNode | StepBlockNode)[] = []; // StepNode or StepBlockNode objects that are children of this StepNode ([] if this Step is itself part of a StepBlockNode)
+
+    filename: string | null = null; // filename where this step node is from
+    lineNumber: number | null = null; // line number where this step node is from
+
+    // OPTIONAL
+    text?: string; // text of the command of the step node (not including spaces in front, modifiers, comments, etc.)
+    canon?: string; // canonicalized text of the step node
+
+    modifiers?: string[]; // Array of String, each of which represents an modifier (e.g., ['..', '+']) in front or behind the step node
+    frontModifiers?: string[]; // Array of String, modifiers in front of the step node's text
+    backModifiers?: string[]; // Array of String, modifiers in back of the step node's text
+    groups?: string[]; // Array of Strings, the group/freq hashtag modifiers
+    codeBlock?: string; // code block contents that come after the { and not including the line with the }
+    comment?: string; // text of the comment at the end of the line (e.g., '// comment here')
+
+    isFunctionDeclaration?: boolean; // true if this is a function declaration
+    isFunctionCall?: boolean; // true if this is a function call
+    isPrivateFunctionDeclaration?: boolean; // true if this is a private function declaration
+    isTextualStep?: boolean; // true if this is a textual (-) step node and not a function call
+
+    isMultiBlockFunctionDeclaration?: boolean; // true if this is the '[' from a multi-level step block (implemented under the hood as a function call/declaration)
+    isMultiBlockFunctionCall?: boolean; // true if this is the ']' from a multi-level step block (implemented under the hood as a function call/declaration)
+    multiBlockFid?: number; // id of the multi-level step block function declaration being called
+    isOpeningBracket?: boolean; // true if this step includes a '['
+
+    isSkip?: boolean; // true if this step node has the skip modifier (-s)
+    isSkipBelow?: boolean; // true if this step node has the skip below modifier (.s)
+    isSkipBranch?: boolean; // true if this step node has the skip branch modifier ($s)
+    isDebug?: boolean; // true if this step node has a debug or express debug modifier (~ or ~~)
+    isBeforeDebug?: boolean; // true if this step node has the debug modifier (~) before the step text
+    isAfterDebug?: boolean; // true if this step node has the debug modifier (~) after the step text
+    isExpressDebug?: boolean; // true if this step node has the express debug modifier (~~)
+    isOnly?: boolean; // true if this step node has the only modifier ($)
+    isNonParallel?: boolean; // true if this step node has the non-parallel modifier (!)
+    isNonParallelCond?: boolean; // true if this step node has the non-parallel (conditional) modifier (!!)
+    isSequential?: boolean; // true if this step node has the sequential modifier (..)
+    isCollapsed?: boolean; // true if this step node should be collapsed in the report (+)
+    isHidden?: boolean; // true if this step node should be hidden in the report (+?)
+
+    isHook?: boolean; // true if this step node is a hook
+    isPackaged?: boolean; // true if this step node is from a package file
+
+    containingStepBlock?: StepBlockNode; // the StepBlockNode that contains this StepNode
+
+    used?: boolean; // set to true if this step node is used in a branch at least once
+
     constructor(id) {
-        this.id = id;                         // number that uniquely identifiers this step node (must be > 0)
-
-        this.indents = -1;                    // number of indents before this step node's text, where an indent consists of SPACES_PER_INDENT spaces
-
-        this.parent = null;                   // StepNode or StepBlockNode that's the parent of this StepNode (null if this StepNode is itself part of a StepBlockNode)
-        this.children = [];                   // StepNode or StepBlockNode objects that are children of this StepNode ([] if this Step is itself part of a StepBlockNode)
-
-        this.filename = null;                 // filename where this step node is from
-        this.lineNumber = null;               // line number where this step node is from
-
-        /*
-        OPTIONAL
-
-        this.text = "";                       // text of the command of the step node (not including spaces in front, modifiers, comments, etc.)
-        this.canon = "";                      // canonicalized text of the step node
-
-        this.modifiers = [];                  // Array of String, each of which represents an modifier (e.g., ['..', '+']) in front or behind the step node
-        this.frontModifiers = [];             // Array of String, modifiers in front of the step node's text
-        this.backModifiers = [];              // Array of String, modifiers in back of the step node's text
-        this.groups = [];                     // Array of Strings, the group/freq hashtag modifiers
-        this.codeBlock = "";                  // code block contents that come after the { and not including the line with the }
-        this.comment = "";                    // text of the comment at the end of the line (e.g., '// comment here')
-
-        this.isFunctionDeclaration = false;          // true if this is a function declaration
-        this.isFunctionCall = false;                 // true if this is a function call
-        this.isPrivateFunctionDeclaration = false;   // true if this is a private function declaration
-        this.isTextualStep = false;                  // true if this is a textual (-) step node and not a function call
-
-        this.isMultiBlockFunctionDeclaration = false;   // true if this is the '[' from a multi-level step block (implemented under the hood as a function call/declaration)
-        this.isMultiBlockFunctionCall = false;          // true if this is the ']' from a multi-level step block (implemented under the hood as a function call/declaration)
-        this.multiBlockFid = -1;                        // id of the multi-level step block function declaration being called
-        this.isOpeningBracket = false;                  // true if this step includes a '['
-
-        this.isSkip = false;                  // true if this step node has the skip modifier (-s)
-        this.isSkipBelow = false;             // true if this step node has the skip below modifier (.s)
-        this.isSkipBranch = false;            // true if this step node has the skip branch modifier ($s)
-        this.isDebug = false;                 // true if this step node has a debug or express debug modifier (~ or ~~)
-        this.isBeforeDebug = false;           // true if this step node has the debug modifier (~) before the step text
-        this.isAfterDebug = false;            // true if this step node has the debug modifier (~) after the step text
-        this.isExpressDebug = false;          // true if this step node has the express debug modifier (~~)
-        this.isOnly = false;                  // true if this step node has the only modifier ($)
-        this.isNonParallel = false;           // true if this step node has the non-parallel modifier (!)
-        this.isNonParallelCond = false;       // true if this step node has the non-parallel (conditional) modifier (!!)
-        this.isSequential = false;            // true if this step node has the sequential modifier (..)
-        this.isCollapsed = false;             // true if this step node should be collapsed in the report (+)
-        this.isHidden = false;                // true if this step node should be hidden in the report (+?)
-
-        this.isHook = false;                  // true if this step node is a hook
-        this.isPackaged = false;              // true if this step node is from a package file
-
-        this.containingStepBlock = {};        // the StepBlockNode that contains this StepNode
-
-        this.used = false;                    // set to true if this step node is used in a branch at least once
-        */
+        this.id = id;
     }
 
     /**

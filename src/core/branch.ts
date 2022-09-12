@@ -1,48 +1,44 @@
-import crypto from 'crypto';
 import cloneDeep from 'lodash/cloneDeep.js';
+import crypto from 'node:crypto';
 import * as Constants from './constants.js';
+import Step from './step.js';
 import * as utils from './utils.js';
 
 /**
  * Represents a single branch containing steps
  */
 class Branch {
-    constructor() {
-        this.steps = []; // array of Step that are part of this Branch
+    steps: Step[] = [];
 
-        /*
-        OPTIONAL
+    // OPTIONAL
+    nonParallelIds?; // When multiple branches cannot be run in parallel (due to !), they are each given the same nonParallelId
 
-        this.nonParallelIds = [];           // When multiple branches cannot be run in parallel (due to !), they are each given the same nonParallelId
+    frequency?: string; // Frequency of this branch (either 'high', 'med', or 'low')
+    groups?; // The groups that this branch is a part of
 
-        this.frequency = "";                // Frequency of this branch (either 'high', 'med', or 'low')
-        this.groups = [];                   // The groups that this branch is a part of
+    beforeEveryBranch?: Step[]; // Array of Step, the steps to execute before this branch starts
+    afterEveryBranch?: Step[]; // Array of Step, the steps to execute after this branch is done
+    beforeEveryStep?: Step[]; // Array of Step, the steps to execute before each step in this branch starts
+    afterEveryStep?: Step[]; // Array of Step, the steps to execute after each step in this branch is done
 
-        this.beforeEveryBranch = [];        // Array of Step, the steps to execute before this branch starts
-        this.afterEveryBranch = [];         // Array of Step, the steps to execute after this branch is done
-        this.beforeEveryStep = [];          // Array of Step, the steps to execute before each step in this branch starts
-        this.afterEveryStep = [];           // Array of Step, the steps to execute after each step in this branch is done
+    isSkipBranch?: boolean; // If true, a step in this branch has a $s
+    isOnly?: boolean; // If true, a step in this branch has a $
+    isDebug?: boolean; // If true, a step in this branch has a ~ or ~~
 
-        this.isSkipBranch = false;          // If true, a step in this branch has a $s
-        this.isOnly = false;                // If true, a step in this branch has a $
-        this.isDebug = false;               // If true, a step in this branch has a ~ or ~~
+    passedLastTime?: boolean; // If true, do not run this branch, but include it in the report
+    isPassed?: boolean; // true if every step in this branch passed after being run
+    isFailed?: boolean; // true if at least one step in this branch failed after being run
+    isSkipped?: boolean; // true if this branch was skipped after an attempted run
+    isRunning?: boolean; // true if this branch is currently running
 
-        this.passedLastTime = false;        // If true, do not run this branch, but include it in the report
-        this.isPassed = false;              // true if every step in this branch passed after being run
-        this.isFailed = false;              // true if at least one step in this branch failed after being run
-        this.isSkipped = false;             // true if this branch was skipped after an attempted run
-        this.isRunning = false;             // true if this branch is currently running
+    error?; // If this branch failed, this represents the error that was thrown (only for failure that occurs within the branch but not within a particular step)
+    log?: { text: string }[]; // Array of objects that represent the logs of this branch (logs related to the branch but not to a particular step)
 
-        this.error = {};                    // If this branch failed, this represents the error that was thrown (only for failure that occurs within the branch but not within a particular step)
-        this.log = [];                      // Array of objects that represent the logs of this branch (logs related to the branch but not to a particular step)
+    elapsed?: number; // number of ms it took this step to execute
+    timeStarted?; // Date object (time) of when this branch started being executed
+    timeEnded?; // Date object (time) of when this branch ended execution
 
-        this.elapsed = 0;                   // number of ms it took this step to execute
-        this.timeStarted = {};              // Date object (time) of when this branch started being executed
-        this.timeEnded = {};                // Date object (time) of when this branch ended execution
-
-        this.hash = "";                     // hash value representing this branch
-        */
-    }
+    hash?: string; // hash value representing this branch
 
     /**
      * Pushes the given step to the end of this branch
@@ -153,8 +149,8 @@ class Branch {
          * Copies the given hook type from branch to newBranch
          */
         function copyHooks(name, toBeginning) {
-            if (Object.prototype.hasOwnProperty.call(branch, name)) {
-                if (!Object.prototype.hasOwnProperty.call(self, name)) {
+            if (branch[name] !== undefined) {
+                if (self[name] === undefined) {
                     self[name] = [];
                 }
 
@@ -271,7 +267,7 @@ class Branch {
             if (stepNode.hasCodeBlock()) {
                 codeBlock = stepNode.codeBlock;
             }
-            else if (Object.prototype.hasOwnProperty.call(step, 'fid')) {
+            else if (step.fid !== undefined) {
                 const functionDeclarationNode = stepNodeIndex[step.fid];
                 if (functionDeclarationNode.hasCodeBlock()) {
                     codeBlock = functionDeclarationNode.codeBlock;

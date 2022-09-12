@@ -4,6 +4,7 @@ import path from 'node:path';
 import tsNode from 'ts-node';
 import Branch from './branch.js';
 import * as Constants from './constants.js';
+import Runner from './runner.js';
 import Step from './step.js';
 import * as utils from './utils.js';
 
@@ -25,29 +26,33 @@ const brightGray = chalk.hex('#B6B6B6');
  * Represents a running test instance. Kind of like a "thread".
  */
 class RunInstance {
-    // prettier-ignore
-    constructor(runner) {
+    runner;
+
+    tree; // Tree currently being executed
+    currBranch = null; // Branch currently being executed
+    currStep = null; // Step currently being executed
+
+    isPaused = false; // true if we're currently paused (and we can only pause if there's just one branch in this.tree)
+    isStopped = false; // true if we're permanently stopping this RunInstance
+
+    persistent; // persistent variables
+    global = {}; // global variables
+    local = {}; // local variables
+
+    localStack = []; // Array of objects, where each object stores local vars
+    localsPassedIntoFunc = {}; // local variables being passed into the function at the current step
+
+    stepsRan = new Branch(); // record of all steps ran by this RunInstance, for inject()
+
+    stepTimeout = 60; // default timeout for steps, in secs
+    timer = null; // timer used to enforce step timeout
+
+    constructor(runner: Runner) {
         this.runner = runner;
-
-        this.tree = this.runner.tree;                   // Tree currently being executed
-        this.currBranch = null;                         // Branch currently being executed
-        this.currStep = null;                           // Step currently being executed
-
-        this.isPaused = false;                          // true if we're currently paused (and we can only pause if there's just one branch in this.tree)
-        this.isStopped = false;                         // true if we're permanently stopping this RunInstance
-
-        this.persistent = this.runner.persistent;       // persistent variables
-        this.global = {};                               // global variables
-        this.local = {};                                // local variables
-
-        this.localStack = [];                           // Array of objects, where each object stores local vars
-        this.localsPassedIntoFunc = {};                 // local variables being passed into the function at the current step
-
-        this.stepsRan = new Branch();                   // record of all steps ran by this RunInstance, for inject()
-
-        this.stepTimeout = 60;                          // default timeout for steps, in secs
-        this.timer = null;                              // timer used to enforce step timeout
+        this.tree = this.runner.tree; // Tree currently being executed
+        this.persistent = this.runner.persistent; // persistent variables
     }
+
     /**
      * Grabs branches and steps from this.tree and executes them
      * Exits when there's nothing left to execute, or if a pause or stop occurs
@@ -747,7 +752,7 @@ class RunInstance {
     /**
      * Set/Get a persistent variable
      */
-    p(varname, value) {
+    p(varname, value?) {
         return this.runner.p(varname, value);
     }
 
