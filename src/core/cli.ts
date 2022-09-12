@@ -3,13 +3,13 @@
 import chalk from 'chalk';
 import progress from 'cli-progress';
 import clipboardy from 'clipboardy';
-import { EventEmitter } from 'node:events';
 import glob from 'glob';
+import { EventEmitter } from 'node:events';
 import fs from 'node:fs';
 import path from 'node:path';
-import readFiles from 'read-files-promise';
 import readline from 'node:readline';
 import repl from 'node:repl';
+import readFiles from 'read-files-promise';
 import * as Constants from './constants.js';
 import { reporter, runner, tree } from './instances.js';
 import StepNode from './stepnode.js';
@@ -268,10 +268,10 @@ Options
             break;
 
         case 'skip-passed':
-            if (value == 'true') {
+            if (value === 'true') {
                 runner.skipPassed = true;
             }
-            else if (value == 'false') {
+            else if (value === 'false') {
                 runner.skipPassed = false;
             }
             else {
@@ -320,7 +320,7 @@ Options
         if (!['true', 'false'].includes(value)) {
             utils.error(`'${name}' flag must be set to either 'true' or 'false'`);
         }
-        return value == 'true';
+        return value === 'true';
     }
 
     function noValue() {

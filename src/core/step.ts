@@ -55,7 +55,7 @@ class Step {
             this.log = [];
         }
 
-        if (typeof item == 'string') {
+        if (typeof item === 'string') {
             this.log.push({ text: item });
         }
         else {

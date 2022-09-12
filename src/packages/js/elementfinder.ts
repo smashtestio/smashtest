@@ -1,5 +1,5 @@
-import * as Constants from '../../core/constants.js';
-import * as utils from '../../core/utils.js';
+import * as Constants from '../../core/constants.js'
+import * as utils from '../../core/utils.js'
 
 class ElementFinder {
     /**
@@ -161,7 +161,7 @@ class ElementFinder {
             }
         }
 
-        if (parentLine == 'any order' && !this.isElemArray) {
+        if (parentLine === 'any order' && !this.isElemArray) {
             // 'any order' keyword
             if (this.parent) {
                 this.parent.isAnyOrder = true;
@@ -566,7 +566,7 @@ class ElementFinder {
                 definedProps: this.usedDefinedProps
             },
             (k, v) => {
-                if (typeof v == 'function') {
+                if (typeof v === 'function') {
                     return v.toString();
                 }
                 else if (v instanceof ElementFinder) {
@@ -892,7 +892,7 @@ class ElementFinder {
                         const defs = definedProps[prop.def];
                         for (let j = 0; j < defs.length; j++) {
                             const def = defs[j];
-                            if (typeof def == 'object') {
+                            if (typeof def === 'object') {
                                 // def is an EF
                                 def.counter = { min: 1 }; // match multiple elements
                                 findEF(def, pool);
@@ -902,7 +902,7 @@ class ElementFinder {
                                         : def.matchedElems;
                                 approvedElems = approvedElems.concat(intersectArr(pool, matched));
                             }
-                            else if (typeof def == 'string') {
+                            else if (typeof def === 'string') {
                                 // stringified function
                                 const f = eval('(' + def + ')');
                                 approvedElems = approvedElems.concat(f(pool, prop.input));
@@ -1145,11 +1145,11 @@ class ElementFinder {
 
                         let cs = window.getComputedStyle(elem);
 
-                        if (cs.visibility == 'hidden' || cs.visibility == 'collapse') {
+                        if (cs.visibility === 'hidden' || cs.visibility === 'collapse') {
                             return false;
                         }
 
-                        if (cs.opacity == '0') {
+                        if (cs.opacity === '0') {
                             return false;
                         }
 
@@ -1157,7 +1157,7 @@ class ElementFinder {
                         elem = elem.parentElement;
                         while (elem) {
                             cs = window.getComputedStyle(elem);
-                            if (cs.opacity == '0') {
+                            if (cs.opacity === '0') {
                                 return false;
                             }
                             elem = elem.parentElement;
@@ -1233,14 +1233,14 @@ class ElementFinder {
                     return elems.filter(function (elem) {
                         const tagName = elem.tagName.toLowerCase();
                         return (
-                            (tagName == 'a' ||
-                                tagName == 'button' ||
-                                tagName == 'label' ||
-                                tagName == 'input' ||
-                                tagName == 'textarea' ||
-                                tagName == 'select' ||
-                                tagName == 'option' ||
-                                window.getComputedStyle(elem).getPropertyValue('cursor') == 'pointer') &&
+                            (tagName === 'a' ||
+                                tagName === 'button' ||
+                                tagName === 'label' ||
+                                tagName === 'input' ||
+                                tagName === 'textarea' ||
+                                tagName === 'select' ||
+                                tagName === 'option' ||
+                                window.getComputedStyle(elem).getPropertyValue('cursor') === 'pointer') &&
                             !elem.disabled
                         );
                         // TODO: handle cursor:pointer when hovered over
@@ -1367,7 +1367,7 @@ class ElementFinder {
                             dropdownText = elem.options[elem.selectedIndex].text;
                         }
 
-                        if (elem.tagName.toLowerCase() == 'select') {
+                        if (elem.tagName.toLowerCase() === 'select') {
                             return isMatch(labelText) || isMatch(dropdownText);
                         }
                         else {
@@ -1413,7 +1413,7 @@ class ElementFinder {
                             dropdownText = elem.options[elem.selectedIndex].text;
                         }
 
-                        if (elem.tagName.toLowerCase() == 'select') {
+                        if (elem.tagName.toLowerCase() === 'select') {
                             return isMatch(labelText) || isMatch(dropdownText);
                         }
                         else {
@@ -1511,9 +1511,9 @@ class ElementFinder {
                         const node = nodes[i];
                         const tagName = node.tagName.toLowerCase();
                         if (
-                            (tagName == 'input' &&
-                                (node.type == 'text' || node.type == 'password' || node.type == 'search')) ||
-                            tagName == 'textarea'
+                            (tagName === 'input' &&
+                                (node.type === 'text' || node.type === 'password' || node.type === 'search')) ||
+                            tagName === 'textarea'
                         ) {
                             nodesArr.push(node);
                         }

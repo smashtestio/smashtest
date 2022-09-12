@@ -1,18 +1,18 @@
 /* globals sinon */
+import Jimp from 'jimp';
+import fs from 'node:fs';
+import { createRequire } from 'node:module';
+import path from 'node:path';
 import { Builder, By, Key, until } from 'selenium-webdriver';
 import chrome from 'selenium-webdriver/chrome.js';
 import edge from 'selenium-webdriver/edge.js';
 import firefox from 'selenium-webdriver/firefox.js';
 import ie from 'selenium-webdriver/ie.js';
 import safari from 'selenium-webdriver/safari.js';
-import Jimp from 'jimp';
-import fs from 'node:fs';
-import path from 'node:path';
 import { reporter } from '../../core/instances.js';
 import * as utils from '../../core/utils.js';
 import Comparer from './comparer.js';
 import ElementFinder from './elementfinder.js';
-import { createRequire } from 'node:module';
 
 class BrowserInstance {
     // ***************************************
@@ -270,7 +270,7 @@ class BrowserInstance {
 
         // Resize to dimensions
         // NOTE: Options.windowSize() wasn't working properly
-        if (params.width && params.height && !(params.name == 'chrome' && params.deviceEmulation)) {
+        if (params.width && params.height && !(params.name === 'chrome' && params.deviceEmulation)) {
             await this.driver.manage().window().setRect({ width: params.width, height: params.height });
         }
 
@@ -371,7 +371,7 @@ class BrowserInstance {
         const dropdownCoords = this.runInstance.currStep ? this.runInstance.currStep.targetCoords : null;
 
         const tagName = await dropdownElement.getTagName();
-        if (tagName.toLowerCase() == 'select') {
+        if (tagName.toLowerCase() === 'select') {
             try {
                 const item = await this.$(
                     `selector 'option', contains exact '${this.str(value)}', any visibility`,
@@ -473,7 +473,7 @@ class BrowserInstance {
         if (!this.runInstance.runner.screenshots) {
             return;
         }
-        if (this.runInstance.tree.stepDataMode == 'none') {
+        if (this.runInstance.tree.stepDataMode === 'none') {
             return;
         }
         if (
@@ -530,7 +530,7 @@ class BrowserInstance {
      * Clears the current branch's screenshots if the --step-data mode requires it
      */
     async clearUnneededScreenshots() {
-        if (this.runInstance.tree.stepDataMode == 'fail' && !this.runInstance.currBranch.isFailed) {
+        if (this.runInstance.tree.stepDataMode === 'fail' && !this.runInstance.currBranch.isFailed) {
             // NOTE: for stepDataMode of 'none', a screenshot wasn't created in the first place
             // Delete all screenshots with a filename that begins with the currBranch's hash
             const screenshotsDir = `${path.join(reporter.getPathFolder(), 'screenshots')}`;
@@ -617,7 +617,7 @@ class BrowserInstance {
         timeout = timeout !== undefined ? timeout : 2000;
 
         let ef = null;
-        if (typeof element == 'string') {
+        if (typeof element === 'string') {
             if (!element.match(/\n/g)) {
                 element = element.trim();
             }
@@ -671,7 +671,7 @@ class BrowserInstance {
         timeout = timeout !== undefined ? timeout : 2000;
 
         let ef = null;
-        if (typeof element == 'string') {
+        if (typeof element === 'string') {
             if (!element.match(/\n/g)) {
                 element = element.trim();
             }
@@ -702,7 +702,7 @@ class BrowserInstance {
         timeout = timeout !== undefined ? timeout : 2000;
 
         let ef = null;
-        if (typeof element == 'string') {
+        if (typeof element === 'string') {
             if (!element.match(/\n/g)) {
                 element = element.trim();
             }
@@ -738,11 +738,11 @@ class BrowserInstance {
     props(props, isAdd) {
         for (const prop in props) {
             if (Object.prototype.hasOwnProperty.call(props, prop)) {
-                if (typeof props[prop] == 'string') {
+                if (typeof props[prop] === 'string') {
                     // parse it as an EF
                     props[prop] = new ElementFinder(props[prop], this.definedProps, undefined, this.runInstance.log);
                 }
-                else if (typeof props[prop] == 'function') {
+                else if (typeof props[prop] === 'function') {
                     // empty
                 }
                 else {
@@ -952,53 +952,57 @@ class BrowserInstance {
             // Ref: https://github.com/sinonjs/sinon/issues/2082#issuecomment-586552184
             await this.executeScript(function () {
                 // if the browser doesn't support fetch, don't bother stubbing it
-                window.fetch = window.fetch && function (url, options) {
-                    options = options || {};
-                    return new Promise((resolve, reject) => {
-                        const request = new XMLHttpRequest();
-                        const keys = [];
-                        const all = [];
-                        const headers = {};
+                window.fetch =
+                    window.fetch &&
+                    function (url, options) {
+                        options = options || {};
+                        return new Promise((resolve, reject) => {
+                            const request = new XMLHttpRequest();
+                            const keys = [];
+                            const all = [];
+                            const headers = {};
 
-                        const response = () => ({
-                            ok: ((request.status / 100) | 0) == 2, // 200-299
-                            statusText: request.statusText,
-                            status: request.status,
-                            url: request.responseURL,
-                            text: () => Promise.resolve(request.responseText),
-                            json: () => Promise.resolve(request.responseText).then(JSON.parse),
-                            blob: () => Promise.resolve(new Blob([request.response])),
-                            clone: response,
-                            headers: {
-                                keys: () => keys,
-                                entries: () => all,
-                                get: (n) => headers[n.toLowerCase()],
-                                has: (n) => n.toLowerCase() in headers
-                            }
-                        });
-
-                        request.open(options.method || 'get', url, true);
-
-                        request.onload = () => {
-                            request.getAllResponseHeaders().replace(/^(.*?):[^\S\n]*([\s\S]*?)$/gm, (m, key, value) => {
-                                keys.push((key = key.toLowerCase()));
-                                all.push([key, value]);
-                                headers[key] = headers[key] ? `${headers[key]},${value}` : value;
+                            const response = () => ({
+                                ok: ((request.status / 100) | 0) == 2, // 200-299
+                                statusText: request.statusText,
+                                status: request.status,
+                                url: request.responseURL,
+                                text: () => Promise.resolve(request.responseText),
+                                json: () => Promise.resolve(request.responseText).then(JSON.parse),
+                                blob: () => Promise.resolve(new Blob([request.response])),
+                                clone: response,
+                                headers: {
+                                    keys: () => keys,
+                                    entries: () => all,
+                                    get: (n) => headers[n.toLowerCase()],
+                                    has: (n) => n.toLowerCase() in headers
+                                }
                             });
-                            resolve(response());
-                        };
 
-                        request.onerror = reject;
+                            request.open(options.method || 'get', url, true);
 
-                        request.withCredentials = options.credentials == 'include';
+                            request.onload = () => {
+                                request
+                                    .getAllResponseHeaders()
+                                    .replace(/^(.*?):[^\S\n]*([\s\S]*?)$/gm, (m, key, value) => {
+                                        keys.push((key = key.toLowerCase()));
+                                        all.push([key, value]);
+                                        headers[key] = headers[key] ? `${headers[key]},${value}` : value;
+                                    });
+                                resolve(response());
+                            };
 
-                        for (const i in options.headers) {
-                            request.setRequestHeader(i, options.headers[i]);
-                        }
+                            request.onerror = reject;
 
-                        request.send(options.body || null);
-                    });
-                };
+                            request.withCredentials = options.credentials === 'include';
+
+                            for (const i in options.headers) {
+                                request.setRequestHeader(i, options.headers[i]);
+                            }
+
+                            request.send(options.body || null);
+                        });
+                    };
             });
         }
     }
@@ -1034,11 +1038,11 @@ class BrowserInstance {
     async mockHttp(method, url, response) {
         // Validate and serialize url
         let typeofUrl = typeof url;
-        if (typeofUrl == 'object' && url instanceof RegExp) {
+        if (typeofUrl === 'object' && url instanceof RegExp) {
             typeofUrl = 'regex';
             url = url.toString();
         }
-        else if (typeofUrl == 'string') {
+        else if (typeofUrl === 'string') {
             // empty
         }
         else {
@@ -1047,16 +1051,16 @@ class BrowserInstance {
 
         // Validate and serialize response
         let typeofResponse = typeof response;
-        if (typeofResponse == 'function') {
+        if (typeofResponse === 'function') {
             response = response.toString();
         }
-        else if (typeofResponse == 'string') {
+        else if (typeofResponse === 'string') {
             // empty
         }
-        else if (typeofResponse == 'object') {
+        else if (typeofResponse === 'object') {
             if (response instanceof Array) {
                 typeofResponse = 'array';
-                if (typeof response[2] == 'object') {
+                if (typeof response[2] === 'object') {
                     response[2] = JSON.stringify(response[2]);
                 }
             }
@@ -1071,15 +1075,15 @@ class BrowserInstance {
         await this.executeScript(
             function (method, url, response, typeofUrl, typeofResponse) {
                 // Deserialize url
-                if (typeofUrl == 'regex') {
+                if (typeofUrl === 'regex') {
                     url = eval(url);
                 }
 
                 // Deserialize response
-                if (typeofResponse == 'function') {
+                if (typeofResponse === 'function') {
                     eval('response = ' + response.trim());
                 }
-                else if (typeofResponse == 'array') {
+                else if (typeofResponse === 'array') {
                     response = JSON.parse(response);
                 }
 

@@ -44,7 +44,7 @@
                     "request_id": { $regex: /\w+-\w+-\w+-\w+-\w+/ },
                     "lat": parseFloat(lat),
                     "lon": parseFloat(long),
-                    "water": (water == 'true')
+                    "water": (water === 'true')
                 }
             });
         }

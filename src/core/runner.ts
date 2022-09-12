@@ -62,7 +62,7 @@ class Runner {
         this.tree.generateBranches();
 
         // If headless not set, set it to true, unless we're debugging with ~
-        if (typeof this.headless == 'undefined') {
+        if (typeof this.headless === 'undefined') {
             this.headless = (!this.tree.isDebug || this.tree.isExpressDebug) && !this.isRepl;
         }
     }

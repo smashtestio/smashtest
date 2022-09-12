@@ -1,11 +1,11 @@
 import chalk from 'chalk';
 import { createRequire } from 'node:module';
 import path from 'node:path';
+import tsNode from 'ts-node';
 import Branch from './branch.js';
 import * as Constants from './constants.js';
 import Step from './step.js';
 import * as utils from './utils.js';
-import tsNode from 'ts-node';
 
 const require = createRequire(import.meta.url);
 
@@ -1075,7 +1075,7 @@ class RunInstance {
                     value = this.findVarValue(name, isLocal, lookAnywhere);
                 }
                 catch (e) {
-                    if (e.name == 'RangeError' && e.message == 'Maximum call stack size exceeded') {
+                    if (e.name === 'RangeError' && e.message === 'Maximum call stack size exceeded') {
                         utils.error('Infinite loop detected amongst variable references');
                     }
                     else {
@@ -1209,7 +1209,7 @@ class RunInstance {
     appendToLog(text, logHere) {
         if (logHere && !this.isStopped) {
             logHere.appendToLog(text);
-            if (this.runner.consoleOutput && typeof text == 'string') {
+            if (this.runner.consoleOutput && typeof text === 'string') {
                 console.log(darkGray(`   ${text}`));
             }
         }
@@ -1428,7 +1428,7 @@ class RunInstance {
      * @return value, only with quotes attached if it's a string
      */
     getLogValue(value) {
-        if (typeof value == 'string') {
+        if (typeof value === 'string') {
             return `\`${value}\``;
         }
         else {

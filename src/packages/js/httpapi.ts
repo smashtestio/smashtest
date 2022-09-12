@@ -21,10 +21,10 @@ class HttpApi {
      */
     makeReq(func, ...args) {
         let uri = '';
-        if (typeof args[0] == 'string') {
+        if (typeof args[0] === 'string') {
             uri = args[0];
         }
-        else if (typeof args[0] == 'object') {
+        else if (typeof args[0] === 'object') {
             if (args[0].uri) {
                 uri = args[0].uri;
             }
@@ -32,7 +32,7 @@ class HttpApi {
                 uri = args[0].url;
             }
         }
-        else if (typeof args[1] == 'object') {
+        else if (typeof args[1] === 'object') {
             if (args[1].uri) {
                 uri = args[1].uri;
             }
@@ -42,10 +42,10 @@ class HttpApi {
         }
 
         let method = 'GET';
-        if (typeof args[0] == 'object' && Object.prototype.hasOwnProperty.call(args[0], 'method')) {
+        if (typeof args[0] === 'object' && Object.prototype.hasOwnProperty.call(args[0], 'method')) {
             method = args[0].method;
         }
-        else if (typeof args[1] == 'object' && Object.prototype.hasOwnProperty.call(args[1], 'method')) {
+        else if (typeof args[1] === 'object' && Object.prototype.hasOwnProperty.call(args[1], 'method')) {
             method = args[1].method;
         }
 
@@ -195,10 +195,10 @@ HttpApi.Response = class Response {
         }
 
         let rawBody = this.response.rawBody;
-        if (typeof rawBody == 'string') {
+        if (typeof rawBody === 'string') {
             // empty
         }
-        else if (typeof rawBody == 'object') {
+        else if (typeof rawBody === 'object') {
             rawBody = JSON.stringify(rawBody);
         }
         else {

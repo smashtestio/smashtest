@@ -118,7 +118,7 @@ Run one at a time - !
         Verify vars
 
 * Verify vars {
-    if(x == '11' && y == '22' && getGlobal('x') == '11' && getGlobal('y') == '22') {
+    if(x === '11' && y === '22' && getGlobal('x') === '11' && getGlobal('y') === '22') {
         runInstance.signOffs.push(true);
     }
 }

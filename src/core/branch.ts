@@ -320,13 +320,13 @@ class Branch {
         delete this.isFailed;
         delete this.isSkipped;
 
-        if (state == 'pass') {
+        if (state === 'pass') {
             this.isPassed = true;
         }
-        else if (state == 'fail') {
+        else if (state === 'fail') {
             this.isFailed = true;
         }
-        else if (state == 'skip') {
+        else if (state === 'skip') {
             this.isSkipped = true;
         }
 
@@ -334,10 +334,10 @@ class Branch {
             this.error = utils.serializeError(error);
         }
 
-        if (stepDataMode == 'none') {
+        if (stepDataMode === 'none') {
             clearDataOfSteps(this);
         }
-        else if (stepDataMode == 'fail') {
+        else if (stepDataMode === 'fail') {
             if (state != 'fail') {
                 clearDataOfSteps(this);
             }
@@ -393,13 +393,13 @@ class Branch {
         delete step.isFailed;
         delete step.isSkipped;
 
-        if (state == 'pass') {
+        if (state === 'pass') {
             step.isPassed = true;
         }
-        else if (state == 'fail') {
+        else if (state === 'fail') {
             step.isFailed = true;
         }
-        else if (state == 'skip') {
+        else if (state === 'skip') {
             step.isSkipped = true;
         }
 
@@ -438,7 +438,7 @@ class Branch {
             this.log = [];
         }
 
-        if (typeof item == 'string') {
+        if (typeof item === 'string') {
             this.log.push({ text: item });
         }
         else {

@@ -373,7 +373,7 @@ open browser
                                     let definedProps = ElementFinder.defaultProps();
                                     definedProps.big = [ function(elems, input) {
                                         return elems.filter(function(elem) {
-                                            return elem.className == 'big';
+                                            return elem.className === 'big';
                                         });
                                     } ]
 
@@ -445,7 +445,7 @@ open browser
                                         new ElementFinder(`#three`, definedProps),
                                         function(elems, input) {
                                             return elems.filter(function(elem) {
-                                                return elem.id == 'two';
+                                                return elem.id === 'two';
                                             });
                                         }
                                     ];
@@ -453,7 +453,7 @@ open browser
                                         new ElementFinder(`#tiny`, definedProps),
                                         function(elems, input) {
                                             return elems.filter(function(elem) {
-                                                return elem.id == 'tiny';
+                                                return elem.id === 'tiny';
                                             });
                                         }
                                     ];
@@ -492,7 +492,7 @@ open browser
                                             new ElementFinder(`#three`, definedProps),
                                             function(elems, input) {
                                                 return elems.filter(function(elem) {
-                                                    return elem.id == 'two';
+                                                    return elem.id === 'two';
                                                 });
                                             }
                                         ];

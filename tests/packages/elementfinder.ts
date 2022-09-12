@@ -2956,7 +2956,7 @@ one
         // NOTE: This test skipped because it fails when running nyc code coverage
         it.skip('handles a prop set to a function', () => {
             const definedProps = ElementFinder.defaultProps();
-            definedProps.big = [(elems) => elems.filter((elem) => elem.className == 'big')];
+            definedProps.big = [(elems) => elems.filter((elem) => elem.className === 'big')];
 
             const ef = new ElementFinder('big', definedProps);
             const json = ef.serializeJSON();

@@ -1216,7 +1216,7 @@ describe('Comparer', () => {
                 it('expected=$code function that returns true', () => {
                     const obj = Comparer.comparison('Foobar', {
                         $code: (actual) => {
-                            return actual.toLowerCase() == 'foobar';
+                            return actual.toLowerCase() === 'foobar';
                         }
                     });
                     expect(Comparer.print(obj)).to.equal('"Foobar"');
@@ -1226,7 +1226,7 @@ describe('Comparer', () => {
                 it.skip('expected=$code function that returns false', () => {
                     const obj = Comparer.comparison('Foobar', {
                         $code: (actual) => {
-                            return actual.toLowerCase() == 'hoo';
+                            return actual.toLowerCase() === 'hoo';
                         }
                     });
                     expect(Comparer.print(obj)).to.equal(

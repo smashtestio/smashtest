@@ -128,7 +128,7 @@
 
     * Click {{element}} {
         let elem = await $(element, true);
-        if(browser.params.name == 'safari') {
+        if(browser.params.name === 'safari') {
             log(`Safari doesn't support webdriver click, so using js click event instead`);
             await executeScript(function(elem) {
                 elem.click();
@@ -148,7 +148,7 @@
     * Double click {{element}} {
         let elem = await $(element, true);
 
-        if(browser.params.name == 'safari') {
+        if(browser.params.name === 'safari') {
             log(`Safari doesn't support webdriver double-click, so using js dblclick event instead`);
             await executeScript(function(elem) {
                 elem.dispatchEvent(new MouseEvent('dblclick', {
@@ -165,7 +165,7 @@
 
     * Hover over {{element}} {
         let elem = await $(element, true);
-        if(browser.params.name == 'safari') {
+        if(browser.params.name === 'safari') {
             log(`Safari doesn't support webdriver hover, so using js mouseover event instead`);
             await executeScript(function(elem) {
                 elem.dispatchEvent(new MouseEvent('mouseover', {
@@ -272,7 +272,7 @@
             // Not checked, so click it
             log(`Element is currently not checked, so clicking it`);
 
-            if(browser.params.name == 'safari') {
+            if(browser.params.name === 'safari') {
                 log(`Safari doesn't support webdriver checking via click, so using js checked property instead`);
                 await executeScript(function(elem) {
                     elem.checked = true;
@@ -302,7 +302,7 @@
         catch(e) {
             // Checked, so click it
             log(`Element is currently checked, so clicking it`);
-            if(browser.params.name == 'safari') {
+            if(browser.params.name === 'safari') {
                 log(`Safari doesn't support webdriver checking via click, so using js checked property instead`);
                 await executeScript(function(elem) {
                     elem.checked = false;
@@ -334,7 +334,7 @@
     }
 
     * Select element {{element}} from {{dropdownElement}} {
-        if(typeof element == 'string' && element.trim().toLowerCase() == '[none]') {
+        if(typeof element === 'string' && element.trim().toLowerCase() == '[none]') {
             log(`Ignoring since value is set to [none]`);
             return;
         }
@@ -379,7 +379,7 @@
         for(let i = windows.length - 1; i >= 0; i--) {
             let window = windows[i];
             await browser.driver.switchTo().window(window);
-            if(await browser.driver.getCurrentUrl() == 'about:blank') {
+            if(await browser.driver.getCurrentUrl() === 'about:blank') {
                 break;
             }
         }
@@ -461,7 +461,7 @@
         }
 
         await browser.driver.setNetworkConditions({
-            offline: offline == 'true',
+            offline: offline === 'true',
             latency: parseInt(latency),
             download_throughput: parseInt(maxDownload),
             upload_throughput: parseInt(maxUpload)

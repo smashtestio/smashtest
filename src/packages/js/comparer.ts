@@ -82,7 +82,7 @@ class Comparer {
 
         const errors = [];
 
-        if (typeof expected == 'object') {
+        if (typeof expected === 'object') {
             if (expected === null) {
                 // remember, typeof null is "object"
                 if (actual !== null) {
@@ -163,7 +163,7 @@ class Comparer {
                     }
 
                     // Validate actual matches expected
-                    if (expected.$typeof.toLowerCase() == 'array') {
+                    if (expected.$typeof.toLowerCase() === 'array') {
                         if (!(actual instanceof Array)) {
                             errors.push('not $typeof array');
                         }
@@ -177,7 +177,7 @@ class Comparer {
                 if (Object.prototype.hasOwnProperty.call(expected, '$regex')) {
                     // Validate expected
                     let regex = null;
-                    if (typeof expected.$regex == 'string') {
+                    if (typeof expected.$regex === 'string') {
                         regex = new RegExp(expected.$regex);
                     }
                     else if (expected.$regex instanceof RegExp) {
@@ -249,15 +249,15 @@ class Comparer {
                     let success = true;
 
                     // Validate expected
-                    if (typeof expected.$code == 'function') {
+                    if (typeof expected.$code === 'function') {
                         success = expected.$code(actual);
                     }
-                    else if (typeof expected.$code == 'string') {
+                    else if (typeof expected.$code === 'string') {
                         try {
                             success = eval(expected.$code);
                         }
                         catch (e) {
-                            if (e.message == 'Illegal return statement') {
+                            if (e.message === 'Illegal return statement') {
                                 // The code has a return, so enclose it in a function and try again
                                 success = eval(`(()=>{${expected.$code}})()`);
                             }
@@ -457,7 +457,7 @@ class Comparer {
             if (this.wasSeen(value)) return false;
         }
 
-        if (typeof value == 'object') {
+        if (typeof value === 'object') {
             if (value === null) {
                 this.endSeen(!isRecursive);
                 return false;
@@ -504,7 +504,7 @@ class Comparer {
             Comparer.seen = [];
         }
 
-        if (typeof value == 'object' && value !== null) {
+        if (typeof value === 'object' && value !== null) {
             for (let i = 0; i < Comparer.seen.length; i++) {
                 if (Comparer.seen[i] === value) {
                     return true;
@@ -550,7 +550,7 @@ class Comparer {
             value = value.value;
         }
 
-        if (typeof value == 'object') {
+        if (typeof value === 'object') {
             if (value === null) {
                 // remember, typeof null is "object"
                 ret += 'null' + (commaAtEnd ? ',' : '') + outputErrors() + '\n';
@@ -590,7 +590,7 @@ class Comparer {
         }
         else {
             // primitive
-            if (typeof value == 'function') {
+            if (typeof value === 'function') {
                 value = '[Function]';
             }
             else {

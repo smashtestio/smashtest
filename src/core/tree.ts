@@ -896,19 +896,19 @@ ${branchAbove.output(this.stepNodeIndex)}
                 }
 
                 const canStepText = utils.canonicalize(child.text);
-                if (canStepText == 'before every branch') {
+                if (canStepText === 'before every branch') {
                     beforeEveryBranch.unshift(hookStep);
                 }
-                else if (canStepText == 'after every branch') {
+                else if (canStepText === 'after every branch') {
                     afterEveryBranch.push(hookStep);
                 }
-                else if (canStepText == 'before every step') {
+                else if (canStepText === 'before every step') {
                     beforeEveryStep.unshift(hookStep);
                 }
-                else if (canStepText == 'after every step') {
+                else if (canStepText === 'after every step') {
                     afterEveryStep.push(hookStep);
                 }
-                else if (canStepText == 'before everything') {
+                else if (canStepText === 'before everything') {
                     if (child.indents != 0) {
                         utils.error(
                             'A Before Everything hook must not be indented (it must be at 0 indents)',
@@ -919,7 +919,7 @@ ${branchAbove.output(this.stepNodeIndex)}
 
                     self.beforeEverything.unshift(hookStep); // inserted this way so that packaged hooks get executed first
                 }
-                else if (canStepText == 'after everything') {
+                else if (canStepText === 'after everything') {
                     if (child.indents != 0) {
                         utils.error(
                             'An After Everything hook must not be indented (it must be at 0 indents)',
@@ -1192,13 +1192,13 @@ ${branchAbove.output(this.stepNodeIndex)}
              * @return {Number} The given frequency string ('high', 'med', 'low', undefined) converted into an integer
              */
             const freqToNum = function freqToNum(frequency) {
-                if (frequency == 'low') {
+                if (frequency === 'low') {
                     return 1;
                 }
-                else if (frequency == 'med') {
+                else if (frequency === 'med') {
                     return 2;
                 }
-                else if (frequency == 'high') {
+                else if (frequency === 'high') {
                     return 3;
                 }
                 else {
@@ -1306,7 +1306,7 @@ ${branchAbove.output(this.stepNodeIndex)}
             this.branches = this.branchify(this.root);
         }
         catch (e) {
-            if (e.name == 'RangeError' && e.message == 'Maximum call stack size exceeded') {
+            if (e.name === 'RangeError' && e.message === 'Maximum call stack size exceeded') {
                 if (this.latestBranchifiedStepNode) {
                     utils.error(
                         'Infinite loop detected',
@@ -1387,13 +1387,13 @@ ${branchAbove.output(this.stepNodeIndex)}
         const medBranches = [];
         const lowBranches = [];
         this.branches.forEach((branch) => {
-            if (branch.frequency == 'high') {
+            if (branch.frequency === 'high') {
                 highBranches.push(branch);
             }
-            else if (branch.frequency == 'med') {
+            else if (branch.frequency === 'med') {
                 medBranches.push(branch);
             }
-            else if (branch.frequency == 'low') {
+            else if (branch.frequency === 'low') {
                 lowBranches.push(branch);
             }
             else {
@@ -1778,10 +1778,10 @@ ${branchAbove.output(this.stepNodeIndex)}
         delete step.isFailed;
         delete step.isSkipped;
 
-        if (state == 'pass') {
+        if (state === 'pass') {
             step.isPassed = true;
         }
-        else if (state == 'fail') {
+        else if (state === 'fail') {
             step.isFailed = true;
         }
 
