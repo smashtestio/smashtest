@@ -128,7 +128,7 @@ class Branch {
         branch.frequency && (this.frequency = branch.frequency);
 
         if (branch.groups) {
-            if (typeof this.groups == 'undefined') {
+            if (this.groups === undefined) {
                 this.groups = [];
             }
 
@@ -177,7 +177,7 @@ class Branch {
      */
     output(stepNodeIndex, spaces) {
         let beginSpace = '   ';
-        if (typeof spaces != 'undefined') {
+        if (spaces !== undefined) {
             beginSpace = utils.getIndents(spaces, ' ');
         }
 
@@ -202,7 +202,7 @@ class Branch {
     equals(branch, stepNodeIndex, n) {
         let thisLen = this.steps.length;
         let branchLen = branch.steps.length;
-        if (typeof n != 'undefined') {
+        if (n !== undefined) {
             if (n < thisLen) {
                 thisLen = n;
             }

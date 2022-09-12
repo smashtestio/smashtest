@@ -244,7 +244,7 @@ export const breather = async () => {
  */
 export const copyProps = (destination, source, props) => {
     props.forEach((prop) => {
-        if (typeof source[prop] != 'undefined') {
+        if (source[prop] !== undefined) {
             destination[prop] = source[prop];
         }
     });

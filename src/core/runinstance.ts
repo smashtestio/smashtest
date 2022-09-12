@@ -755,14 +755,14 @@ class RunInstance {
      * Set/Get a global variable
      */
     g(varname, value) {
-        return typeof value != 'undefined' ? this.setGlobal(varname, value) : this.getGlobal(varname);
+        return value !== undefined ? this.setGlobal(varname, value) : this.getGlobal(varname);
     }
 
     /**
      * Set/Get a local variable
      */
     l(varname, value) {
-        return typeof value != 'undefined' ? this.setLocal(varname, value) : this.getLocal(varname);
+        return value !== undefined ? this.setLocal(varname, value) : this.getLocal(varname);
     }
 
     /**
@@ -822,7 +822,7 @@ class RunInstance {
             }
         };
 
-        const hasVarName = typeof name2 != 'undefined';
+        const hasVarName = name2 !== undefined;
         const wrappedPackageName = hasVarName ? name2 : name1;
         let packageName = Array.isArray(wrappedPackageName) ? wrappedPackageName[0] : wrappedPackageName;
         const exportName = Array.isArray(wrappedPackageName) ? wrappedPackageName[1] : 'default';
@@ -1127,7 +1127,7 @@ class RunInstance {
                 value = this.getGlobal(varname);
             }
 
-            if (typeof value != 'undefined') {
+            if (value !== undefined) {
                 return value;
             }
             else if (!lookAnywhere) {

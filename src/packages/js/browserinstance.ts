@@ -211,7 +211,7 @@ class BrowserInstance {
         }
 
         // Headless
-        if (typeof params.isHeadless == 'undefined') {
+        if (params.isHeadless === undefined) {
             params.isHeadless = this.runInstance.runner.headless;
         }
 
@@ -581,14 +581,17 @@ class BrowserInstance {
      * If the given WebElement is not currently scrolled into view, scrolls it into view and retakes the before screenshot
      */
     async scrollIntoView(elem) {
-        const isScrolledIntoView = await this.executeScript(utils.es5(function (elem) {
-            const rect = elem.getBoundingClientRect();
-            const isScrolledIntoView = rect.top >= 0 && rect.bottom <= window.innerHeight;
-            if (!isScrolledIntoView) {
-                elem.scrollIntoView();
-            }
-            return isScrolledIntoView;
-        }), elem);
+        const isScrolledIntoView = await this.executeScript(
+            utils.es5(function (elem) {
+                const rect = elem.getBoundingClientRect();
+                const isScrolledIntoView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+                if (!isScrolledIntoView) {
+                    elem.scrollIntoView();
+                }
+                return isScrolledIntoView;
+            }),
+            elem
+        );
 
         if (!isScrolledIntoView) {
             await this.takeScreenshot(false);
@@ -611,7 +614,7 @@ class BrowserInstance {
      * @throws {Error} If a matching element wasn't found in time, or if an element array wasn't properly matched in time
      */
     async $(element, tryClickable, parentElem, timeout, isContinue) {
-        timeout = typeof timeout != 'undefined' ? timeout : 2000;
+        timeout = timeout !== undefined ? timeout : 2000;
 
         let ef = null;
         if (typeof element == 'string') {
@@ -665,7 +668,7 @@ class BrowserInstance {
      * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time
      */
     async $$(element, parentElem, timeout, isContinue) {
-        timeout = typeof timeout != 'undefined' ? timeout : 2000;
+        timeout = timeout !== undefined ? timeout : 2000;
 
         let ef = null;
         if (typeof element == 'string') {
@@ -696,7 +699,7 @@ class BrowserInstance {
      * @throws {Error} If matching elements still found after timeout
      */
     async not$(element, parentElem, timeout, isContinue) {
-        timeout = typeof timeout != 'undefined' ? timeout : 2000;
+        timeout = timeout !== undefined ? timeout : 2000;
 
         let ef = null;
         if (typeof element == 'string') {
@@ -798,26 +801,29 @@ class BrowserInstance {
         let obj = null;
         try {
             await this.driver.wait(async () => {
-                obj = await this.executeScript(utils.es5(function (titleOrUrl) {
-                    let isMatched =
-                        document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) != -1 ||
-                        window.location.href.indexOf(titleOrUrl) != -1;
-                    if (!isMatched) {
-                        // try them as regexes
-                        try {
-                            isMatched = document.title.match(titleOrUrl) || window.location.href.match(titleOrUrl);
+                obj = await this.executeScript(
+                    utils.es5(function (titleOrUrl) {
+                        let isMatched =
+                            document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) != -1 ||
+                            window.location.href.indexOf(titleOrUrl) != -1;
+                        if (!isMatched) {
+                            // try them as regexes
+                            try {
+                                isMatched = document.title.match(titleOrUrl) || window.location.href.match(titleOrUrl);
+                            }
+                            catch (e) {
+                                // in case of a bad regex
+                            }
                         }
-                        catch (e) {
-                            // in case of a bad regex
-                        }
-                    }
 
-                    return {
-                        isMatched,
-                        title: document.title,
-                        url: window.location.href
-                    };
-                }), titleOrUrl);
+                        return {
+                            isMatched,
+                            title: document.title,
+                            url: window.location.href
+                        };
+                    }),
+                    titleOrUrl
+                );
                 return obj.isMatched;
             }, timeout);
         }
@@ -930,7 +936,7 @@ class BrowserInstance {
      */
     async injectSinon() {
         const sinonExists = await this.executeScript(function () {
-            return typeof sinon != 'undefined';
+            return typeof sinon !== 'undefined';
         });
 
         if (!sinonExists) {
@@ -1097,7 +1103,7 @@ class BrowserInstance {
      */
     async mockHttpConfigure(config) {
         await this.executeScript(function (config) {
-            if (typeof window.smashtestSinonFakeServer != 'undefined') {
+            if (window.smashtestSinonFakeServer !== undefined) {
                 window.smashtestSinonFakeServer.configure(config);
             }
         }, config);
@@ -1111,7 +1117,7 @@ class BrowserInstance {
     async mockLocation(latitude, longitude) {
         await this.executeScript(
             function (latitude, longitude) {
-                if (typeof window.smashtestOriginalGetCurrentPosition == 'undefined') {
+                if (window.smashtestOriginalGetCurrentPosition === undefined) {
                     window.smashtestOriginalGetCurrentPosition = window.navigator.geolocation.getCurrentPosition;
                 }
 
@@ -1140,7 +1146,7 @@ class BrowserInstance {
      */
     async mockTimeStop() {
         await this.executeScript(function () {
-            if (typeof window.smashtestSinonClock != 'undefined') {
+            if (window.smashtestSinonClock !== undefined) {
                 window.smashtestSinonClock.restore();
                 window.smashtestSinonClock = undefined;
             }
@@ -1152,7 +1158,7 @@ class BrowserInstance {
      */
     async mockHttpStop() {
         await this.executeScript(function () {
-            if (typeof window.smashtestSinonFakeServer != 'undefined') {
+            if (window.smashtestSinonFakeServer !== undefined) {
                 window.smashtestSinonFakeServer.restore();
                 window.smashtestSinonFakeServer = undefined;
             }
@@ -1164,7 +1170,7 @@ class BrowserInstance {
      */
     async mockLocationStop() {
         await this.executeScript(function () {
-            if (typeof window.smashtestOriginalGetCurrentPosition != 'undefined') {
+            if (window.smashtestOriginalGetCurrentPosition !== undefined) {
                 window.navigator.geolocation.getCurrentPosition = window.smashtestOriginalGetCurrentPosition;
                 window.smashtestOriginalGetCurrentPosition = undefined;
             }

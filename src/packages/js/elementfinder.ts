@@ -201,8 +201,8 @@ class ElementFinder {
                 const middle = matches[3];
                 const max = matches[5];
 
-                if (middle == '-') {
-                    if (typeof max == 'undefined') {
+                if (middle === '-') {
+                    if (max === undefined) {
                         // N-
                         this.counter = { min: parseInt(min) };
                     }
@@ -427,8 +427,14 @@ class ElementFinder {
             prop: prop,
             def: def
         };
-        typeof input != 'undefined' && (propObj.input = input);
-        isNot && (propObj.not = true);
+
+        if (input !== undefined) {
+            propObj.input = input;
+        }
+
+        if (isNot) {
+            propObj.not = true;
+        }
 
         if (toFront) {
             this.props.unshift(propObj);
@@ -759,7 +765,7 @@ class ElementFinder {
                         }
                         else {
                             // Normal EF
-                            for (let i = 0; i < topElems.length && (typeof max == 'undefined' || i < max); ) {
+                            for (let i = 0; i < topElems.length && (max === undefined || i < max); ) {
                                 const topElem = topElems[i];
                                 const pool = toArray(topElem.querySelectorAll('*')); // all elements under topElem
                                 let remove = false;
@@ -826,7 +832,7 @@ class ElementFinder {
 
                     if (!hasTopErrors(ef)) {
                         // Success. Set ef.matchedElems
-                        if (typeof max != 'undefined') {
+                        if (max !== undefined) {
                             ef.matchedElems = ef.matchedElems.concat(topElems.slice(0, max)); // only take up to max elems
                         }
                         else {
@@ -1081,8 +1087,6 @@ class ElementFinder {
 
         const start = new Date();
         let results;
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        // const self = this;
 
         return new Promise((resolve, reject) => {
             const doFind = async () => {
@@ -1359,7 +1363,7 @@ class ElementFinder {
                         }
 
                         let dropdownText = '';
-                        if (elem.options && typeof elem.selectedIndex != 'undefined' && elem.selectedIndex !== null) {
+                        if (elem.options && typeof elem.selectedIndex !== undefined && elem.selectedIndex !== null) {
                             dropdownText = elem.options[elem.selectedIndex].text;
                         }
 
@@ -1405,7 +1409,7 @@ class ElementFinder {
                         }
 
                         let dropdownText = '';
-                        if (elem.options && typeof elem.selectedIndex != 'undefined' && elem.selectedIndex !== null) {
+                        if (elem.options && elem.selectedIndex !== undefined && elem.selectedIndex !== null) {
                             dropdownText = elem.options[elem.selectedIndex].text;
                         }
 

@@ -42,10 +42,10 @@ class Comparer {
      * @throws {Error} If actualObj doesn't match expectedObj
      */
     static expect(actualObj, errorStart, errorEnd, errorHeader, jsonClone) {
-        if (typeof errorStart == 'undefined') {
+        if (errorStart === undefined) {
             errorStart = Comparer.defaultErrorStart;
         }
-        if (typeof errorEnd == 'undefined') {
+        if (errorEnd === undefined) {
             errorEnd = Comparer.defaultErrorEnd;
         }
 
@@ -529,10 +529,10 @@ class Comparer {
             indents = 0;
         }
 
-        if (typeof errorStart == 'undefined') {
+        if (errorStart === undefined) {
             errorStart = '-->';
         }
-        if (typeof errorEnd == 'undefined') {
+        if (errorEnd === undefined) {
             errorEnd = '';
         }
 

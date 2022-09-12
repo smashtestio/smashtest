@@ -67,7 +67,7 @@ class StepNode {
      * @return {Boolean} True if this step node has a code block, false otherwise
      */
     hasCodeBlock() {
-        return typeof this.codeBlock != 'undefined';
+        return this.codeBlock !== undefined;
     }
 
     /**

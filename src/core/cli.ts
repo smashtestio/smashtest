@@ -105,7 +105,7 @@ function processFlag(name, value) {
         if (typeof name != 'string') {
             name = name.toString();
         }
-        if (typeof value != 'string' && typeof value != 'undefined') {
+        if (typeof value != 'string' && value !== undefined) {
             value = value.toString();
         }
 

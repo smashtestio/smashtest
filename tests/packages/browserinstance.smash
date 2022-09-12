@@ -1110,7 +1110,7 @@ open browser
 
                                 Then the global sinon object is accessible within browser {
                                     let exists = await browser.executeScript(function() {
-                                        return typeof sinon != 'undefined';
+                                        return typeof sinon !== 'undefined';
                                     });
                                     expect(exists).to.be.true;
                                 }

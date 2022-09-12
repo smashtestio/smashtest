@@ -81,7 +81,7 @@
     // ***************************************
 
     *** Before Every Step {
-        if(typeof browser != 'undefined') {
+        if(typeof browser !== 'undefined') {
             await browser.takeScreenshot(false);
 
             // Print out step text to console
@@ -102,13 +102,13 @@
     }
 
     *** After Every Step {
-        if(typeof browser != 'undefined') {
+        if(typeof browser !== 'undefined') {
             await browser.takeScreenshot(true);
         }
     }
 
     *** After Every Branch {
-        if(typeof browser != 'undefined') {
+        if(typeof browser !== 'undefined') {
             await browser.clearUnneededScreenshots();
             await browser.close();
         }

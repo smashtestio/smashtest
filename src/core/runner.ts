@@ -57,7 +57,7 @@ class Runner {
         this.tree.noDebug = this.noDebug;
         this.tree.debugHash = this.debugHash;
         this.tree.noRandom = noRandom || !this.random;
-        this.tree.noCondNonParallel = typeof this.testServer != 'undefined';
+        this.tree.noCondNonParallel = this.testServer !== undefined;
 
         this.tree.generateBranches();
 
@@ -255,7 +255,7 @@ class Runner {
      * Set/Get a persistent variable
      */
     p(varname, value) {
-        return typeof value != 'undefined' ? this.setPersistent(varname, value) : this.getPersistent(varname);
+        return value !== undefined ? this.setPersistent(varname, value) : this.getPersistent(varname);
     }
 
     // ***************************************
