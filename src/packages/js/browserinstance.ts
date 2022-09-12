@@ -936,10 +936,64 @@ class BrowserInstance {
         if (!sinonExists) {
             const require = createRequire(import.meta.url);
             const sinonCode = fs.readFileSync(
-                require.resolve('sinon').replace(/[^/]+$/, '') + '/../pkg/sinon-no-sourcemaps.js',
+                require.resolve('sinon').replace(/[^/]+$/, '') + '../pkg/sinon.js',
                 'utf-8'
             );
             await this.executeScript(sinonCode);
+
+            // Sinon doesn't stub fetch, for no explicit reason.
+            // This is a feasible workaround for that.
+            // Ref: https://github.com/sinonjs/sinon/issues/2082#issuecomment-586552184
+            await this.executeScript(function () {
+                // if the browser doesn't support fetch, don't bother stubbing it
+                window.fetch = window.fetch && function (url, options) {
+                    options = options || {};
+                    return new Promise((resolve, reject) => {
+                        const request = new XMLHttpRequest();
+                        const keys = [];
+                        const all = [];
+                        const headers = {};
+
+                        const response = () => ({
+                            ok: ((request.status / 100) | 0) == 2, // 200-299
+                            statusText: request.statusText,
+                            status: request.status,
+                            url: request.responseURL,
+                            text: () => Promise.resolve(request.responseText),
+                            json: () => Promise.resolve(request.responseText).then(JSON.parse),
+                            blob: () => Promise.resolve(new Blob([request.response])),
+                            clone: response,
+                            headers: {
+                                keys: () => keys,
+                                entries: () => all,
+                                get: (n) => headers[n.toLowerCase()],
+                                has: (n) => n.toLowerCase() in headers
+                            }
+                        });
+
+                        request.open(options.method || 'get', url, true);
+
+                        request.onload = () => {
+                            request.getAllResponseHeaders().replace(/^(.*?):[^\S\n]*([\s\S]*?)$/gm, (m, key, value) => {
+                                keys.push((key = key.toLowerCase()));
+                                all.push([key, value]);
+                                headers[key] = headers[key] ? `${headers[key]},${value}` : value;
+                            });
+                            resolve(response());
+                        };
+
+                        request.onerror = reject;
+
+                        request.withCredentials = options.credentials == 'include';
+
+                        for (const i in options.headers) {
+                            request.setRequestHeader(i, options.headers[i]);
+                        }
+
+                        request.send(options.body || null);
+                    });
+                };
+            });
         }
     }
 

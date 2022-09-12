@@ -604,6 +604,20 @@ open browser
                                                         });
                                                     }
 
+                                            - When a fetch() request is made from the browser
+
+                                                - to a mocked endpoint
+
+                                                    - and the request is a relative url
+
+                                                        Then the mocked response comes back {
+                                                            let response = await browser.executeAsyncScript(function(done) {
+                                                                fetch('/endpoint').then((response) => response.text()).then(done);
+                                                            });
+
+                                                            expect(response).to.equal('foobar');
+                                                        }
+
                                     - Mocked response is a js object
 
                                         Set up mock {
