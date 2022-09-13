@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import Reporter from './reporter.js';
 import RunInstance from './runinstance.js';
 import Tree from './tree.js';
+import { Frequency, UserValue } from './types.js';
 import * as utils from './utils.js';
 
 /**
@@ -13,12 +14,12 @@ class Runner {
 
     flags = {}; // Flags passed in through the command line (e.g., --max-parallel=7 --no-debug --groups="one,two" --> {"max-parallel": "7", "no-debug": "true", "groups": "one,two"})
 
-    debugHash?; // Set to the hash of the branch to run as debug (overrides any $'s, ~'s, groups, or minFrequency)
+    debugHash?: string; // Set to the hash of the branch to run as debug (overrides any $'s, ~'s, groups, or minFrequency)
     groups?: string[][]; // Array of array of string. Only run branches whose groups match the expression, no restrictions if this is undefined, --groups=a,b+c === [ ['a'], ['b', 'c'] ] === A or (B and C)
     headless?: boolean; // If true, run external processes (e.g., browsers) as headless, if possible
     maxParallel = 5; // The maximum number of simultaneous branches to run
     maxScreenshots = -1; // The maximum number of screenshots to take, -1 for no limit
-    minFrequency?: string; // Only run branches at or above this frequency, no restrictions if this is undefined
+    minFrequency?: Frequency; // Only run branches at or above this frequency, no restrictions if this is undefined
     noDebug = false; // If true, a compile error will occur if a $, ~, or ~~ is present anywhere in the tree
     outputErrors = true; // If true, output errors to console
     random = true; // If true, randomize the order of branches
@@ -30,8 +31,8 @@ class Runner {
     consoleOutput = true; // If true, output debug info to console
     isRepl = false; // If true, run in REPL mode
 
-    persistent: { [key: string]: any } = {}; // stores variables which persist from branch to branch, for the life of the Runner
-    globalInit: { [key: string]: any } = {}; // init each branch with these global variables
+    persistent: { [key: string]: UserValue } = {}; // stores variables which persist from branch to branch, for the life of the Runner
+    globalInit: { [key: string]: UserValue } = {}; // init each branch with these global variables
     runInstances: RunInstance[] = []; // the currently-running RunInstance objects, each running a branch
 
     isPaused = false; // True if this runner has been paused (set by the RunInstance within this.runInstances)
@@ -60,7 +61,7 @@ class Runner {
         this.tree.generateBranches();
 
         // If headless not set, set it to true, unless we're debugging with ~
-        if (typeof this.headless === 'undefined') {
+        if (this.headless === undefined) {
             this.headless = (!this.tree.isDebug || this.tree.isExpressDebug) && !this.isRepl;
         }
     }
@@ -183,7 +184,7 @@ class Runner {
      * @return {Promise} Promise that gets resolved with a Branch of steps that were run, once done executing
      * @throws {Error} If a parse error of text occurs, or if this Runner isn't paused
      */
-    async inject(text) {
+    async inject(text: string) {
         if (!this.isPaused) {
             utils.error('Must be paused to run a step');
         }
@@ -323,7 +324,7 @@ class Runner {
         }
 
         this.tree.timeEnded = new Date();
-        if (this.tree.elapsed != -1) {
+        if (this.tree.elapsed !== -1) {
             this.tree.elapsed = this.tree.timeEnded - this.tree.timeStarted; // only measure elapsed if we've never been paused
         }
 
@@ -333,7 +334,7 @@ class Runner {
     /**
      * Injects [filename:lineNumber] into the given Error's stack trace, colors the lines, and returns it
      */
-    formatStackTrace(error) {
+    formatStackTrace(error: Error) {
         let stack = error.stack;
         stack = stack.replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`);
 

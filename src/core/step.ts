@@ -1,4 +1,5 @@
 import cloneDeep from 'lodash/cloneDeep.js';
+import { StepNodeIndex } from './types.js';
 import * as utils from './utils.js';
 
 /**
@@ -26,7 +27,7 @@ class Step {
 
     targetCoords?: { x: number; y: number }; // if this is set, set the crosshairs on the before screenshot to these coords (where x and y are a percentage of the total width and height respectively)
 
-    constructor(id) {
+    constructor(id: number) {
         this.id = id;
     }
 
@@ -65,8 +66,8 @@ class Step {
      * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
      * @return {String} A string in the format [this step's filename:linenumber] --> [this step's function declaration's filename:linenumber]
      */
-    locString(stepNodeIndex) {
-        const removePath = (s) => (s ? s.replace(/^.*[/\\]/, '') : '');
+    locString(stepNodeIndex: StepNodeIndex) {
+        const removePath = (str: string) => (str ? str.replace(/^.*[/\\]/, '') : '');
 
         const sn = stepNodeIndex[this.id];
         let loc = sn.filename ? `${removePath(sn.filename)}:${sn.lineNumber}` : '';

@@ -1,9 +1,9 @@
 import cloneDeep from 'lodash/cloneDeep.js';
 import * as Constants from '../../core/constants.js';
-import type { Error } from '../../core/types.js';
+import type { Constraints, Error } from '../../core/types.js';
 import * as utils from '../../core/utils.js';
 
-const RESERVED_KEYWORDS = [
+export const RESERVED_KEYWORDS = [
     '$typeof',
     '$regex',
     '$contains',
@@ -17,7 +17,7 @@ const RESERVED_KEYWORDS = [
     '$anyOrder',
     '$exact',
     '$every'
-];
+] as const;
 
 /**
  * Replaces a value inside an object to mark that the Comparer was there, and to store any associated errors
@@ -26,7 +26,7 @@ class ComparerNode {
     errors;
     value;
 
-    constructor(errors: string[], value) {
+    constructor(errors: string[], value: unknown) {
         this.errors = errors; // array of strings describing errors related to comparison
         this.value = value; // original actual value at the position of this ComparerNode
         //this.$comparerNode = true;
@@ -36,7 +36,7 @@ class ComparerNode {
 class Comparer {
     static defaultErrorStart = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + '-->';
     static defaultErrorEnd = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY;
-    static seen: any[];
+    static seen: unknown[];
 
     /**
      * Compares the actual object against the expected object
@@ -49,7 +49,13 @@ class Comparer {
      * @param {Boolean} [jsonClone] - If true, compares using the rough clone method, aka JSON.stringify + JSON.parse (which handles multiple references to the same object inside actualObj, but also removes functions and undefineds, and converts them to null in arrays)
      * @throws {Error} If actualObj doesn't match expectedObj
      */
-    static expect(actualObj, errorStart?: string, errorEnd?: string, errorHeader?: string, jsonClone?: boolean) {
+    static expect(
+        actualObj: unknown,
+        errorStart?: string,
+        errorEnd?: string,
+        errorHeader?: string,
+        jsonClone?: boolean
+    ) {
         if (errorStart === undefined) {
             errorStart = Comparer.defaultErrorStart;
         }
@@ -59,12 +65,12 @@ class Comparer {
 
         return {
             to: {
-                match: (expectedObj) => {
+                match: (expectedObj: Constraints) => {
                     actualObj = this.clone(actualObj, jsonClone);
                     const comp = this.comparison(actualObj, expectedObj);
                     if (this.hasErrors(comp)) {
                         throw new Error(
-                            '\n' + (errorHeader ? errorHeader + '\n' : '') + this.print(comp, errorStart, errorEnd)
+                            '\n' + (errorHeader ? errorHeader + '\n' : '') + Comparer.print(comp, errorStart, errorEnd)
                         );
                     }
                 }
@@ -81,7 +87,7 @@ class Comparer {
      * @param {Boolean} [subsetMatching] - If true, all objects and arrays are matched by subset (not just objects, as is the default)
      * @return {ComparerNode} A ComparerNode
      */
-    static comparison(actual, expected, subsetMatching) {
+    static comparison(actual: unknown, expected: Constraints, subsetMatching?: boolean) {
         const originalActual = actual;
         if (actual instanceof ComparerNode) {
             // we've already been here
@@ -106,12 +112,12 @@ class Comparer {
                     let anyOrder = false;
 
                     // [ '$subset', A, B, ... ]
-                    if (expected.indexOf('$subset') != -1 || subsetMatching) {
+                    if (expected.indexOf('$subset') !== -1 || subsetMatching) {
                         subset = true;
                     }
 
                     // [ '$anyOrder', A, B, ... ]
-                    if (expected.indexOf('$anyOrder') != -1) {
+                    if (expected.indexOf('$anyOrder') !== -1) {
                         anyOrder = true;
                     }
 
@@ -166,7 +172,7 @@ class Comparer {
                 // { $typeof: "type" }
                 if (Object.prototype.hasOwnProperty.call(expected, '$typeof')) {
                     // Validate expected
-                    if (typeof expected.$typeof != 'string') {
+                    if (typeof expected.$typeof !== 'string') {
                         throw new Error(`$typeof has to be a string: ${expected.$typeof}`);
                     }
 
@@ -239,7 +245,7 @@ class Comparer {
                 // { $min: <number> }
                 if (Object.prototype.hasOwnProperty.call(expected, '$min')) {
                     // Validate expected
-                    if (typeof expected.$min != 'number') {
+                    if (typeof expected.$min !== 'number') {
                         throw new Error(`$min has to be a number: ${JSON.stringify(expected.$min)}`);
                     }
 
@@ -265,7 +271,7 @@ class Comparer {
                             success = eval(expected.$code);
                         }
                         catch (e) {
-                            if (e.message === 'Illegal return statement') {
+                            if (e instanceof Error && e.message === 'Illegal return statement') {
                                 // The code has a return, so enclose it in a function and try again
                                 success = eval(`(()=>{${expected.$code}})()`);
                             }
@@ -287,7 +293,7 @@ class Comparer {
                 // { $length: <number> }
                 if (Object.prototype.hasOwnProperty.call(expected, '$length')) {
                     // Validate expected
-                    if (typeof expected.$length != 'number') {
+                    if (typeof expected.$length !== 'number') {
                         throw new Error(`$length has to be a number: ${JSON.stringify(expected.$length)}`);
                     }
 
@@ -297,7 +303,7 @@ class Comparer {
                     }
                     else {
                         if (Object.prototype.hasOwnProperty.call(actual, 'length')) {
-                            if (actual.length != expected.$length) {
+                            if (actual.length !== expected.$length) {
                                 errors.push(`doesn't have a $length of ${expected.$length}`);
                             }
                         }
@@ -312,12 +318,12 @@ class Comparer {
                 // { $maxLength: <number> }
                 if (Object.prototype.hasOwnProperty.call(expected, '$maxLength')) {
                     // Validate expected
-                    if (typeof expected.$maxLength != 'number') {
+                    if (typeof expected.$maxLength !== 'number') {
                         throw new Error(`$maxLength has to be a number: ${JSON.stringify(expected.$maxLength)}`);
                     }
 
                     // Validate actual matches expected
-                    if (typeof actual != 'object' && typeof actual != 'string') {
+                    if (typeof actual !== 'object' && typeof actual !== 'string') {
                         errors.push(
                             `isn't an object, array, or string so can't have a $maxLength of ${expected.$maxLength}`
                         );
@@ -339,12 +345,12 @@ class Comparer {
                 // { $minLength: <number> }
                 if (Object.prototype.hasOwnProperty.call(expected, '$minLength')) {
                     // Validate expected
-                    if (typeof expected.$minLength != 'number') {
+                    if (typeof expected.$minLength !== 'number') {
                         throw new Error(`$minLength has to be a number: ${JSON.stringify(expected.$minLength)}`);
                     }
 
                     // Validate actual matches expected
-                    if (typeof actual != 'object' && typeof actual != 'string') {
+                    if (typeof actual !== 'object' && typeof actual !== 'string') {
                         errors.push(
                             `isn't an object, array, or string so can't have a $minLength of ${expected.$minLength}`
                         );
@@ -369,7 +375,7 @@ class Comparer {
                     if (typeof actual != 'object' || !(actual instanceof Array)) {
                         errors.push('not an array as needed for $every');
                     }
-                    else if (actual.length == 0) {
+                    else if (actual.length === 0) {
                         errors.push('empty array cannot match $every');
                     }
                     else {
@@ -452,7 +458,7 @@ class Comparer {
      * @param {Boolean} [isRecursive] - If true, this is a recursive call from within hasErrors()
      * @return {Boolean} True if value has errors in it, false otherwise
      */
-    static hasErrors(value, isRecursive: boolean) {
+    static hasErrors(value: unknown, isRecursive?: boolean) {
         // Do not traverse value if it's been seen already (in the case of object with circular references)
         if (this.wasSeen(value)) return false;
 
@@ -532,8 +538,8 @@ class Comparer {
      * @param {Boolean} [commaAtEnd] - If true, put a comma at the end of the printed value
      * @return {String} The pretty-printed version of value, including errors
      */
-    static print(value, errorStart: string, errorEnd: string, indents: number, commaAtEnd: boolean) {
-        if (!indents) {
+    static print(value: unknown, errorStart?: string, errorEnd?: string, indents?: number, commaAtEnd?: boolean) {
+        if (indents === undefined) {
             indents = 0;
         }
 
@@ -549,10 +555,9 @@ class Comparer {
         const spaces = utils.getIndents(indents);
         const nextSpaces = utils.getIndents(indents + 1);
         let ret = '';
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const self = this;
 
         let errors: Error[] = [];
+
         if (value instanceof ComparerNode) {
             errors = value.errors;
             value = value.value;
@@ -566,7 +571,8 @@ class Comparer {
             else if (value instanceof Array) {
                 ret += '[' + outputErrors() + '\n';
                 for (let i = 0; i < value.length; i++) {
-                    ret += nextSpaces + this.print(value[i], errorStart, errorEnd, indents + 1, i < value.length - 1);
+                    ret +=
+                        nextSpaces + Comparer.print(value[i], errorStart, errorEnd, indents + 1, i < value.length - 1);
                 }
 
                 ret += outputBlockErrors();
@@ -587,7 +593,7 @@ class Comparer {
                             key +
                             (hasWeirdChars ? '"' : '') +
                             ': ' +
-                            this.print(value[key], errorStart, errorEnd, indents + 1, i < keys.length - 1);
+                            Comparer.print(value[key], errorStart, errorEnd, indents + 1, i < keys.length - 1);
                     }
                 }
 
@@ -642,6 +648,7 @@ class Comparer {
          */
         function outputBlockErrors() {
             const filteredErrors = errors.filter((error) => error.blockError);
+
             if (filteredErrors.length == 0) {
                 return '';
             }
@@ -652,7 +659,7 @@ class Comparer {
                 ret +=
                     nextSpaces +
                     (error.key ? error.key + ': ' : '') +
-                    self.print(error.obj, errorStart, errorEnd, indents + 1) +
+                    Comparer.print(error.obj, errorStart, errorEnd, indents + 1) +
                     errorEnd +
                     '\n';
             }
@@ -669,7 +676,7 @@ class Comparer {
      * @return A clone of the given value
      * NOTE: In non-json-clone, if there are multiple references to a shared object in value, that object will be shared in the clone as well
      */
-    static clone(value: any, jsonClone?: boolean) {
+    static clone(value: unknown, jsonClone?: boolean) {
         return jsonClone ? this.jsonClone(value) : cloneDeep(value);
     }
 
@@ -680,9 +687,10 @@ class Comparer {
      * An object value that's undefined or a function will be removed. An array value that's undefined or a function will be convered to null.
      * Will throw an error if value contains a circular reference
      */
-    static jsonClone(value: any) {
+    static jsonClone(value: unknown) {
         return JSON.parse(JSON.stringify(value));
     }
 }
 
 export default Comparer;
+

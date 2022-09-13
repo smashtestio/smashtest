@@ -22,7 +22,7 @@ class HttpApi {
      * See request() in https://github.com/request/request for details on functions that can be used
      * @return {Promise} Promise that resolves with a Response object, when it is received. Response will also be stored in {response} global variable.
      */
-    makeReq(func, ...args) {
+    makeReq(func, ...args: unknown[]) {
         let uri = '';
         if (typeof args[0] === 'string') {
             uri = args[0];
@@ -68,7 +68,7 @@ class HttpApi {
      * See request() in https://github.com/request/request for details
      * @return {Promise} Promise that resolves when response comes back. Response will be stored in {response} variable.
      */
-    request(...args) {
+    request(...args: unknown[]) {
         return this.makeReq(request, ...args);
     }
 
@@ -76,7 +76,7 @@ class HttpApi {
      * Sets default options for HTTP requests
      * See defaults() in https://github.com/request/request for details
      */
-    defaults(options) {
+    defaults(options: request.CoreOptions) {
         return request.defaults(options);
     }
 
@@ -84,7 +84,7 @@ class HttpApi {
      * Makes an HTTP GET request
      * See this.makeReq() for details on args and return value
      */
-    get(...args) {
+    get(...args: unknown[]) {
         return this.makeReq(request.get, ...args);
     }
 
@@ -92,7 +92,7 @@ class HttpApi {
      * Makes an HTTP POST request
      * See this.makeReq() for details on args and return value
      */
-    post(...args) {
+    post(...args: unknown[]) {
         return this.makeReq(request.post, ...args);
     }
 
@@ -100,7 +100,7 @@ class HttpApi {
      * Makes an HTTP PUT request
      * See this.makeReq() for details on args and return value
      */
-    put(...args) {
+    put(...args: unknown[]) {
         return this.makeReq(request.put, ...args);
     }
 
@@ -108,7 +108,7 @@ class HttpApi {
      * Makes an HTTP PATCH request
      * See this.makeReq() for details on args and return value
      */
-    patch(...args) {
+    patch(...args: unknown[]) {
         return this.makeReq(request.patch, ...args);
     }
 
@@ -116,7 +116,7 @@ class HttpApi {
      * Makes an HTTP DELETE request
      * See this.makeReq() for details on args and return value
      */
-    del(...args) {
+    del(...args: unknown[]) {
         return this.makeReq(request.del, ...args);
     }
 
@@ -124,7 +124,7 @@ class HttpApi {
      * Makes an HTTP HEAD request
      * See this.makeReq() for details on args and return value
      */
-    head(...args) {
+    head(...args: unknown[]) {
         return this.makeReq(request.head, ...args);
     }
 
@@ -132,7 +132,7 @@ class HttpApi {
      * Makes an HTTP OPTIONS request
      * See this.makeReq() for details on args and return value
      */
-    options(...args) {
+    options(...args: unknown[]) {
         return this.makeReq(request.options, ...args);
     }
 
@@ -140,7 +140,7 @@ class HttpApi {
      * Creates a new cookie
      * See request.cookie() in https://github.com/request/request for details
      */
-    cookie(str) {
+    cookie(str: string) {
         return request.cookie(str);
     }
 
@@ -151,81 +151,81 @@ class HttpApi {
     jar() {
         return request.jar();
     }
-}
-
-/**
- * Response that comes from an API call
- */
-HttpApi.Response = class Response {
-    runInstance;
-    response;
-
-    statusCode;
-    headers;
-    error;
-    body;
-    rawBody;
-    responseObj;
-
-    constructor(runInstance, error, response, body) {
-        this.runInstance = runInstance;
-        this.response = {
-            statusCode: response && response.statusCode,
-            headers: response && response.headers,
-            error: error,
-            body: body,
-            rawBody: body,
-            responseObj: response
-        };
-
-        // If body is json, parse it
-        try {
-            this.response.body = JSON.parse(this.response.body);
-        }
-        catch (e) {
-            // ignore
-        }
-
-        this.statusCode = this.response.statusCode;
-        this.headers = this.response.headers;
-        this.error = this.response.error;
-        this.body = this.response.body;
-        this.rawBody = this.response.rawBody;
-        this.responseObj = this.response.responseObj;
-    }
 
     /**
-     * @throws {Error} If expectedObj doesn't match json response (see comparer.js, Comparer.expect())
+     * Response that comes from an API call
      */
-    verify(expectedObj) {
-        let headersLog = '';
-        if (this.response.headers) {
-            for (const headerName in this.response.headers) {
-                if (Object.prototype.hasOwnProperty.call(this.response.headers, headerName)) {
-                    headersLog += `  ${headerName}: ${this.response.headers[headerName]}\n`;
+    static Response = class Response {
+        runInstance;
+        response;
+
+        statusCode;
+        headers;
+        error;
+        body;
+        rawBody;
+        responseObj;
+
+        constructor(runInstance: RunInstance, error, response: Response, body: string) {
+            this.runInstance = runInstance;
+            this.response = {
+                statusCode: response && response.statusCode,
+                headers: response && response.headers,
+                error: error,
+                body: body,
+                rawBody: body,
+                responseObj: response
+            };
+
+            // If body is json, parse it
+            try {
+                this.response.body = JSON.parse(this.response.body);
+            }
+            catch (e) {
+                // ignore
+            }
+
+            this.statusCode = this.response.statusCode;
+            this.headers = this.response.headers;
+            this.error = this.response.error;
+            this.body = this.response.body;
+            this.rawBody = this.response.rawBody;
+            this.responseObj = this.response.responseObj;
+        }
+
+        /**
+         * @throws {Error} If expectedObj doesn't match json response (see comparer.js, Comparer.expect())
+         */
+        verify(expectedObj: unknown) {
+            let headersLog = '';
+            if (this.response.headers) {
+                for (const headerName in this.response.headers) {
+                    if (Object.prototype.hasOwnProperty.call(this.response.headers, headerName)) {
+                        headersLog += `  ${headerName}: ${this.response.headers[headerName]}\n`;
+                    }
                 }
             }
-        }
 
-        let rawBody = this.response.rawBody;
-        if (typeof rawBody === 'string') {
-            // empty
-        }
-        else if (typeof rawBody === 'object') {
-            rawBody = JSON.stringify(rawBody);
-        }
-        else {
-            rawBody = `[${typeof rawBody}]`;
-        }
+            let rawBody = this.response.rawBody;
+            if (typeof rawBody === 'string') {
+                // empty
+            }
+            else if (typeof rawBody === 'object') {
+                rawBody = JSON.stringify(rawBody);
+            }
+            else {
+                rawBody = `[${typeof rawBody}]`;
+            }
 
-        const responseLog = `Response:\n  ${this.response.statusCode}\n\n${headersLog}\n\n${rawBody.replace(
-            /(.*)/g,
-            '  $1'
-        )}`;
-        this.runInstance.log(responseLog);
+            const responseLog = `Response:\n  ${this.response.statusCode}\n\n${headersLog}\n\n${rawBody.replace(
+                /(.*)/g,
+                '  $1'
+            )}`;
+            this.runInstance.log(responseLog);
 
-        Comparer.expect(this.response, undefined, undefined, 'Actual response object:').to.match(expectedObj);
-    }
-};
+            Comparer.expect(this.response, undefined, undefined, 'Actual response object:').to.match(expectedObj);
+        }
+    };
+}
 
 export default HttpApi;

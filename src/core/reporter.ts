@@ -102,7 +102,7 @@ class Reporter {
             }
         }
         catch (e) {
-            if (!e.message.includes('no such file or directory, scandir')) {
+            if (e instanceof Error && !e.message.includes('no such file or directory, scandir')) {
                 // not finding the dir is ok
                 throw e;
             }

@@ -2,8 +2,9 @@ import cloneDeep from 'lodash/cloneDeep.js';
 import crypto from 'node:crypto';
 import * as Constants from './constants.js';
 import Step from './step.js';
+import StepNode from './stepnode.js';
 import Tree from './tree.js';
-import { StepNodeIndex } from './types.js';
+import { BranchState, Frequency, HookField, StepNodeIndex } from './types.js';
 import * as utils from './utils.js';
 
 /**
@@ -15,7 +16,7 @@ class Branch {
     // OPTIONAL
     nonParallelIds?; // When multiple branches cannot be run in parallel (due to !), they are each given the same nonParallelId
 
-    frequency?: string; // Frequency of this branch (either 'high', 'med', or 'low')
+    frequency?: Frequency; // Frequency of this branch (either 'high', 'med', or 'low')
     groups?: string[]; // The groups that this branch is a part of
 
     beforeEveryBranch?: Step[]; // Array of Step, the steps to execute before this branch starts
@@ -126,46 +127,37 @@ class Branch {
         branch.frequency && (this.frequency = branch.frequency);
 
         if (branch.groups) {
-            if (this.groups === undefined) {
-                this.groups = [];
-            }
-
-            branch.groups.forEach((group) => {
-                this.groups.push(group);
-            });
+            this.groups = [...(this.groups ?? []), ...branch.groups];
         }
 
         branch.isSkipBranch && (this.isSkipBranch = true);
         branch.isOnly && (this.isOnly = true);
         branch.isDebug && (this.isDebug = true);
 
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const self = this;
-
-        copyHooks('beforeEveryBranch', true); // Copy branch.beforeEveryBranch to the beginning of newBranch.beforeEveryBranch (so that packages comes first)
-        copyHooks('afterEveryBranch', false); // Copy branch.afterEveryBranch to the end of newBranch.afterEveryBranch (so that packages comes last)
-        copyHooks('beforeEveryStep', true); // Copy branch.beforeEveryStep to the beginning of newBranch.beforeEveryStep (so that packages comes first)
-        copyHooks('afterEveryStep', false); // Copy branch.afterEveryStep to the end of newBranch.afterEveryStep (so that packages comes last)
-
-        /**
-         * Copies the given hook type from branch to newBranch
-         */
-        function copyHooks(name, toBeginning) {
-            if (branch[name] !== undefined) {
-                if (self[name] === undefined) {
-                    self[name] = [];
-                }
-
-                if (toBeginning) {
-                    self[name] = branch[name].concat(self[name]);
-                }
-                else {
-                    self[name] = self[name].concat(branch[name]);
-                }
-            }
-        }
+        this.copyHooks(branch, 'beforeEveryBranch', true); // Copy branch.beforeEveryBranch to the beginning of newBranch.beforeEveryBranch (so that packages comes first)
+        this.copyHooks(branch, 'afterEveryBranch', false); // Copy branch.afterEveryBranch to the end of newBranch.afterEveryBranch (so that packages comes last)
+        this.copyHooks(branch, 'beforeEveryStep', true); // Copy branch.beforeEveryStep to the beginning of newBranch.beforeEveryStep (so that packages comes first)
+        this.copyHooks(branch, 'afterEveryStep', false); // Copy branch.afterEveryStep to the end of newBranch.afterEveryStep (so that packages comes last)
 
         return this;
+    }
+
+    /**
+     * Copies the given hook type from branch to newBranch
+     */
+    copyHooks(branch: Branch, name: HookField, toBeginning: boolean) {
+        if (branch[name] !== undefined) {
+            if (this[name] === undefined) {
+                this[name] = [];
+            }
+
+            if (toBeginning) {
+                this[name] = [...branch[name], ...this[name]];
+            }
+            else {
+                this[name] = [...this[name], ...branch[name]];
+            }
+        }
     }
 
     /**
@@ -173,7 +165,7 @@ class Branch {
      * @param {Number} [spaces] - Number of spaces before each line, 3 if omitted
      * @return {String} The string representation of this branch
      */
-    output(stepNodeIndex, spaces: number) {
+    output(stepNodeIndex: StepNodeIndex, spaces: number) {
         let beginSpace = '   ';
         if (spaces !== undefined) {
             beginSpace = utils.getIndents(spaces, ' ');
@@ -194,18 +186,18 @@ class Branch {
      * Does not take hooks into account
      * @param {Branch} branch - The branch we're comparing to this one
      * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
-     * @param {Number} [n] - Only compare the first N steps, no limit if omitted
+     * @param {Number} [num] - Only compare the first N steps, no limit if omitted
      * @return {Boolean} true if the given branch's steps are equal to this brach's steps, false otherwise
      */
-    equals(branch, stepNodeIndex, n) {
+    equals(branch: Branch, stepNodeIndex: StepNodeIndex, num: number) {
         let thisLen = this.steps.length;
         let branchLen = branch.steps.length;
-        if (n !== undefined) {
-            if (n < thisLen) {
-                thisLen = n;
+        if (num !== undefined) {
+            if (num < thisLen) {
+                thisLen = num;
             }
-            if (n < branchLen) {
-                branchLen = n;
+            if (num < branchLen) {
+                branchLen = num;
             }
         }
 
@@ -235,7 +227,7 @@ class Branch {
 
         return true;
 
-        function getCanonicalStepText(stepNode) {
+        function getCanonicalStepText(stepNode: StepNode) {
             let text = stepNode.text.replace(/\s+/g, ' ');
             if (stepNode.modifiers) {
                 stepNode.modifiers.forEach((modifier) => {
@@ -252,15 +244,15 @@ class Branch {
     /**
      * @return {Boolean} True if the hash matches this branch, false otherwise
      */
-    equalsHash(hash) {
-        return hash == this.hash;
+    equalsHash(hash: string) {
+        return hash === this.hash;
     }
 
     /**
      * Updates the hash of this branch
      * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
      */
-    updateHash(stepNodeIndex) {
+    updateHash(stepNodeIndex: StepNodeIndex) {
         let combinedStr = '';
         this.steps.forEach((step) => {
             const stepNode = stepNodeIndex[step.id];
@@ -312,7 +304,7 @@ class Branch {
      * @param {Error} [error] - The Error object that caused the branch to fail (if an error occurred in a Step, that error should go into that Step, not here)
      * @param {String} [stepDataMode] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
      */
-    markBranch(state: 'pass' | 'fail' | 'skip', error, stepDataMode: Tree['stepDataMode']) {
+    markBranch(state: BranchState, error: Error, stepDataMode: Tree['stepDataMode']) {
         // Reset state
         delete this.isPassed;
         delete this.isFailed;
@@ -333,17 +325,17 @@ class Branch {
         }
 
         if (stepDataMode === 'none') {
-            clearDataOfSteps(this);
+            clearDataOfSteps.call(this);
         }
         else if (stepDataMode === 'fail') {
             if (state != 'fail') {
-                clearDataOfSteps(this);
+                clearDataOfSteps.call(this);
             }
         }
 
-        function clearDataOfSteps(self) {
-            for (let i = 0; i < self.steps.length; i++) {
-                const step = self.steps[i];
+        function clearDataOfSteps(this: Branch) {
+            for (let i = 0; i < this.steps.length; i++) {
+                const step = this.steps[i];
 
                 // Save the properties of step we want to keep
                 const id = step.id;
@@ -353,7 +345,7 @@ class Branch {
                 const isSkipped = step.isSkipped;
                 const isRunning = step.isRunning;
                 let isPassed = undefined;
-                if (!self.isPassed) {
+                if (!this.isPassed) {
                     // omit step.isPassed when the branch passes (it will be implied by the branch passing)
                     isPassed = step.isPassed;
                 }
@@ -385,7 +377,13 @@ class Branch {
      * @param {Boolean} [finishBranchNow] - If true, marks the whole branch as passed or failed immediately
      * @param {String} [stepDataMode] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
      */
-    markStep(state, step, error, finishBranchNow, stepDataMode) {
+    markStep(
+        state: BranchState,
+        step: Step,
+        error: Error,
+        finishBranchNow: boolean,
+        stepDataMode: Tree['stepDataMode']
+    ) {
         // Reset state
         delete step.isPassed;
         delete step.isFailed;
@@ -415,7 +413,7 @@ class Branch {
      * Marks this branch passed if all steps passed, failed if at least one step failed
      * @param {String} [stepDataMode] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
      */
-    finishOffBranch(stepDataMode) {
+    finishOffBranch(stepDataMode: Tree['stepDataMode']) {
         for (let i = 0; i < this.steps.length; i++) {
             const step = this.steps[i];
             if (step.isFailed) {
@@ -431,7 +429,7 @@ class Branch {
      * Logs the given item to this Branch
      * @param {Object or String} item - The item to log
      */
-    appendToLog(item) {
+    appendToLog(item: string | { text: string }) {
         if (!this.log) {
             this.log = [];
         }

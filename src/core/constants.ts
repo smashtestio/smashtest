@@ -65,8 +65,9 @@ export const HOOK_NAMES = [
     'after every step',
     'before everything',
     'after everything'
-];
-export const FREQUENCIES = ['high', 'med', 'low'];
+] as const;
+
+export const FREQUENCIES = ['high', 'med', 'low'] as const;
 
 // ***************************************
 // CONSOLE

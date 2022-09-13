@@ -3,22 +3,29 @@ import * as Jimp from 'jimp';
 import * as fs from 'node:fs';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
-import { Builder, By, Key, until, WebDriver } from 'selenium-webdriver';
+import { Builder, By, Key, until, WebDriver, WebElement } from 'selenium-webdriver';
 import * as chrome from 'selenium-webdriver/chrome.js';
 import * as edge from 'selenium-webdriver/edge.js';
 import * as firefox from 'selenium-webdriver/firefox.js';
 import * as ie from 'selenium-webdriver/ie.js';
 import * as safari from 'selenium-webdriver/safari.js';
+import Sinon from 'sinon';
 import { reporter } from '../../core/instances.js';
 import RunInstance from '../../core/runinstance.js';
 import Runner from '../../core/runner.js';
+import Step from '../../core/step.js';
+import { BrowserParams } from '../../core/types.js';
 import * as utils from '../../core/utils.js';
 import Comparer from './comparer.js';
 import ElementFinder from './elementfinder.js';
+import { stubfetch } from './stubfetch.js';
 
 class BrowserInstance {
-    driver: WebDriver | null;
+    driver: WebDriver = null;
     runInstance;
+    startTime: Date;
+    params: BrowserParams = {};
+    definedProps = ElementFinder.defaultProps();
 
     // ***************************************
     //  Static functions
@@ -98,13 +105,8 @@ class BrowserInstance {
     //  Browser actions
     // ***************************************
 
-    constructor(runInstance) {
-        this.driver = null;
-        this.params = null;
+    constructor(runInstance: RunInstance) {
         this.runInstance = runInstance;
-        this.startTime = null;
-
-        this.definedProps = ElementFinder.defaultProps(); // ElementFinder props
     }
 
     /**
@@ -122,26 +124,22 @@ class BrowserInstance {
      * @param {Options} [params.options] - Sets options (see the set[browser]Options() functions in https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html)
      * @param {Capabilities} [params.capabilities] - Sets capabilities (see the withCapabilities() function in https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/index_exports_Builder.html)
      */
-    async open(params) {
-        if (!params) {
-            params = {};
-        }
-
+    async open(params: BrowserParams) {
         // Options
         if (!params.options) {
             try {
                 params.options = this.runInstance.findVarValue('browser options', false, true); // look for {browser options}, above or below
             }
-            catch (e) {
+            catch {
                 // ignore
             }
         }
         const options = {
-            chrome: params.options || new chrome.Options(),
-            firefox: params.options || new firefox.Options(),
-            safari: params.options || new safari.Options(),
-            ie: params.options || new ie.Options(),
-            edge: params.options || new edge.Options()
+            chrome: <chrome.Options>params.options || new chrome.Options(),
+            firefox: <firefox.Options>params.options || new firefox.Options(),
+            safari: <safari.Options>params.options || new safari.Options(),
+            ie: <ie.Options>params.options || new ie.Options(),
+            edge: <edge.Options>params.options || new edge.Options()
         };
 
         // Capabilities
@@ -149,7 +147,7 @@ class BrowserInstance {
             try {
                 params.capabilities = this.runInstance.findVarValue('browser capabilities', false, true); // look for {browser capabilities}, above or below
             }
-            catch (e) {
+            catch {
                 // ignore
             }
         }
@@ -217,7 +215,7 @@ class BrowserInstance {
 
         // Headless
         if (params.isHeadless === undefined) {
-            params.isHeadless = this.runInstance.runner.headless;
+            params.isHeadless = Boolean(this.runInstance.runner.headless);
         }
 
         if (params.isHeadless) {
@@ -309,7 +307,7 @@ class BrowserInstance {
      * Navigates the browser to the given url
      * @param {String} url - The absolute or relative url to navigate to. If relative, uses the browser's current domain. If http(s) is omitted, uses http://
      */
-    async nav(url) {
+    async nav(url: string) {
         const URL_REGEX = /^(https?:\/\/|file:\/\/)?([^/]*(:[0-9]+)?)?(.*)/;
         let matches = url.match(URL_REGEX);
 
@@ -448,7 +446,11 @@ class BrowserInstance {
      * See executeScript() at https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebDriver.html
      * @return {Promise} Promise that resolves to the script's return value
      */
-    async executeScript(script, ...args) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async executeScript<Fn extends (...args: any[]) => unknown>(
+        script: Fn,
+        ...args: unknown[]
+    ): Promise<ReturnType<Fn>> {
         return await this.driver.executeScript(script, ...args);
     }
 
@@ -457,7 +459,8 @@ class BrowserInstance {
      * See executeAsyncScript() at https://seleniumhq.github.io/selenium/docs/api/javascript/module/selenium-webdriver/lib/webdriver_exports_WebDriver.html
      * @return {Promise} Promise that resolves to the script's return value
      */
-    async executeAsyncScript(script, ...args) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async executeAsyncScript<Fn extends (...args: any[]) => unknown>(script: Fn, ...args: unknown[]): Promise<unknown> {
         return await this.driver.executeAsyncScript(script, ...args);
     }
 
@@ -470,7 +473,7 @@ class BrowserInstance {
      * @param {Boolean} [isAfter] If true, this screenshot occurs after the step's main action, false if it occurs before. You must have called this function with isAfter set to false prior to calling it with isAfter set to true.
      * param {Object} [targetCoords] - Object in form { x: <number>, y: <number> } representing the x,y coords of the target of the action (where x and y are a percentage of the total width and height respectively)
      */
-    async takeScreenshot(isAfter, targetCoords) {
+    async takeScreenshot(isAfter: boolean, targetCoords?: Step['targetCoords']) {
         // See if screenshot is allowed
         if (!this.runInstance.runner.reporter) {
             return;
@@ -483,7 +486,7 @@ class BrowserInstance {
         }
         if (
             this.runInstance.runner.screenshotCount >= this.runInstance.runner.maxScreenshots &&
-            this.runInstance.runner.maxScreenshots != -1
+            this.runInstance.runner.maxScreenshots !== -1
         ) {
             return;
         }
@@ -564,8 +567,9 @@ class BrowserInstance {
             return;
         }
 
-        const rect = await this.executeScript(function (elem) {
+        const rect = await this.executeScript(function (elem: Element) {
             const rect = elem.getBoundingClientRect();
+
             return {
                 top: rect.top,
                 left: rect.left,
@@ -585,9 +589,9 @@ class BrowserInstance {
     /**
      * If the given WebElement is not currently scrolled into view, scrolls it into view and retakes the before screenshot
      */
-    async scrollIntoView(elem) {
+    async scrollIntoView(elem: Element) {
         const isScrolledIntoView = await this.executeScript(
-            utils.es5(function (elem) {
+            utils.es5(function (elem: Element) {
                 const rect = elem.getBoundingClientRect();
                 const isScrolledIntoView = rect.top >= 0 && rect.bottom <= window.innerHeight;
                 if (!isScrolledIntoView) {
@@ -618,21 +622,27 @@ class BrowserInstance {
      * @return {Promise} Promise that resolves to first WebDriver WebElement that was found
      * @throws {Error} If a matching element wasn't found in time, or if an element array wasn't properly matched in time
      */
-    async $(element, tryClickable, parentElem, timeout, isContinue) {
+    async $(
+        elem: string | ElementFinder | WebElement,
+        tryClickable: boolean,
+        parentElem?: WebElement,
+        timeout?: number,
+        isContinue?: boolean
+    ) {
         timeout = timeout !== undefined ? timeout : 2000;
 
         let ef = null;
-        if (typeof element === 'string') {
-            if (!element.match(/\n/g)) {
-                element = element.trim();
+        if (typeof elem === 'string') {
+            if (!elem.match(/\n/g)) {
+                elem = elem.trim();
             }
-            ef = new ElementFinder(element, this.definedProps);
+            ef = new ElementFinder(elem, this.definedProps);
         }
-        else if (element instanceof ElementFinder) {
-            ef = element;
+        else if (elem instanceof ElementFinder) {
+            ef = elem;
         }
         else {
-            return element;
+            return elem;
         }
 
         let results = null;
@@ -672,7 +682,12 @@ class BrowserInstance {
      * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found
      * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time
      */
-    async $$(element, parentElem, timeout, isContinue) {
+    async $$(
+        element: string | ElementFinder | WebElement,
+        parentElem: WebElement,
+        timeout: number,
+        isContinue: boolean
+    ) {
         timeout = timeout !== undefined ? timeout : 2000;
 
         let ef = null;
@@ -703,7 +718,12 @@ class BrowserInstance {
      * @return {Promise} Promise that resolves if the given element(s) disappear before the timeout
      * @throws {Error} If matching elements still found after timeout
      */
-    async not$(element, parentElem, timeout, isContinue) {
+    async not$(
+        element: string | ElementFinder | WebElement,
+        parentElem: string | ElementFinder | WebElement,
+        timeout?: number,
+        isContinue?: boolean
+    ) {
         timeout = timeout !== undefined ? timeout : 2000;
 
         let ef = null;
@@ -717,13 +737,14 @@ class BrowserInstance {
             ef = element;
         }
         else {
+            const el = element;
             try {
                 await this.driver.wait(async () => {
-                    return (await element.isDisplayed()) === false;
+                    return (await el.isDisplayed()) === false;
                 }, timeout);
             }
             catch (e) {
-                if (e.message.includes('Wait timed out after')) {
+                if (e instanceof Error && e.message.includes('Wait timed out after')) {
                     throw new Error(`Element still found after timeout (${timeout / 1000} s)`);
                 }
                 else {
@@ -740,7 +761,7 @@ class BrowserInstance {
      * @param {Object} props - Object with format { 'name of prop': <String EF or function to add to the prop's defintion>, etc. }
      * @param {Boolean} [isAdd] - If true, does not override existing defintions, but adds to them
      */
-    props(props, isAdd) {
+    props(props: { [key: string]: string | Function }, isAdd: boolean) {
         for (const prop in props) {
             if (Object.prototype.hasOwnProperty.call(props, prop)) {
                 if (typeof props[prop] === 'string') {
@@ -775,14 +796,14 @@ class BrowserInstance {
      * A prop matches an element if at least one of its definitions matches.
      * @param {Object} props - Object with format { 'name of prop': <String EF or function to add to the prop's defintion>, etc. }
      */
-    propsAdd(props) {
+    propsAdd(props: { [key: string]: string | Function }) {
         this.props(props, true);
     }
 
     /**
      * Clears all definitions of the given EF props
      */
-    propsClear(names) {
+    propsClear(names: string[]) {
         names.forEach((name) => delete this.definedProps[name]);
     }
 
@@ -790,7 +811,7 @@ class BrowserInstance {
      * Escapes the given string for use in an EF
      * Converts a ' to a \', " to a \", etc.
      */
-    str(str) {
+    str(str: string) {
         return utils.escape(str);
     }
 
@@ -802,21 +823,24 @@ class BrowserInstance {
      * Throws error if current page's title or url doesn't contain the given string within timeout ms
      * @param {String} titleOrUrl - A string that the title or url must contain, or a string containing a regex that the title or url must match
      */
-    async verifyAtPage(titleOrUrl, timeout) {
+    async verifyAtPage(titleOrUrl: string, timeout: number) {
         let obj = null;
         try {
             await this.driver.wait(async () => {
                 obj = await this.executeScript(
-                    utils.es5(function (titleOrUrl) {
+                    utils.es5(function (titleOrUrl: string) {
                         let isMatched =
-                            document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) != -1 ||
-                            window.location.href.indexOf(titleOrUrl) != -1;
+                            document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) !== -1 ||
+                            window.location.href.indexOf(titleOrUrl) !== -1;
+
                         if (!isMatched) {
                             // try them as regexes
                             try {
-                                isMatched = document.title.match(titleOrUrl) || window.location.href.match(titleOrUrl);
+                                isMatched = Boolean(
+                                    document.title.match(titleOrUrl) || window.location.href.match(titleOrUrl)
+                                );
                             }
-                            catch (e) {
+                            catch {
                                 // in case of a bad regex
                             }
                         }
@@ -833,7 +857,7 @@ class BrowserInstance {
             }, timeout);
         }
         catch (e) {
-            if (e.message.includes('Wait timed out after')) {
+            if (e instanceof Error && e.message.includes('Wait timed out after')) {
                 throw new Error(
                     `Neither the page title ('${obj.title}'), nor the page url ('${
                         obj.url
@@ -849,7 +873,7 @@ class BrowserInstance {
     /**
      * Throws error if cookie with the given name doesn't contain the given value within timeout ms
      */
-    async verifyCookieContains(name, value, timeout) {
+    async verifyCookieContains(name: string, value: string, timeout: number) {
         try {
             await this.driver.wait(async () => {
                 let cookie = null;
@@ -857,7 +881,7 @@ class BrowserInstance {
                     cookie = await this.driver.manage().getCookie(name);
                 }
                 catch (e) {
-                    if (e.message.includes('No cookie with name')) {
+                    if (e instanceof Error && e.message.includes('No cookie with name')) {
                         return false;
                     }
                     else {
@@ -873,7 +897,7 @@ class BrowserInstance {
             }, timeout);
         }
         catch (e) {
-            if (e.message.includes('Wait timed out after')) {
+            if (e instanceof Error && e.message.includes('Wait timed out after')) {
                 throw new Error(`The cookie '${name}' didn't contain '${value}' after ${timeout / 1000} s`);
             }
             else {
@@ -889,7 +913,7 @@ class BrowserInstance {
      * @param {Number} [timeout] - How many ms to wait before giving up (2000 ms if omitted)
      * @throws {Error} If element doesn't match state within the given time
      */
-    async verifyState(element, state, timeout) {
+    async verifyState(element: string | ElementFinder | WebElement, state, timeout: number) {
         const elem = await this.$(element, undefined, undefined, timeout, true);
         let stateElems = [];
         const ERR = 'The given element doesn\'t match the given state';
@@ -910,7 +934,11 @@ class BrowserInstance {
      * Verifies that every element that matches element also matches state
      * See verifyState() for param details
      */
-    async verifyEveryState(element, state, timeout) {
+    async verifyEveryState(
+        element: string | ElementFinder | WebElement,
+        state: string | ElementFinder | WebElement,
+        timeout: number
+    ) {
         const elems = await this.$$(element, undefined, timeout, true);
 
         for (let i = 0; i < elems.length; i++) {
@@ -952,63 +980,10 @@ class BrowserInstance {
             );
             await this.executeScript(sinonCode);
 
-            // Sinon doesn't stub fetch, for no explicit reason.
-            // This is a feasible workaround for that.
+            // Sinon doesn't stub fetch, for no explicit reason. This is a
+            // feasible workaround.
             // Ref: https://github.com/sinonjs/sinon/issues/2082#issuecomment-586552184
-            await this.executeScript(function () {
-                // if the browser doesn't support fetch, don't bother stubbing it
-                window.fetch =
-                    window.fetch &&
-                    function (url, options) {
-                        options = options || {};
-                        return new Promise((resolve, reject) => {
-                            const request = new XMLHttpRequest();
-                            const keys = [];
-                            const all = [];
-                            const headers = {};
-
-                            const response = () => ({
-                                ok: ((request.status / 100) | 0) == 2, // 200-299
-                                statusText: request.statusText,
-                                status: request.status,
-                                url: request.responseURL,
-                                text: () => Promise.resolve(request.responseText),
-                                json: () => Promise.resolve(request.responseText).then(JSON.parse),
-                                blob: () => Promise.resolve(new Blob([request.response])),
-                                clone: response,
-                                headers: {
-                                    keys: () => keys,
-                                    entries: () => all,
-                                    get: (n) => headers[n.toLowerCase()],
-                                    has: (n) => n.toLowerCase() in headers
-                                }
-                            });
-
-                            request.open(options.method || 'get', url, true);
-
-                            request.onload = () => {
-                                request
-                                    .getAllResponseHeaders()
-                                    .replace(/^(.*?):[^\S\n]*([\s\S]*?)$/gm, (m, key, value) => {
-                                        keys.push((key = key.toLowerCase()));
-                                        all.push([key, value]);
-                                        headers[key] = headers[key] ? `${headers[key]},${value}` : value;
-                                    });
-                                resolve(response());
-                            };
-
-                            request.onerror = reject;
-
-                            request.withCredentials = options.credentials === 'include';
-
-                            for (const i in options.headers) {
-                                request.setRequestHeader(i, options.headers[i]);
-                            }
-
-                            request.send(options.body || null);
-                        });
-                    };
-            });
+            await this.executeScript(stubfetch);
         }
     }
 
@@ -1017,7 +992,7 @@ class BrowserInstance {
      * See https://sinonjs.org/releases/latest/fake-timers/ for more details
      * @param {Date} time - The time to set the browser to
      */
-    async mockTime(time) {
+    async mockTime(time: Date) {
         await this.mockTimeStop(); // stop any existing time mocks
         await this.injectSinon();
         await this.executeScript(function (timeStr) {
@@ -1040,30 +1015,29 @@ class BrowserInstance {
      *                   a function
      *                   See server.respondWith() from https://sinonjs.org/releases/latest/fake-xhr-and-server/#fake-server-options
      */
-    async mockHttp(method, url, response) {
+    async mockHttp(method: string, url: unknown, response: string | object) {
         // Validate and serialize url
-        let typeofUrl = typeof url;
-        if (typeofUrl === 'object' && url instanceof RegExp) {
+        let typeofUrl: 'string' | 'regex' = 'string';
+
+        if (typeof url === 'object' && url instanceof RegExp) {
             typeofUrl = 'regex';
             url = url.toString();
         }
-        else if (typeofUrl === 'string') {
-            // empty
-        }
-        else {
+        else if (typeof url !== 'string') {
             throw new Error('Invalid url type');
         }
 
         // Validate and serialize response
-        let typeofResponse = typeof response;
-        if (typeofResponse === 'function') {
+        let typeofResponse: 'string' | 'function' | 'array' | 'object' = 'string';
+
+        if (typeof response === 'function') {
+            typeofResponse = 'function';
             response = response.toString();
         }
-        else if (typeofResponse === 'string') {
-            // empty
-        }
-        else if (typeofResponse === 'object') {
-            if (response instanceof Array) {
+        else if (typeof response === 'object') {
+            typeofResponse = 'object';
+
+            if (Array.isArray(response)) {
                 typeofResponse = 'array';
                 if (typeof response[2] === 'object') {
                     response[2] = JSON.stringify(response[2]);
@@ -1072,23 +1046,29 @@ class BrowserInstance {
 
             response = JSON.stringify(response);
         }
-        else {
+        else if (typeofResponse !== 'string') {
             throw new Error('Invalid response type');
         }
 
         await this.injectSinon();
         await this.executeScript(
-            function (method, url, response, typeofUrl, typeofResponse) {
+            function (
+                method: string,
+                url: string,
+                response: string,
+                $typeofUrl: typeof typeofUrl,
+                $typeofResponse: typeof typeofResponse
+            ) {
                 // Deserialize url
-                if (typeofUrl === 'regex') {
+                if ($typeofUrl === 'regex') {
                     url = eval(url);
                 }
 
                 // Deserialize response
-                if (typeofResponse === 'function') {
+                if ($typeofResponse === 'function') {
                     eval('response = ' + response.trim());
                 }
-                else if (typeofResponse === 'array') {
+                else if ($typeofResponse === 'array') {
                     response = JSON.parse(response);
                 }
 
@@ -1123,9 +1103,9 @@ class BrowserInstance {
      * @param {String or Number} latitude - The latitude to set the browser to
      * @param {String or Number} longitude - The longitude to set the browser to
      */
-    async mockLocation(latitude, longitude) {
+    async mockLocation(latitude: string | number, longitude: string | number) {
         await this.executeScript(
-            function (latitude, longitude) {
+            function (latitude: string | number, longitude: string | number) {
                 if (window.smashtestOriginalGetCurrentPosition === undefined) {
                     window.smashtestOriginalGetCurrentPosition = window.navigator.geolocation.getCurrentPosition;
                 }
@@ -1137,8 +1117,8 @@ class BrowserInstance {
                             altitude: null,
                             altitudeAccuracy: null,
                             heading: null,
-                            latitude: parseFloat(latitude),
-                            longitude: parseFloat(longitude),
+                            latitude: parseFloat(String(latitude)),
+                            longitude: parseFloat(String(longitude)),
                             speed: null
                         },
                         timestamp: new Date().valueOf()
@@ -1148,6 +1128,18 @@ class BrowserInstance {
             latitude,
             longitude
         );
+    }
+
+    /**
+     * Stops geolocation mock
+     */
+    async mockLocationStop() {
+        await this.executeScript(function () {
+            if (window.smashtestOriginalGetCurrentPosition !== undefined) {
+                window.navigator.geolocation.getCurrentPosition = window.smashtestOriginalGetCurrentPosition;
+                window.smashtestOriginalGetCurrentPosition = undefined;
+            }
+        });
     }
 
     /**
@@ -1175,18 +1167,6 @@ class BrowserInstance {
     }
 
     /**
-     * Stops geolocation mock
-     */
-    async mockLocationStop() {
-        await this.executeScript(function () {
-            if (window.smashtestOriginalGetCurrentPosition !== undefined) {
-                window.navigator.geolocation.getCurrentPosition = window.smashtestOriginalGetCurrentPosition;
-                window.smashtestOriginalGetCurrentPosition = undefined;
-            }
-        });
-    }
-
-    /**
      * Stops and reverts all mocks (time, http, and geolocation)
      */
     async mockStop() {
@@ -1197,3 +1177,11 @@ class BrowserInstance {
 }
 
 export default BrowserInstance;
+
+declare let window: Window &
+    typeof globalThis & {
+        smashtestOriginalGetCurrentPosition: typeof window.navigator.geolocation.getCurrentPosition | undefined;
+        smashtestSinonClock: sinon.SinonFakeTimers | undefined;
+        smashtestSinonFakeServer: sinon.SinonFakeServer | undefined;
+        sinon: Sinon.SinonApi | undefined;
+    };

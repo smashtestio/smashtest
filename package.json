@@ -61,6 +61,7 @@
     "@types/mocha": "^9.1.1",
     "@types/request": "^2.48.8",
     "@types/selenium-webdriver": "^4.1.5",
+    "@types/sinon": "^10.0.13",
     "@typescript-eslint/eslint-plugin": "^5.36.2",
     "@typescript-eslint/parser": "^5.36.2",
     "body-parser": "^1.20.0",
@@ -80,6 +81,7 @@
   "scripts": {
     "test:unit": "NODE_OPTIONS=\"${NODE_OPTIONS} --loader ts-node/esm\" nyc --reporter=lcov mocha tests/core/*.ts tests/packages/*.ts",
     "test:browser:chrome": "./src/core/cli.ts tests/packages/*.smash --groups=chrome",
+    "test:browser:chrome:debug": "./src/core/cli.ts tests/packages/*.smash --groups=chrome --max-parallel=1 --headless=false",
     "test": "npm run test:unit && npm run test:browser:chrome",
     "prepublishOnly": "eslint . && npm run test:unit"
   },

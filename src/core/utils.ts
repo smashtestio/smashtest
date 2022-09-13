@@ -289,7 +289,8 @@ const compiler = tsNode.create({
  * @param fn Function to be compiled
  * @returns Compiled function
  */
-export function es5(func) {
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function es5<Func extends Function>(func: Func): Func {
     const script = `return (${func.toString()}).apply(null, arguments)`;
     const compiled = compiler.compile(script, '');
     return eval(`(function () { ${compiled}\n })`);

@@ -13,8 +13,8 @@ class StepNode {
     parent: StepNode | null = null; // StepNode or StepBlockNode that's the parent of this StepNode (null if this StepNode is itself part of a StepBlockNode)
     children: (StepNode | StepBlockNode)[] = []; // StepNode or StepBlockNode objects that are children of this StepNode ([] if this Step is itself part of a StepBlockNode)
 
-    filename: string | null = null; // filename where this step node is from
-    lineNumber: number | null = null; // line number where this step node is from
+    filename; // filename where this step node is from
+    lineNumber; // line number where this step node is from
 
     // OPTIONAL
     text?: string; // text of the command of the step node (not including spaces in front, modifiers, comments, etc.)
@@ -58,8 +58,16 @@ class StepNode {
 
     used?: boolean; // set to true if this step node is used in a branch at least once
 
-    constructor(id: number) {
+    /**
+     *
+     * @param {Number} id - number that uniquely identifies this step node (must be > 0)
+     * @param {String} filename - The filename of the file where this step is from
+     * @param {Integer} lineNumber - The line number of this step
+     */
+    constructor(id: number, filename: string, lineNumber: number) {
         this.id = id;
+        this.filename = filename;
+        this.lineNumber = lineNumber;
     }
 
     /**
@@ -73,14 +81,12 @@ class StepNode {
     //  * Parses a line into this StepNode
     //  * this.text will be set to '' if this is an empty line, and to '..' if the whole line is just '..'
     //  * @param {String} line - The full text of the line
-    //  * @param {String} filename - The filename of the file where this step is
-    //  * @param {Integer} lineNumber - The line number of this step
     //  * @returns {StepNode} This StepNode
     //  * @throws {Error} If there is a parse error
     //  */
-    parseLine(line: string, filename: string, lineNumber: number) {
-        this.filename = filename;
-        this.lineNumber = lineNumber;
+    parseLine(line: string) {
+        const filename = this.filename;
+        const lineNumber = this.lineNumber;
 
         if (line.trim() == '') {
             this.text = '';
@@ -107,7 +113,8 @@ class StepNode {
         //   'Step [' is a multi-step-block function declaration
         //   '[' is a multi-level-step-block function declaration
         //   ']' is a multi-level-step-block function call to the last multi-level-step-block function declaration
-        this.isOpeningBracket = (matches[5] && matches[5].trim() === '[') || (matches[20] && matches[20].trim() === '[');
+        this.isOpeningBracket =
+            (matches[5] && matches[5].trim() === '[') || (matches[20] && matches[20].trim() === '[');
         if (matches[4] || this.isOpeningBracket) {
             if (this.isOpeningBracket && (!matches[4] || matches[4].trim() != '*')) {
                 this.isFunctionDeclaration = true;
@@ -170,7 +177,7 @@ class StepNode {
         else {
             // not a function declaration
             // Validate that a non-function declaration isn't using a hook step name
-            if (Constants.HOOK_NAMES.indexOf(utils.canonicalize(this.text)) != -1) {
+            if (Constants.HOOK_NAMES.indexOf(utils.canonicalize(this.text)) !== -1) {
                 utils.error(
                     'You cannot have a function call with that name. That\'s reserved for hook function declarations.',
                     filename,
@@ -416,7 +423,7 @@ class StepNode {
      * @return {Boolean} true if they match, false if they don't
      * @throws {Error} if there's a case insensitive match but not a case sensitive match
      */
-    isFunctionMatch(functionDeclarationNode) {
+    isFunctionMatch(functionDeclarationNode: StepNode) {
         let functionCallText = this.canon;
         const functionDeclarationText = functionDeclarationNode.canon;
         if (functionCallText == functionDeclarationText) {
@@ -460,11 +467,12 @@ class StepNode {
      * @return {Object} An Object representing this step node, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        const o = {
-            id: this.id
+        const obj = {
+            id: this.id,
+            hasCodeBlock: this.hasCodeBlock()
         };
 
-        utils.copyProps(o, this, [
+        utils.copyProps(obj, this, [
             'text',
             'filename',
             'lineNumber',
@@ -478,9 +486,7 @@ class StepNode {
             'isMultiBlockFunctionCall'
         ]);
 
-        o.hasCodeBlock = this.hasCodeBlock();
-
-        return o;
+        return obj;
     }
 }
 

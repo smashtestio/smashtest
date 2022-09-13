@@ -1,17 +1,16 @@
+import { WebDriver, WebElement } from 'selenium-webdriver';
 import * as Constants from '../../core/constants.js';
+import { Prop, Props } from '../../core/types.js';
 import * as utils from '../../core/utils.js';
-
-type Prop = {
-    prop: string;
-    def: string;
-    input: string;
-    not?: true | undefined;
-};
 
 class ElementFinder {
     line = ''; // The full line representing this EF
 
-    counter = { min: 1, max: 1, default: true }; // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
+    counter: {
+        min: number;
+        max?: number;
+        default?: boolean;
+    } = { min: 1, max: 1, default: true }; // Counter associated with this EF, { min: N, max: M }, where both min and max are optional (if omitted, equivalent to { min: 1, max: 1 } )
 
     // Array of Object representing the props of this EF (i.e., 'text', selector, defined props)
     // A prop of just `'text'` is converted to the prop `contains 'text'`
@@ -27,7 +26,7 @@ class ElementFinder {
     isElemArray?: boolean; // If true, this is an element array
     isAnyOrder?: boolean; // If true, this.children can be in any order
 
-    usedDefinedProps?;
+    usedDefinedProps;
     logger?;
 
     fullStr?: string; // The full string representing the top EF and its children. Only set this for the top parent EF.
@@ -39,8 +38,10 @@ class ElementFinder {
     error?; // Set to an error string if there was an error finding this EF, set to true if there's an error on a child
     blockErrors?; // Set to an array of objs { header: '', body: '' } representing errors to be rendered as blocks
 
-    matchedElems?; // DOM Elements or WebElements that match this EF
-    matchMeElems?; // DOM Elements or WebElements that match [bracked lines] inside this EF. Use this instead of matchedElems if it has > 0 elements inside.
+    matchedElems?: Element[]; // DOM Elements or WebElements that match this EF
+    matchMeElems?: Element[]; // DOM Elements or WebElements that match [bracked lines] inside this EF. Use this instead of matchedElems if it has > 0 elements inside.
+
+    static browserConsoleOutput = false;
 
     /**
      * Constructs this EF and its child EFs from a string
@@ -57,19 +58,14 @@ class ElementFinder {
      */
     constructor(
         str: string,
-        definedProps,
-        usedDefinedProps,
-        logger,
+        definedProps?: Props,
+        usedDefinedProps: Props = {},
+        logger?: (str: string) => void,
         parent?: ElementFinder,
         lineNumberOffset?: number,
         noParse?: boolean
     ) {
         this.parent = parent;
-
-        if (!usedDefinedProps) {
-            // only create one usedDefinedProps object, and only on the top parent
-            usedDefinedProps = {};
-        }
         this.usedDefinedProps = usedDefinedProps;
 
         if (logger) {
@@ -93,16 +89,16 @@ class ElementFinder {
      * @return This object
      * @throws {Error} If there is a parse error
      */
-    parseIn(str: string, definedProps, usedDefinedProps, lineNumberOffset: number) {
+    parseIn(str: string | undefined, definedProps: Props, usedDefinedProps: Props, lineNumberOffset: number) {
         /**
          * @return {Boolean} True if s matches one of the prop patterns (ord, 'text', or defined prop with no input), false otherwise
          */
-        function isValidPattern(s) {
+        function isValidPattern(str: string) {
             return (
-                s.match(Constants.ORD_REGEX) ||
-                s.match(Constants.QUOTED_STRING_LITERAL_WHOLE) ||
-                (Object.prototype.hasOwnProperty.call(definedProps, ElementFinder.canonicalizePropStr(s)[0]) &&
-                    !s.match(Constants.QUOTED_STRING_LITERAL)) // we don't accept `prop 'with input'` in a space-separated list
+                str.match(Constants.ORD_REGEX) ||
+                str.match(Constants.QUOTED_STRING_LITERAL_WHOLE) ||
+                (Object.prototype.hasOwnProperty.call(definedProps, ElementFinder.canonicalizePropStr(str)[0]) &&
+                    !str.match(Constants.QUOTED_STRING_LITERAL)) // we don't accept `prop 'with input'` in a space-separated list
             );
         }
 
@@ -284,8 +280,10 @@ class ElementFinder {
                     // Check if it's possible to further subdivide propStr by spaces into special format [ord]? [defined prop OR text]+
 
                     let isSpecialFormat = true;
-                    matches = propStr.match(Constants.PROP_REGEX_SPACES).filter((s) => s.trim() != '');
                     const spaceSeparatedPropStrs = [];
+
+                    matches = propStr.match(Constants.PROP_REGEX_SPACES)?.filter((s) => s.trim() !== '');
+
                     if (matches && matches.length >= 2) {
                         outside: for (let j = 0; j < matches.length; j++) {
                             for (let len = matches.length - j; len > 0; len--) {
@@ -309,7 +307,8 @@ class ElementFinder {
                     if (isSpecialFormat) {
                         // Put ord in back, if there is one
                         if (spaceSeparatedPropStrs[0].match(Constants.ORD_REGEX)) {
-                            spaceSeparatedPropStrs.push(spaceSeparatedPropStrs.shift());
+                            spaceSeparatedPropStrs.push(spaceSeparatedPropStrs[0]);
+                            spaceSeparatedPropStrs.shift();
                         }
 
                         propStrs.splice(i, 1, ...spaceSeparatedPropStrs); // replace current propStr with all the space-separated props
@@ -333,7 +332,7 @@ class ElementFinder {
                 if (Object.prototype.hasOwnProperty.call(definedProps, canonPropStr)) {
                     this.addProp((isNot ? 'not ' : '') + propStr, canonPropStr, input, isNot, definedProps);
 
-                    if (['visible', 'any visibility'].indexOf(canonPropStr) != -1) {
+                    if (['visible', 'any visibility'].indexOf(canonPropStr) !== -1) {
                         implicitVisible = false;
                     }
                 }
@@ -420,8 +419,15 @@ class ElementFinder {
      * @param {Array} definedProps - The defined props, see the return of defaultProps() below
      * @param {Boolean} [toFront] - If true, append the prop to the front of this.props (as opposed to the back)
      */
-    addProp(prop, def, input, isNot, definedProps, toFront) {
-        const addToUsedDefinedProps = (def) => {
+    addProp(
+        prop: string,
+        def: string,
+        input: string | undefined,
+        isNot: boolean,
+        definedProps: Props,
+        toFront?: boolean
+    ) {
+        const addToUsedDefinedProps = (def: string) => {
             if (!Object.prototype.hasOwnProperty.call(this.usedDefinedProps, def)) {
                 this.usedDefinedProps[def] = definedProps[def];
                 this.usedDefinedProps[def].forEach((d) => {
@@ -432,12 +438,12 @@ class ElementFinder {
             }
         };
 
-        function addEF(ef) {
+        function addEF(ef: ElementFinder) {
             ef.props.forEach((prop) => addToUsedDefinedProps(prop.def));
             ef.children.forEach((child) => addEF(child));
         }
 
-        const propObj = {
+        const propObj: Prop = {
             prop: prop,
             def: def
         };
@@ -481,7 +487,7 @@ class ElementFinder {
      * @param {Number} [indents] - The number of indents at this value, 0 if omitted
      * @return {String} A prettified version of this EF and its children, including errors
      */
-    print(errorStart, errorEnd, indents) {
+    print(errorStart?: string, errorEnd?: string, indents?: number) {
         indents = indents || 0;
         const errorStartStr = errorStart || '-->';
         const errorEndStr = errorEnd || '';
@@ -551,22 +557,24 @@ class ElementFinder {
      * @return {Object} An object representing this EF and its children, ready to be fed into JSON.stringify()
      */
     serialize() {
-        const o = {
+        const obj = {
             line: this.line,
             counter: this.counter,
             props: this.props,
-            children: []
+            children: [],
+            ...(this.matchMe ? { matchMe: true } : {}),
+            ...(this.isElemArray ? { isElemArray: true } : {}),
+            ...(this.isAnyOrder ? { isAnyOrder: true } : {}),
+            ...(!this.parent ? { fullStr: this.print() } : {})
         };
 
-        this.matchMe && (o.matchMe = true);
-        this.isElemArray && (o.isElemArray = true);
-        this.isAnyOrder && (o.isAnyOrder = true);
+        if (!this.parent) {
+            obj.fullStr = this.print();
+        }
 
-        !this.parent && (o.fullStr = this.print());
+        this.children.forEach((child) => obj.children.push(child.serialize()));
 
-        this.children.forEach((child) => o.children.push(child.serialize()));
-
-        return o;
+        return obj;
     }
 
     /**
@@ -600,10 +608,10 @@ class ElementFinder {
      * @return {Promise} Promise that resolves to the object { ef: this ef with errors set, matches: Array of WebElements that were matched }
      * @throws {Error} If an element array wasn't properly matched
      */
-    async getAll(driver, parentElem) {
+    async getAll(driver: WebDriver, parentElem: WebElement) {
         const obj = await driver.executeScript(
-            utils.es5(function (payload, parentElem, browserConsoleOutput) {
-                payload = JSON.parse(payload);
+            utils.es5(function (_payload: string, parentElem: Element, browserConsoleOutput) {
+                const payload = JSON.parse(_payload);
                 const ef = payload.ef;
                 const definedProps = payload.definedProps;
 
@@ -611,9 +619,7 @@ class ElementFinder {
 
                 findEF(
                     ef,
-                    parentElem
-                        ? toArray(parentElem.querySelectorAll('*')).concat([parentElem])
-                        : toArray(document.querySelectorAll('*'))
+                    parentElem ? [...parentElem.querySelectorAll('*'), parentElem] : [...document.querySelectorAll('*')]
                 );
                 const matches = ef.matchMeElems && ef.matchMeElems.length > 0 ? ef.matchMeElems : ef.matchedElems;
 
@@ -627,10 +633,10 @@ class ElementFinder {
                         console.log(parentElem);
                     }
 
-                    if (matches.length == 0) {
+                    if (matches.length === 0) {
                         console.log('%cNo matches found', 'color: red');
                     }
-                    else if (matches.length == 1) {
+                    else if (matches.length === 1) {
                         console.log('%cMatch found', 'color: green');
                         console.log(matches[0]);
                     }
@@ -662,7 +668,7 @@ class ElementFinder {
                  * @param {Boolean} [additive] - If true, add to ef's existing matchedElems (don't clear it out)
                  * @param {Boolean} [single] - If true, ignore ef's counter and uses a counter of 1x
                  */
-                function findEF(ef, pool, additive, single) {
+                function findEF(ef: ElementFinder, pool: Element[], additive?: boolean, single?: boolean) {
                     // Clear out existing state
                     if (!ef.blockErrors || !additive) {
                         ef.blockErrors = [];
@@ -692,12 +698,12 @@ class ElementFinder {
                             if (ef.isAnyOrder) {
                                 // Element array, any order
                                 // Remove from topElems the elems that match up with a child EF
-                                let foundElems = [];
+                                let foundElems: HTMLElement[] = [];
                                 for (let i = 0; i < ef.children.length; i++) {
                                     const childEF = ef.children[i];
                                     findEF(childEF, topElems);
                                     removeFromArr(topElems, childEF.matchedElems);
-                                    foundElems = foundElems.concat(childEF.matchedElems);
+                                    foundElems = [...foundElems, ...childEF.matchedElems];
                                 }
 
                                 if (topElems.length > 0) {
@@ -744,19 +750,20 @@ class ElementFinder {
                                     }
                                     else {
                                         // both indexes still good
-                                        const matchesBefore = [].concat(currChildEF.matchedElems || []);
+                                        const matchesBefore = [...(currChildEF.matchedElems ?? [])];
                                         findEF(currChildEF, [currTopElem], true, true);
+                                        const matchedElemensCount = currChildEF.matchedElems?.length ?? 0;
 
-                                        if (currChildEF.matchedElems.length > matchesBefore.length) {
+                                        if (matchedElemensCount > matchesBefore.length) {
                                             // currChildEF matches currTopElem
                                             indexE++;
 
-                                            if (currChildEF.matchedElems.length == currChildEF.counter.max) {
+                                            if (matchedElemensCount == currChildEF.counter.max) {
                                                 indexC++;
                                             }
                                         }
                                         else {
-                                            if (currChildEF.matchedElems.length == 0) {
+                                            if (matchedElemensCount == 0) {
                                                 if (hasChildErrors(currChildEF)) {
                                                     currChildEF.error = true;
                                                 }
@@ -766,8 +773,8 @@ class ElementFinder {
                                                 ef.error = true;
                                                 indexE++;
                                             }
-                                            else if (currChildEF.matchedElems.length < currChildEF.counter.min) {
-                                                currChildEF.error = 'only found ' + currChildEF.matchedElems.length;
+                                            else if (matchedElemensCount < currChildEF.counter.min) {
+                                                currChildEF.error = 'only found ' + matchedElemensCount;
                                                 ef.error = true;
                                             }
 
@@ -781,7 +788,7 @@ class ElementFinder {
                             // Normal EF
                             for (let i = 0; i < topElems.length && (max === undefined || i < max); ) {
                                 const topElem = topElems[i];
-                                const pool = toArray(topElem.querySelectorAll('*')); // all elements under topElem
+                                const pool = [...topElem.querySelectorAll('*')]; // all elements under topElem
                                 let remove = false;
 
                                 for (let j = 0; j < ef.children.length; j++) {
@@ -799,11 +806,12 @@ class ElementFinder {
                                     }
 
                                     const elemsMatchingChild = childEF.matchedElems;
+
                                     if (ef.isAnyOrder) {
                                         // Remove all elemsMatchingChild and their descendants from pool
                                         removeFromArr(pool, elemsMatchingChild);
                                         elemsMatchingChild.forEach(function (elem) {
-                                            removeFromArr(pool, toArray(elem.querySelectorAll('*')));
+                                            removeFromArr(pool, [...elem.querySelectorAll('*')]);
                                         });
                                     }
                                     else {
@@ -877,26 +885,27 @@ class ElementFinder {
                 /**
                  * @return {Array of Element} Elements from pool that match the top line in ef. Ignores the counter.
                  */
-                function findTopEF(ef, pool) {
-                    const record = {};
+                function findTopEF(ef: ElementFinder, pool) {
+                    const record: { [key: string]: unknown } = {};
 
                     if (browserConsoleOutput) {
                         const props = [];
                         for (let i = 0; i < ef.props.length; i++) {
                             props.push(ef.props[i].prop);
                         }
-                        record['Searching for EF'] = ef.line;
-                        record['[1] divide into props'] = props;
-                        record['[2] before'] = pool;
-                        record['[3] apply each prop'] = [];
-                        record['[4] after'] = [];
 
-                        searchRecord.push(record);
+                        searchRecord.push({
+                            'Searching for EF': ef.line,
+                            '[1] divide into props': props,
+                            '[2] before': pool,
+                            '[3] apply each prop': [],
+                            '[4] after': []
+                        });
                     }
 
                     for (let i = 0; i < ef.props.length; i++) {
                         const prop = ef.props[i];
-                        let approvedElems = [];
+                        let approvedElems: Element[] = [];
 
                         if (!Object.prototype.hasOwnProperty.call(definedProps, prop.def)) {
                             ef.error = 'ElementFinder prop \'' + prop.def + '\' is not defined';
@@ -938,11 +947,12 @@ class ElementFinder {
                             for (let i = 0; i < ef.props.length; i++) {
                                 props.push(ef.props[i].prop);
                             }
-                            const propApplication = {};
-                            propApplication['Applying prop'] = prop.prop;
-                            propApplication['[1] definitions'] = defs;
-                            propApplication['[2] before'] = fromPool;
-                            propApplication['[3] after'] = pool;
+                            const propApplication = {
+                                'Applying prop': prop.prop,
+                                '[1] definitions': defs,
+                                '[2] before': fromPool,
+                                '[3] after': pool
+                            };
 
                             record['[3] apply each prop'].push(propApplication);
                             record['[4] after'] = pool;
@@ -962,14 +972,14 @@ class ElementFinder {
                 /**
                  * @return {Boolean} true if the given EF's top parent has errors, false otherwise (only applies to top EF, not children)
                  */
-                function hasTopErrors(ef) {
+                function hasTopErrors(ef: ElementFinder) {
                     return ef.error || (ef.blockErrors && ef.blockErrors.length > 0);
                 }
 
                 /**
                  * @return {Boolean} true if the given EF's children have errors, false otherwise
                  */
-                function hasChildErrors(ef) {
+                function hasChildErrors(ef: ElementFinder) {
                     for (let i = 0; i < ef.children.length; i++) {
                         const childEF = ef.children[i];
                         if (childEF.error || (childEF.blockErrors && childEF.blockErrors.length > 0)) {
@@ -983,7 +993,7 @@ class ElementFinder {
                 /**
                  * @return {String} A summary of the given elem
                  */
-                function elemSummary(elem) {
+                function elemSummary(elem: Element) {
                     return (
                         elem.tagName.toLowerCase() +
                         (elem.id ? '#' + elem.id : '') +
@@ -994,7 +1004,7 @@ class ElementFinder {
                 /**
                  * Clears errors of the given EF's children
                  */
-                function clearErrorsOfChildren(ef) {
+                function clearErrorsOfChildren(ef: ElementFinder) {
                     for (let i = 0; i < ef.children.length; i++) {
                         const childEF = ef.children[i];
                         childEF.error = null;
@@ -1004,24 +1014,11 @@ class ElementFinder {
                 }
 
                 /**
-                 * @param {List or Array} list
-                 * @return {Array} Array with same contents as arr
-                 */
-                function toArray(list) {
-                    const newArr = [];
-                    for (let i = 0; i < list.length; i++) {
-                        const item = list[i];
-                        newArr.push(item);
-                    }
-                    return newArr;
-                }
-
-                /**
                  * @param {Array} arr1
                  * @param {Array} arr2
                  * @return {Array} Array consisting of items found in both arr1 and arr2
                  */
-                function intersectArr(arr1, arr2) {
+                function intersectArr(arr1: unknown[], arr2: unknown[]) {
                     const newArr = [];
                     for (let i = 0; i < arr1.length; i++) {
                         for (let j = 0; j < arr2.length; j++) {
@@ -1040,7 +1037,7 @@ class ElementFinder {
                  * @param {Array} arr2
                  * @return {Array} Array consisting of items found in arr1 and not in arr2
                  */
-                function intersectArrNot(arr1, arr2) {
+                function intersectArrNot(arr1: unknown[], arr2: unknown[]) {
                     const newArr = [];
                     for (let i = 0; i < arr1.length; i++) {
                         let found = false;
@@ -1061,9 +1058,9 @@ class ElementFinder {
                 /**
                  * Removes from array arr the items inside array items
                  */
-                function removeFromArr(arr, items) {
+                function removeFromArr(arr: unknown[], items: unknown[]) {
                     for (let i = 0; i < arr.length; ) {
-                        if (items.indexOf(arr[i]) != -1) {
+                        if (items.indexOf(arr[i]) !== -1) {
                             arr.splice(i, 1);
                         }
                         else {
@@ -1095,9 +1092,16 @@ class ElementFinder {
      * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time (if isNot is set, only throws error is elements still found after timeout)
      *                 Includes ANSI escape codes in error's stacktrace to color -->'s as red in the console
      */
-    find(driver, parentElem, isNot, isContinue, timeout, pollFrequency) {
-        timeout = timeout || 0;
-        pollFrequency = pollFrequency || 500;
+    find(
+        driver: WebDriver,
+        parentElem: WebElement,
+        isNot: boolean,
+        isContinue: boolean,
+        $timeout?: number,
+        $pollFrequency?: number
+    ) {
+        const timeout = $timeout ?? 0;
+        const pollFrequency = $pollFrequency ?? 500;
 
         const start = new Date();
         let results;
@@ -1107,7 +1111,7 @@ class ElementFinder {
                 results = await this.getAll(driver, parentElem);
                 results.ef = ElementFinder.parseObj(results.ef);
                 if (!isNot ? results.ef.hasErrors() : results.matches && results.matches.length > 0) {
-                    const duration = new Date() - start;
+                    const duration = Number(new Date()) - Number(start);
                     if (duration > timeout) {
                         const error = !isNot
                             ? new Error(
@@ -1148,12 +1152,12 @@ class ElementFinder {
      * NOTE: definedProps are injected into the browser to be executed, so don't reference anything outside each function and
      * make sure all js features used will work in every browser supported
      */
-    static defaultProps() {
+    static defaultProps(): Props {
         return {
             visible: [
                 utils.es5(function (elems) {
                     return elems.filter(function (elem) {
-                        if (elem.offsetWidth == 0 || elem.offsetHeight == 0) {
+                        if (elem instanceof HTMLElement && (elem.offsetWidth === 0 || elem.offsetHeight === 0)) {
                             return false;
                         }
 
@@ -1168,13 +1172,14 @@ class ElementFinder {
                         }
 
                         // Check opacity of parents
-                        elem = elem.parentElement;
-                        while (elem) {
-                            cs = window.getComputedStyle(elem);
+                        let el = elem.parentElement;
+
+                        while (el) {
+                            cs = window.getComputedStyle(el);
                             if (cs.opacity === '0') {
                                 return false;
                             }
-                            elem = elem.parentElement;
+                            el = el.parentElement;
                         }
 
                         return true;
@@ -1190,49 +1195,37 @@ class ElementFinder {
 
             enabled: [
                 utils.es5(function (elems) {
-                    return elems.filter(function (elem) {
-                        return elem.getAttribute('disabled') === null;
-                    });
+                    return elems.filter((elem) => elem.getAttribute('disabled') === null);
                 })
             ],
 
             disabled: [
                 utils.es5(function (elems) {
-                    return elems.filter(function (elem) {
-                        return elem.getAttribute('disabled') !== null;
-                    });
+                    return elems.filter((elem) => elem.getAttribute('disabled') !== null);
                 })
             ],
 
             checked: [
                 utils.es5(function (elems) {
-                    return elems.filter(function (elem) {
-                        return elem.checked;
-                    });
+                    return elems.filter((elem) => elem instanceof HTMLInputElement && elem.checked);
                 })
             ],
 
             unchecked: [
                 utils.es5(function (elems) {
-                    return elems.filter(function (elem) {
-                        return !elem.checked;
-                    });
+                    return elems.filter((elem) => elem instanceof HTMLInputElement && !elem.checked);
                 })
             ],
 
             selected: [
                 utils.es5(function (elems) {
-                    return elems.filter(function (elem) {
-                        return elem.selected;
-                    });
+                    return elems.filter((elem) => elem instanceof HTMLOptionElement && elem.selected);
                 })
             ],
 
             focused: [
                 utils.es5(function (elems) {
-                    return elems.filter(function (elem) {
-                        return elem === document.activeElement;
-                    });
+                    return elems.filter((elem) => elem === document.activeElement);
                 })
             ],
 
@@ -1270,15 +1263,17 @@ class ElementFinder {
 
             'page title contains': [
                 utils.es5(function (elems, input) {
-                    return document.title.toLowerCase().indexOf(input.toLowerCase()) != -1 ? elems : [];
+                    if (input === undefined) return [];
+                    return document.title.toLowerCase().indexOf(input.toLowerCase()) !== -1 ? elems : [];
                 })
             ],
 
             'page url': [
                 utils.es5(function (elems, input) {
+                    if (input === undefined) return [];
                     // absolute or relative
-                    return window.location.href == input ||
-                        window.location.href.replace(/^https?:\/\/[^/]*/, '') == input
+                    return window.location.href === input ||
+                        window.location.href.replace(/^https?:\/\/[^/]*/, '') === input
                         ? elems
                         : [];
                 })
@@ -1286,7 +1281,8 @@ class ElementFinder {
 
             'page url contains': [
                 utils.es5(function (elems, input) {
-                    return window.location.href.indexOf(input) != -1 ? elems : [];
+                    if (input === undefined) return [];
+                    return window.location.href.indexOf(input) !== -1 ? elems : [];
                 })
             ],
 
@@ -1294,15 +1290,17 @@ class ElementFinder {
             // containing input is found. Matches multiple elems if there's a tie.
             'next to': [
                 utils.es5(function (elems, input) {
-                    function canon(str) {
+                    if (input === undefined) return [];
+
+                    function canon(str?: string) {
                         return str ? str.trim().toLowerCase().replace(/\s+/g, ' ') : '';
                     }
 
-                    function innerTextCanon(el) {
-                        return el.innerText != undefined ? el.innerText : el.textContent;
+                    function innerTextCanon(el: typeof elems[number]) {
+                        return (el instanceof HTMLElement ? el.innerText : el.textContent) ?? '';
                     }
 
-                    input = canon(input);
+                    const $input = canon(input);
 
                     let containers = elems;
                     let atBody = false;
@@ -1310,7 +1308,7 @@ class ElementFinder {
                     while (!atBody) {
                         // if a container reaches document.body and nothing is still found, input doesn't exist on the page
                         containers = containers.map(function (container) {
-                            return container.parentElement;
+                            return container.parentElement ?? document.body;
                         });
                         containers.forEach(function (container) {
                             if (container === document.body) {
@@ -1318,10 +1316,10 @@ class ElementFinder {
                             }
                         });
 
-                        const matchedElems = [];
+                        const matchedElems: Element[] = [];
 
                         containers.forEach(function (container, index) {
-                            if (canon(innerTextCanon(container)).indexOf(input) != -1) {
+                            if (canon(innerTextCanon(container)).indexOf($input) !== -1) {
                                 matchedElems.push(elems[index]);
                             }
                         });
@@ -1337,35 +1335,38 @@ class ElementFinder {
 
             value: [
                 utils.es5(function (elems, input) {
-                    return elems.filter(function (elem) {
-                        return elem.value == input;
-                    });
+                    // @ts-expect-error 'value' is present on a bunch of HTML
+                    // elements, it's impossible to instanceof check for all of
+                    // them
+                    return elems.filter((elem) => elem.value === input);
                 })
             ],
 
             // Text is contained in innerText, value (including selected item in a select), placeholder, or associated label innerText
             contains: [
                 utils.es5(function (elems, input) {
-                    function canon(str) {
+                    if (input === undefined) return [];
+
+                    function canon(str?: string) {
                         return str ? str.trim().toLowerCase().replace(/\s+/g, ' ') : '';
                     }
 
-                    input = canon(input);
+                    const $input = canon(input);
 
-                    function innerTextCanon(el) {
-                        return el.innerText != undefined ? el.innerText : el.textContent;
+                    function innerTextCanon(el: typeof elems[number]) {
+                        return (el instanceof HTMLElement ? el.innerText : el.textContent) ?? '';
                     }
 
-                    function isMatch(str) {
-                        return canon(str).indexOf(input) != -1;
+                    function isMatch(str: string) {
+                        return canon(str).indexOf($input) !== -1;
                     }
 
-                    return elems.filter(function (elem) {
+                    return elems.filter(function (elem: Element) {
                         const innerText = innerTextCanon(elem);
                         let labelText = '';
                         if (elem.id) {
-                            let escape = function (s) {
-                                return s;
+                            let escape = function (str: string) {
+                                return str;
                             };
                             if (CSS && CSS.escape) {
                                 escape = CSS.escape;
@@ -1387,8 +1388,10 @@ class ElementFinder {
                         else {
                             return (
                                 isMatch(innerText) ||
+                                // @ts-expect-error 'value' is present on a bunch of HTML element types
                                 isMatch(elem.value) ||
-                                isMatch(elem.placeholder) ||
+                                ((elem instanceof HTMLInputElement || elem instanceof HTMLTextAreaElement) &&
+                                    isMatch(elem.placeholder)) ||
                                 isMatch(labelText) ||
                                 isMatch(dropdownText)
                             );
@@ -1400,19 +1403,21 @@ class ElementFinder {
             // Text is the exclusive and exact text in innerText, value (including selected item in a select), placeholder, or associated label innerText
             'contains exact': [
                 utils.es5(function (elems, input) {
-                    function isMatch(str) {
-                        return str == input;
+                    if (input === undefined) return [];
+
+                    function isMatch(str: string) {
+                        return str === input;
                     }
 
-                    function innerTextCanon(el) {
-                        return el.innerText != undefined ? el.innerText : el.textContent;
+                    function innerTextCanon(el: typeof elems[number]) {
+                        return (el instanceof HTMLElement ? el.innerText : el.textContent) ?? '';
                     }
 
                     return elems.filter(function (elem) {
                         const innerText = innerTextCanon(elem);
                         let labelText = '';
-                        let escape = function (s) {
-                            return s;
+                        let escape = function (str: string) {
+                            return str;
                         };
                         if (CSS && CSS.escape) {
                             escape = CSS.escape;
@@ -1433,8 +1438,10 @@ class ElementFinder {
                         else {
                             return (
                                 isMatch(innerText) ||
+                                // @ts-expect-error 'value' is present on a bunch of HTML element types
                                 isMatch(elem.value) ||
-                                isMatch(elem.placeholder) ||
+                                ((elem instanceof HTMLInputElement || elem instanceof HTMLTextAreaElement) &&
+                                    isMatch(elem.placeholder)) ||
                                 isMatch(labelText) ||
                                 isMatch(dropdownText)
                             );
@@ -1445,19 +1452,22 @@ class ElementFinder {
 
             innertext: [
                 utils.es5(function (elems, input) {
-                    function innerTextCanon(el) {
-                        return el.innerText != undefined ? el.innerText : el.textContent;
+                    if (input === undefined) return [];
+
+                    function innerTextCanon(el: typeof elems[number]) {
+                        return (el instanceof HTMLElement ? el.innerText : el.textContent) ?? '';
                     }
 
                     return elems.filter(function (elem) {
-                        const text = innerTextCanon(elem);
-                        return (text || '').indexOf(input) != -1;
+                        return innerTextCanon(elem).indexOf(input) !== -1;
                     });
                 })
             ],
 
             selector: [
                 utils.es5(function (elems, input) {
+                    if (input === undefined) return [];
+
                     let nodes = null;
                     try {
                         nodes = document.querySelectorAll(input);
@@ -1472,30 +1482,33 @@ class ElementFinder {
                         nodesArr.push(node);
                     }
                     return nodesArr.filter(function (node) {
-                        return elems.indexOf(node) != -1;
+                        return elems.indexOf(node) !== -1;
                     });
                 })
             ],
 
             xpath: [
                 utils.es5(function (elems, input) {
+                    if (input === undefined) return [];
+
                     const result = document.evaluate(input, document, null, XPathResult.ANY_TYPE, null);
+
                     let node = null;
-                    const nodes = [];
-                    // eslint-disable-next-line no-cond-assign
+                    const nodes: Node[] = [];
+
                     while ((node = result.iterateNext())) {
                         nodes.push(node);
                     }
 
-                    return elems.filter(function (elem) {
-                        return nodes.indexOf(elem) != -1;
-                    });
+                    return elems.filter((elem) => nodes.indexOf(elem) !== -1);
                 })
             ],
 
             // Has css style 'name:value'
             style: [
                 utils.es5(function (elems, input) {
+                    if (input === undefined) return [];
+
                     const matches = input.match(/^([^: ]+):(.*)$/);
                     if (!matches) {
                         return [];
@@ -1513,25 +1526,23 @@ class ElementFinder {
             // Same as an ord, returns nth elem, where n is 1-indexed
             position: [
                 utils.es5(function (elems, input) {
-                    return elems[parseInt(input) - 1];
+                    if (input === undefined) return [];
+
+                    return [elems[parseInt(input) - 1]];
                 })
             ],
 
             textbox: [
                 utils.es5(function (elems) {
-                    const nodes = document.querySelectorAll('input, textarea');
-                    const nodesArr = [];
-                    for (let i = 0; i < nodes.length; i++) {
-                        const node = nodes[i];
+                    const nodesArr = [...document.querySelectorAll('input, textarea')].filter((node) => {
                         const tagName = node.tagName.toLowerCase();
-                        if (
+                        return (
                             (tagName === 'input' &&
                                 (node.type === 'text' || node.type === 'password' || node.type === 'search')) ||
                             tagName === 'textarea'
-                        ) {
-                            nodesArr.push(node);
-                        }
-                    }
+                        );
+                    });
+
                     return elems.filter(function (elem) {
                         return nodesArr.indexOf(elem) != -1;
                     });
@@ -1544,7 +1555,7 @@ class ElementFinder {
      * Canonicalizes the text of a prop and isolates the input
      * @return {Array} Where index 0 contains the canonicalized prop name, and index 1 contains the input (undefined if no input)
      */
-    static canonicalizePropStr(str) {
+    static canonicalizePropStr(str: string) {
         const canonStr = str.replace(Constants.QUOTED_STRING_LITERAL, '').trim().replace(/\s+/g, ' ').toLowerCase();
 
         let input = (str.match(Constants.QUOTED_STRING_LITERAL) || [])[0];
@@ -1563,5 +1574,3 @@ class ElementFinder {
 }
 
 export default ElementFinder;
-
-ElementFinder.browserConsoleOutput = false;

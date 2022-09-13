@@ -31,14 +31,14 @@ class RunInstance {
 
     tree; // Tree currently being executed
     currBranch: Branch | null = null; // Branch currently being executed
-    currStep = null; // Step currently being executed
+    currStep: Step | null = null; // Step currently being executed
 
     isPaused = false; // true if we're currently paused (and we can only pause if there's just one branch in this.tree)
     isStopped = false; // true if we're permanently stopping this RunInstance
 
     persistent; // persistent variables
-    global: { [key: string]: any } = {}; // global variables
-    local: { [key: string]: any } = {}; // local variables
+    global: { [key: string]: unknown } = {}; // global variables
+    local: { [key: string]: unknown } = {}; // local variables
 
     localStack = []; // Array of objects, where each object stores local vars
     localsPassedIntoFunc = {}; // local variables being passed into the function at the current step
@@ -66,6 +66,7 @@ class RunInstance {
 
         let wasPaused = false;
         let overrideDebug = false;
+
         if (this.isPaused) {
             this.setPause(false); // resume if we're already paused
             wasPaused = true;
@@ -135,7 +136,7 @@ class RunInstance {
             }
 
             // Execute After Every Branch steps
-            await this.runAfterEveryBranch();
+            await this.runAfterEveryBranch(this.currBranch);
 
             this.currBranch = this.tree.nextBranch();
             this.stepsRan = new Branch();
@@ -153,7 +154,7 @@ class RunInstance {
      * @return {Promise} Promise that gets resolved when the step finishes execution
      * @throws {Error} If an error is thrown inside the step and error.fatal is set to true
      */
-    async runStep(step, branch, overrideDebug) {
+    async runStep(step: Step, branch: Branch, overrideDebug: boolean) {
         const stepNode = this.tree.stepNodeIndex[step.id];
 
         if (step.isSkipped) {
@@ -575,7 +576,7 @@ class RunInstance {
         }
         else {
             // all steps in current branch finished running, finish off the branch
-            await this.runAfterEveryBranch();
+            await this.runAfterEveryBranch(this.currBranch);
             return true;
         }
     }
@@ -599,13 +600,13 @@ class RunInstance {
             }
             else {
                 // all steps in current branch finished running, finish off the branch
-                await this.runAfterEveryBranch();
+                await this.runAfterEveryBranch(this.currBranch);
                 return true;
             }
         }
         else {
             // all steps in current branch finished running, finish off the branch
-            await this.runAfterEveryBranch();
+            await this.runAfterEveryBranch(this.currBranch);
             return true;
         }
     }
@@ -714,14 +715,14 @@ class RunInstance {
     /**
      * Sets the given persistent variable to the given value
      */
-    setPersistent(varname: string, value: UserValue) {
+    setPersistent<UserValue>(varname: string, value: UserValue) {
         return this.runner.setPersistent(varname, value);
     }
 
     /**
      * Sets the given global variable to the given value
      */
-    setGlobal(varname: string, value: UserValue) {
+    setGlobal<UserValue>(varname: string, value: UserValue) {
         this.global[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
@@ -729,7 +730,7 @@ class RunInstance {
     /**
      * Sets the given local variable to the given value
      */
-    setLocal(varname: string, value: UserValue) {
+    setLocal<UserValue>(varname: string, value: UserValue) {
         this.local[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
@@ -745,29 +746,31 @@ class RunInstance {
     /**
      * Sets a local variable on the last item in localStack
      */
-    setLocalOnStack(varname: string, value: UserValue) {
-        this.localStack[this.localStack.length - 1][utils.keepCaseCanonicalize(varname)] = value;
+    setLocalOnStack(varname: string, value?: UserValue) {
+        this.localStack.at(-1)[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
 
     /**
      * Set/Get a persistent variable
      */
-    p(varname: string, value: UserValue) {
+    p(varname: string, value?: UserValue) {
         return this.runner.p(varname, value);
     }
 
     /**
      * Set/Get a global variable
      */
-    g(varname: string, value: UserValue) {
+    g<T>(varname: string, value: T): T;
+    g(varname: string, value: undefined): unknown {
         return value !== undefined ? this.setGlobal(varname, value) : this.getGlobal(varname);
     }
 
     /**
      * Set/Get a local variable
      */
-    l(varname: string, value: UserValue) {
+    l<T>(varname: string, value: T): T;
+    l(varname: string, value: undefined): unknown {
         return value !== undefined ? this.setLocal(varname, value) : this.getLocal(varname);
     }
 
@@ -1197,7 +1200,7 @@ class RunInstance {
                             value = utils.stripQuotes(varBeingSet.value);
                         }
 
-                        if (['string', 'boolean', 'number'].indexOf(typeof value) != -1) {
+                        if (['string', 'boolean', 'number'].indexOf(typeof value) !== -1) {
                             // only if value is a string, boolean, or number
                             value = this.replaceVars(value, true); // recursive call, start at original step passed in
                         }
@@ -1251,27 +1254,27 @@ class RunInstance {
      * Executes all After Every Branch steps, sequentially, and finishes off the branch
      * @return {Promise} Promise that resolves once all of them finish running
      */
-    async runAfterEveryBranch() {
-        if (this.currBranch.afterEveryBranch) {
-            for (let i = 0; i < this.currBranch.afterEveryBranch.length; i++) {
-                const s = this.currBranch.afterEveryBranch[i];
+    async runAfterEveryBranch(currBranch: Branch) {
+        if (currBranch.afterEveryBranch) {
+            for (let i = 0; i < currBranch.afterEveryBranch.length; i++) {
+                const s = currBranch.afterEveryBranch[i];
                 await this.runHookStep(s, null, this.currBranch);
                 if (this.checkForStopped()) {
                     return;
                 }
-                if (this.runner.consoleOutput && this.currBranch.error) {
+                if (this.runner.consoleOutput && currBranch.error) {
                     const sn = this.tree.stepNodeIndex[s.id];
-                    this.outputError(this.currBranch.error, sn);
+                    this.outputError(currBranch.error, sn);
                     console.log('');
                 }
                 // finish running all After Every Branch steps, even if one fails, and even if there was a pause
             }
         }
 
-        this.currBranch.timeEnded = new Date();
-        if (this.currBranch.elapsed != -1) {
+        currBranch.timeEnded = new Date();
+        if (currBranch.elapsed !== -1) {
             // measure elapsed only if this RunInstance has never been paused
-            this.currBranch.elapsed = this.currBranch.timeEnded - this.currBranch.timeStarted;
+            currBranch.elapsed = currBranch.timeEnded - currBranch.timeStarted;
         }
 
         if (this.runner.consoleOutput) {
@@ -1279,7 +1282,7 @@ class RunInstance {
             console.log('');
         }
 
-        delete this.currBranch.isRunning;
+        delete currBranch.isRunning;
     }
 
     /**

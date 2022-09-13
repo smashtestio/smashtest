@@ -368,10 +368,10 @@ function plural(count: number) {
 (async () => {
     const passedReplCommands: string[] = [];
     let isBranchComplete: boolean;
-    let replServer;
+    let replServer: repl.REPLServer;
     let elapsed = '';
     let progressBar: progress.Bar;
-    let codeBlockStep;
+    let codeBlockStep: string | null;
 
     /**
      * Outputs info to the console that comes before the REPL prompt
@@ -796,7 +796,7 @@ function plural(count: number) {
     /**
      * Outputs a message upon the completion of a run
      */
-    function outputCompleteMessage(outputCounts) {
+    function outputCompleteMessage(outputCounts?: boolean) {
         console.log('');
         console.log(yellowChalk('Run complete'));
         if (outputCounts) {
@@ -826,13 +826,13 @@ function plural(count: number) {
      */
     function activateProgressBarTimer() {
         const timeout = tree.branches.length <= 100000 ? 500 : 5000; // every 500 ms or 5 secs
-        setTimeout(() => updateProgressBar(), timeout);
+        setTimeout(updateProgressBar, timeout);
     }
 
     /**
      * Called when the progress bar needs to be updated
      */
-    async function updateProgressBar(forceComplete) {
+    async function updateProgressBar(forceComplete?: boolean) {
         if (runner.isStopped) {
             return;
         }
@@ -890,23 +890,23 @@ function plural(count: number) {
      * Updates the elapsed variable
      */
     function updateElapsed() {
-        const d = new Date(null);
-        d.setSeconds((+new Date() - tree.timeStarted) / 1000);
-        elapsed = d.toISOString().substr(11, 8);
+        const d = new Date();
+        d.setSeconds((Number(new Date()) - Number(tree.timeStarted)) / 1000);
+        elapsed = d.toISOString().substring(11, 19);
     }
 
     /**
      * @return {Number} The number of spaces at the front of s
      */
-    function numberOfSpacesInFront(s) {
-        return (s.match(/^( *)/) || []).length;
+    function numberOfSpacesInFront(str: string) {
+        return (str.match(/^( *)/) || []).length;
     }
 
     /**
      * @return {String} The first line of s, "" if empty string
      */
-    function firstLine(s) {
-        const matches = s.match(/^.*/);
+    function firstLine(str: string) {
+        const matches = str.match(/^.*/);
         if (matches && matches.length > 0) {
             return matches[0];
         }
@@ -918,8 +918,8 @@ function plural(count: number) {
     /**
      * @return {String} The last line of s, "" if empty string
      */
-    function lastLine(s) {
-        const matches = s.match(/.*$/);
+    function lastLine(str: string) {
+        const matches = str.match(/.*$/);
         if (matches && matches.length > 0) {
             return matches[0];
         }
@@ -931,7 +931,7 @@ function plural(count: number) {
     /**
      * Called when the REPL needs to eval input
      */
-    async function evalLine(input) {
+    async function evalLine(input: string) {
         if (codeBlockStep !== null) {
             // we're currently inputting a code block
             codeBlockStep += '\n' + input;
