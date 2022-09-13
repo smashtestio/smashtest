@@ -21,8 +21,8 @@ class Step {
     log?; // Array of objects that represent the logs of this step
 
     elapsed?: number; // number of ms it took this step to execute
-    timeStarted?; // Date object (time) of when this step started being executed
-    timeEnded?; // Date object (time) of when this step ended execution
+    timeStarted?: Date; // Date object (time) of when this step started being executed
+    timeEnded?: Date; // Date object (time) of when this step ended execution
 
     targetCoords?: { x: number; y: number }; // if this is set, set the crosshairs on the before screenshot to these coords (where x and y are a percentage of the total width and height respectively)
 

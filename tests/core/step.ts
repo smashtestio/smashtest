@@ -5,23 +5,23 @@ import Step from '../../src/core/step.js';
 describe('Step', () => {
     describe('serialize()', () => {
         it('returns a serialized object', () => {
-            const s = new Step(1);
+            const step = new Step(1);
 
-            s.fid = 6;
-            s.level = 1;
+            step.fid = 6;
+            step.level = 1;
 
-            s.isPassed = true;
+            step.isPassed = true;
 
-            s.error = new Error('oops');
-            s.log = [{ text: 'log1' }, { text: 'log2' }];
+            step.error = new Error('oops');
+            step.log = [{ text: 'log1' }, { text: 'log2' }];
 
-            s.elapsed = 65;
-            s.timeStarted = new Date();
-            s.timeEnded = new Date();
+            step.elapsed = 65;
+            step.timeStarted = new Date();
+            step.timeEnded = new Date();
 
-            s.targetCoords = { x: 2, y: 4 };
+            step.targetCoords = { x: 2, y: 4 };
 
-            const o = s.serialize();
+            const o = step.serialize();
 
             Comparer.expect(o).to.match({
                 $exact: true,

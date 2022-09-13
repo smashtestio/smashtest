@@ -8,7 +8,7 @@ import * as utils from './utils.js';
  * Test runner
  */
 class Runner {
-    tree: Tree | null = null; // The tree to run (just parsed in)
+    tree; // The tree to run (just parsed in)
     reporter: Reporter | null = null; // The Reporter to use
 
     flags = {}; // Flags passed in through the command line (e.g., --max-parallel=7 --no-debug --groups="one,two" --> {"max-parallel": "7", "no-debug": "true", "groups": "one,two"})
@@ -18,7 +18,7 @@ class Runner {
     headless?: boolean; // If true, run external processes (e.g., browsers) as headless, if possible
     maxParallel = 5; // The maximum number of simultaneous branches to run
     maxScreenshots = -1; // The maximum number of screenshots to take, -1 for no limit
-    minFrequency?; // Only run branches at or above this frequency, no restrictions if this is undefined
+    minFrequency?: string; // Only run branches at or above this frequency, no restrictions if this is undefined
     noDebug = false; // If true, a compile error will occur if a $, ~, or ~~ is present anywhere in the tree
     outputErrors = true; // If true, output errors to console
     random = true; // If true, randomize the order of branches
@@ -30,9 +30,9 @@ class Runner {
     consoleOutput = true; // If true, output debug info to console
     isRepl = false; // If true, run in REPL mode
 
-    persistent = {}; // stores variables which persist from branch to branch, for the life of the Runner
-    globalInit = {}; // init each branch with these global variables
-    runInstances = []; // the currently-running RunInstance objects, each running a branch
+    persistent: { [key: string]: any } = {}; // stores variables which persist from branch to branch, for the life of the Runner
+    globalInit: { [key: string]: any } = {}; // init each branch with these global variables
+    runInstances: RunInstance[] = []; // the currently-running RunInstance objects, each running a branch
 
     isPaused = false; // True if this runner has been paused (set by the RunInstance within this.runInstances)
     isStopped = false; // True if this runner has been stopped
@@ -40,14 +40,16 @@ class Runner {
 
     screenshotCount = 0; // Number of screenshots taken
 
+    constructor(tree: Tree) {
+        this.tree = tree;
+    }
+
     /**
      * Initializes the runner with a tree and reporter
      * @param {Tree} tree - The tree to use
      * @param {Boolean} [noRandom] - If true, does not randomly sort branches
      */
-    init(tree: Tree, noRandom?: boolean) {
-        this.tree = tree;
-
+    init(noRandom?: boolean) {
         this.tree.groups = this.groups;
         this.tree.minFrequency = this.minFrequency;
         this.tree.noDebug = this.noDebug;
@@ -225,9 +227,14 @@ class Runner {
      * @return {Object} An Object representing this runner, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        const o = {};
-        this.isStopped && (o.isStopped = true);
-        this.isComplete && (o.isComplete = true);
+        const o: { isStopped?: true; isComplete?: true } = {};
+        if (this.isStopped) {
+            o.isStopped = true;
+        }
+
+        if (this.isComplete) {
+            o.isComplete = true;
+        }
 
         return o;
     }
@@ -235,14 +242,14 @@ class Runner {
     /**
      * @return Value of the given persistent variable (can be undefined)
      */
-    getPersistent(varname) {
+    getPersistent(varname: string) {
         return this.persistent[utils.keepCaseCanonicalize(varname)];
     }
 
     /**
      * Sets the given persistent variable to the given value
      */
-    setPersistent(varname, value) {
+    setPersistent(varname: string, value) {
         this.persistent[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
@@ -250,7 +257,7 @@ class Runner {
     /**
      * Set/Get a persistent variable
      */
-    p(varname, value?) {
+    p(varname: string, value?) {
         return value !== undefined ? this.setPersistent(varname, value) : this.getPersistent(varname);
     }
 
@@ -286,7 +293,7 @@ class Runner {
      * @param {Number} numInstances - The maximum number of branches to run in parallel
      * @return {Promise} Promise that resolves once all of them finish running, or a stop or pause occurs
      */
-    runBranches(numInstances) {
+    runBranches(numInstances: number) {
         // Spawn RunInstances, which will run in parallel
         const runInstancePromises = [];
         for (let i = 0; i < numInstances; i++) {

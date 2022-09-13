@@ -2,6 +2,8 @@ import cloneDeep from 'lodash/cloneDeep.js';
 import crypto from 'node:crypto';
 import * as Constants from './constants.js';
 import Step from './step.js';
+import Tree from './tree.js';
+import { StepNodeIndex } from './types.js';
 import * as utils from './utils.js';
 
 /**
@@ -14,7 +16,7 @@ class Branch {
     nonParallelIds?; // When multiple branches cannot be run in parallel (due to !), they are each given the same nonParallelId
 
     frequency?: string; // Frequency of this branch (either 'high', 'med', or 'low')
-    groups?; // The groups that this branch is a part of
+    groups?: string[]; // The groups that this branch is a part of
 
     beforeEveryBranch?: Step[]; // Array of Step, the steps to execute before this branch starts
     afterEveryBranch?: Step[]; // Array of Step, the steps to execute after this branch is done
@@ -45,7 +47,7 @@ class Branch {
      * @param {Step} step - The step to push onto the end of this branch
      * @param {Object} stepNodeIndex - An object that maps ids to StepNodes
      */
-    push(step, stepNodeIndex) {
+    push(step: Step, stepNodeIndex: StepNodeIndex) {
         this.steps.push(step);
         this.mergeModifiers(step, stepNodeIndex);
     }
@@ -55,7 +57,7 @@ class Branch {
      * @param {Step} step - The step to push onto the end of this branch
      * @param {Object} stepNodeIndex - An object that maps ids to StepNodes
      */
-    unshift(step, stepNodeIndex) {
+    unshift(step: Step, stepNodeIndex: StepNodeIndex) {
         this.steps.unshift(step);
         this.mergeModifiers(step, stepNodeIndex, true);
     }
@@ -66,7 +68,7 @@ class Branch {
      * @param {Object} stepNodeIndex - An object that maps ids to StepNodes
      * @param {Boolean} [toFront] - If true, step is being inserted to the front of this branch, false otherwise
      */
-    mergeModifiers(step, stepNodeIndex, toFront) {
+    mergeModifiers(step: Step, stepNodeIndex: StepNodeIndex, toFront: boolean) {
         const stepNode = stepNodeIndex[step.id];
         const functionDeclarationNode = stepNodeIndex[step.fid] || {};
 
@@ -116,7 +118,7 @@ class Branch {
      * @param {Branch} branch - The branch to merge in
      * @return {Branch} This branch
      */
-    mergeToEnd(branch) {
+    mergeToEnd(branch: Branch) {
         this.steps = this.steps.concat(branch.steps);
 
         branch.nonParallelIds &&
@@ -171,7 +173,7 @@ class Branch {
      * @param {Number} [spaces] - Number of spaces before each line, 3 if omitted
      * @return {String} The string representation of this branch
      */
-    output(stepNodeIndex, spaces) {
+    output(stepNodeIndex, spaces: number) {
         let beginSpace = '   ';
         if (spaces !== undefined) {
             beginSpace = utils.getIndents(spaces, ' ');
@@ -310,7 +312,7 @@ class Branch {
      * @param {Error} [error] - The Error object that caused the branch to fail (if an error occurred in a Step, that error should go into that Step, not here)
      * @param {String} [stepDataMode] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
      */
-    markBranch(state, error, stepDataMode) {
+    markBranch(state: 'pass' | 'fail' | 'skip', error, stepDataMode: Tree['stepDataMode']) {
         // Reset state
         delete this.isPassed;
         delete this.isFailed;
@@ -450,7 +452,9 @@ class Branch {
             steps: this.steps.map((step) => step.serialize())
         };
 
-        (this.isPassed || this.passedLastTime) && (o.isPassed = true);
+        if (this.isPassed || this.passedLastTime) {
+            o.isPassed = true;
+        }
 
         utils.copyProps(o, this, ['isFailed', 'isSkipped', 'isRunning', 'error', 'log', 'elapsed', 'hash']);
 

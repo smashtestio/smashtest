@@ -6,11 +6,11 @@ import * as utils from './utils.js';
  * Represents a step node within a Tree or StepBlock
  */
 class StepNode {
-    id; // number that uniquely identifies this step node (must be > 0)
+    id: number; // number that uniquely identifies this step node (must be > 0)
 
     indents = -1; // number of indents before this step node's text, where an indent consists of SPACES_PER_INDENT spaces
 
-    parent = null; // StepNode or StepBlockNode that's the parent of this StepNode (null if this StepNode is itself part of a StepBlockNode)
+    parent: StepNode | null = null; // StepNode or StepBlockNode that's the parent of this StepNode (null if this StepNode is itself part of a StepBlockNode)
     children: (StepNode | StepBlockNode)[] = []; // StepNode or StepBlockNode objects that are children of this StepNode ([] if this Step is itself part of a StepBlockNode)
 
     filename: string | null = null; // filename where this step node is from
@@ -58,7 +58,7 @@ class StepNode {
 
     used?: boolean; // set to true if this step node is used in a branch at least once
 
-    constructor(id) {
+    constructor(id: number) {
         this.id = id;
     }
 
@@ -69,16 +69,16 @@ class StepNode {
         return this.codeBlock !== undefined;
     }
 
-    /**
-     * Parses a line into this StepNode
-     * this.text will be set to '' if this is an empty line, and to '..' if the whole line is just '..'
-     * @param {String} line - The full text of the line
-     * @param {String} filename - The filename of the file where this step is
-     * @param {Integer} lineNumber - The line number of this step
-     * @returns {StepNode} This StepNode
-     * @throws {Error} If there is a parse error
-     */
-    parseLine(line, filename, lineNumber) {
+    // /**
+    //  * Parses a line into this StepNode
+    //  * this.text will be set to '' if this is an empty line, and to '..' if the whole line is just '..'
+    //  * @param {String} line - The full text of the line
+    //  * @param {String} filename - The filename of the file where this step is
+    //  * @param {Integer} lineNumber - The line number of this step
+    //  * @returns {StepNode} This StepNode
+    //  * @throws {Error} If there is a parse error
+    //  */
+    parseLine(line: string, filename: string, lineNumber: number) {
         this.filename = filename;
         this.lineNumber = lineNumber;
 
@@ -107,7 +107,7 @@ class StepNode {
         //   'Step [' is a multi-step-block function declaration
         //   '[' is a multi-level-step-block function declaration
         //   ']' is a multi-level-step-block function call to the last multi-level-step-block function declaration
-        this.isOpeningBracket = (matches[5] && matches[5].trim() == '[') || (matches[20] && matches[20].trim() == '[');
+        this.isOpeningBracket = (matches[5] && matches[5].trim() === '[') || (matches[20] && matches[20].trim() === '[');
         if (matches[4] || this.isOpeningBracket) {
             if (this.isOpeningBracket && (!matches[4] || matches[4].trim() != '*')) {
                 this.isFunctionDeclaration = true;

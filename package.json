@@ -55,6 +55,8 @@
     "ws": "^8.8.1"
   },
   "devDependencies": {
+    "@types/cli-progress": "^3.11.0",
+    "@types/glob": "^8.0.0",
     "@types/lodash": "^4.14.185",
     "@types/mocha": "^9.1.1",
     "@types/request": "^2.48.8",

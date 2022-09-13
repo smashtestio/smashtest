@@ -1,8 +1,8 @@
 import util from 'node:util';
 import * as tsNode from 'ts-node';
-import Branch from './branch.js'
+import Branch from './branch.js';
 import * as Constants from './constants.js';
-import Tree from './tree.js'
+import Tree from './tree.js';
 
 /**
  * @return {String} str but without leading whitespace and quotes ('', "", []), returns str if there are no quotes
@@ -200,23 +200,21 @@ export const numIndents = (line: string, filename: string, lineNumber: number) =
     if (spacesAtFront[1] != whitespaceAtFront[1]) {
         error('Spaces are the only type of whitespace allowed at the beginning of a step', filename, lineNumber);
     }
-    else {
-        const numSpaces = spacesAtFront[1].length;
-        const numIndents = numSpaces / Constants.SPACES_PER_INDENT;
 
-        if (numIndents - Math.floor(numIndents) != 0) {
-            error(
-                `The number of spaces at the beginning of a line must be a multiple of ${
-                    Constants.SPACES_PER_INDENT
-                }. You have ${numSpaces} space${numSpaces != 1 ? 's' : ''}.`,
-                filename,
-                lineNumber
-            );
-        }
-        else {
-            return numIndents;
-        }
+    const numSpaces = spacesAtFront[1].length;
+    const numIndents = numSpaces / Constants.SPACES_PER_INDENT;
+
+    if (numIndents - Math.floor(numIndents) != 0) {
+        error(
+            `The number of spaces at the beginning of a line must be a multiple of ${
+                Constants.SPACES_PER_INDENT
+            }. You have ${numSpaces} space${numSpaces != 1 ? 's' : ''}.`,
+            filename,
+            lineNumber
+        );
     }
+
+    return numIndents;
 };
 
 /**

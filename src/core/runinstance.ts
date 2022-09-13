@@ -6,6 +6,7 @@ import Branch from './branch.js';
 import * as Constants from './constants.js';
 import Runner from './runner.js';
 import Step from './step.js';
+import { UserValue } from './types.js';
 import * as utils from './utils.js';
 
 const require = createRequire(import.meta.url);
@@ -29,15 +30,15 @@ class RunInstance {
     runner;
 
     tree; // Tree currently being executed
-    currBranch = null; // Branch currently being executed
+    currBranch: Branch | null = null; // Branch currently being executed
     currStep = null; // Step currently being executed
 
     isPaused = false; // true if we're currently paused (and we can only pause if there's just one branch in this.tree)
     isStopped = false; // true if we're permanently stopping this RunInstance
 
     persistent; // persistent variables
-    global = {}; // global variables
-    local = {}; // local variables
+    global: { [key: string]: any } = {}; // global variables
+    local: { [key: string]: any } = {}; // local variables
 
     localStack = []; // Array of objects, where each object stores local vars
     localsPassedIntoFunc = {}; // local variables being passed into the function at the current step
@@ -652,7 +653,7 @@ class RunInstance {
      * @return {Promise} Promise that gets resolved with a Branch of steps that were run, once done executing
      * @throws {Error} Any errors that may occur during a branchify() of the given step
      */
-    async inject(text) {
+    async inject(text: string) {
         this.tree.parseIn(text, undefined, undefined, true);
         const keys = Object.keys(this.tree.stepNodeIndex);
         const stepNode = this.tree.stepNodeIndex[keys[keys.length - 1]];
@@ -686,21 +687,21 @@ class RunInstance {
     /**
      * @return Value of the given persistent variable (can be undefined)
      */
-    getPersistent(varname) {
+    getPersistent(varname: string) {
         return this.runner.getPersistent(varname);
     }
 
     /**
      * @return Value of the given global variable (can be undefined)
      */
-    getGlobal(varname) {
+    getGlobal(varname: string) {
         return this.global[utils.keepCaseCanonicalize(varname)];
     }
 
     /**
      * @return Value of the given local variable (can be undefined)
      */
-    getLocal(varname) {
+    getLocal(varname: string) {
         varname = utils.keepCaseCanonicalize(varname);
         if (Object.prototype.hasOwnProperty.call(this.localsPassedIntoFunc, varname)) {
             return this.localsPassedIntoFunc[varname];
@@ -713,14 +714,14 @@ class RunInstance {
     /**
      * Sets the given persistent variable to the given value
      */
-    setPersistent(varname, value) {
+    setPersistent(varname: string, value: UserValue) {
         return this.runner.setPersistent(varname, value);
     }
 
     /**
      * Sets the given global variable to the given value
      */
-    setGlobal(varname, value) {
+    setGlobal(varname: string, value: UserValue) {
         this.global[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
@@ -728,7 +729,7 @@ class RunInstance {
     /**
      * Sets the given local variable to the given value
      */
-    setLocal(varname, value) {
+    setLocal(varname: string, value: UserValue) {
         this.local[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
@@ -736,7 +737,7 @@ class RunInstance {
     /**
      * Sets a local variable being passed into a function
      */
-    setLocalPassedIn(varname, value) {
+    setLocalPassedIn(varname: string, value: UserValue) {
         this.localsPassedIntoFunc[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
@@ -744,7 +745,7 @@ class RunInstance {
     /**
      * Sets a local variable on the last item in localStack
      */
-    setLocalOnStack(varname, value) {
+    setLocalOnStack(varname: string, value: UserValue) {
         this.localStack[this.localStack.length - 1][utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
@@ -752,21 +753,21 @@ class RunInstance {
     /**
      * Set/Get a persistent variable
      */
-    p(varname, value?) {
+    p(varname: string, value: UserValue) {
         return this.runner.p(varname, value);
     }
 
     /**
      * Set/Get a global variable
      */
-    g(varname, value) {
+    g(varname: string, value: UserValue) {
         return value !== undefined ? this.setGlobal(varname, value) : this.getGlobal(varname);
     }
 
     /**
      * Set/Get a local variable
      */
-    l(varname, value) {
+    l(varname: string, value: UserValue) {
         return value !== undefined ? this.setLocal(varname, value) : this.getLocal(varname);
     }
 
@@ -784,14 +785,14 @@ class RunInstance {
     /**
      * Logs the given text
      */
-    log(text) {
+    log(text: string) {
         this.appendToLog(text, this.currStep || this.currBranch);
     }
 
     /**
      * Sets the timeout for all further steps in the branch, in secs
      */
-    setStepTimeout(secs) {
+    setStepTimeout(secs: number) {
         this.stepTimeout = secs;
     }
 
@@ -802,8 +803,8 @@ class RunInstance {
      * If only a package name is included, the var name is generated from packageName, but camel cased (e.g., one-two-three --> oneTwoThree)
      * The filename is the filename of the step being executed
      */
-    i(name1, name2, filename) {
-        const requireOrImportAndSet = (packageName, exportName, varName) => {
+    i(arg1: string | [string, string?], arg2: string | [string, string?] | undefined, filename: string): unknown {
+        const requireOrImportAndSet = (packageName: string, exportName: string, varName: string) => {
             try {
                 const module = require(packageName);
                 // See https://2ality.com/2017/01/babel-esm-spec-mode.html#how-does-the-spec-mode-work%3F
@@ -827,14 +828,14 @@ class RunInstance {
             }
         };
 
-        const hasVarName = name2 !== undefined;
-        const wrappedPackageName = hasVarName ? name2 : name1;
-        let packageName = Array.isArray(wrappedPackageName) ? wrappedPackageName[0] : wrappedPackageName;
-        const exportName = Array.isArray(wrappedPackageName) ? wrappedPackageName[1] : 'default';
+        const hasVarName = arg2 !== undefined;
+        const wrappedPackageName = hasVarName ? arg2 : arg1;
+        let packageName = Array.isArray(wrappedPackageName) ? wrappedPackageName[0] : (wrappedPackageName as string); // a little help for TS
+        const exportName = Array.isArray(wrappedPackageName) ? wrappedPackageName[1] || 'default' : 'default';
         const varName = hasVarName
-            ? name1
+            ? (arg1 as string) // a little help for TS
             : packageName
-                .replace(/-([a-z])/g, (m) => m.toUpperCase()) // camelCasing
+                .replace(/-([a-z])/g, (m: string) => m.toUpperCase()) // camelCasing
                 .replace(/-/g, '')
                 .replace(/.*\//, ''); // remove path
 
@@ -881,7 +882,7 @@ class RunInstance {
      * Outputs string s to console.log
      * Inserts empty lines so s is completely clear of the progress bar in the console
      */
-    c(s) {
+    c(s: string) {
         console.log('');
         console.log('');
         console.log(s);
@@ -898,58 +899,65 @@ class RunInstance {
      * @param {Boolean} [isSync] - If true, the code will be executed synchronously
      * @return {Promise} Promise that gets resolved with what code returns
      */
-    evalCodeBlock(code, funcName, filename, lineNumber = 1, logHere, isSync) {
+    evalCodeBlock(
+        code: string,
+        funcName: string,
+        filename: string,
+        lineNumber = 1,
+        logHere?: Step | Branch,
+        isSync?: boolean
+    ) {
         // Functions accessible from a code block
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const runInstance = this; // var so it's accesible in the eval()
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function log(text) {
+        function log(text: string) {
             runInstance.appendToLog(text, logHere);
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function getPersistent(varname) {
+        function getPersistent(varname: string) {
             return runInstance.getPersistent(varname);
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function getGlobal(varname) {
+        function getGlobal(varname: string) {
             return runInstance.getGlobal(varname);
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function getLocal(varname) {
+        function getLocal(varname: string) {
             return runInstance.getLocal(varname);
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function setPersistent(varname, value) {
+        function setPersistent(varname: string, value: UserValue) {
             return runInstance.setPersistent(varname, value);
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function setGlobal(varname, value) {
+        function setGlobal(varname: string, value: UserValue) {
             return runInstance.setGlobal(varname, value);
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function setLocal(varname, value) {
+        function setLocal(varname: string, value: UserValue) {
             return runInstance.setLocal(varname, value);
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function p(varname, value) {
+        function p(varname: string, value: UserValue) {
             return runInstance.p(varname, value);
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function g(varname, value) {
+        function g(varname: string, value: UserValue) {
             return runInstance.g(varname, value);
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function l(varname, value) {
+        function l(varname: string, value: UserValue) {
             return runInstance.l(varname, value);
         }
 
@@ -959,7 +967,7 @@ class RunInstance {
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function i(name1, name2) {
+        function i(name1: string | [string, string?], name2?: string | [string, string?]): unknown {
             return runInstance.i(name1, name2, filename);
         }
 
@@ -970,7 +978,7 @@ class RunInstance {
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function c(s) {
+        function c(s: string) {
             console.log(''); // outputs empty lines so s is completely clear of the progress bar in the console
             console.log('');
             console.log(s);
@@ -978,7 +986,7 @@ class RunInstance {
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function setStepTimeout(secs) {
+        function setStepTimeout(secs: number) {
             runInstance.setStepTimeout(secs);
         }
 
@@ -1042,7 +1050,7 @@ class RunInstance {
         /**
          * Generates js code that converts variables into normal js vars, appends code to header, returns header
          */
-        function loadIntoJsVars(header, arr, getter) {
+        function loadIntoJsVars(header: string, arr, getter: 'getLocal' | 'getGlobal' | 'getPersistent') {
             for (let varname in arr) {
                 if (Object.prototype.hasOwnProperty.call(arr, varname)) {
                     varname = utils.keepCaseCanonicalize(varname);
@@ -1066,7 +1074,7 @@ class RunInstance {
      * @return {String} text, with vars replaced with their values, with special chars unescaped (i.e., will have a newline char where a backslash-n once was)
      * @throws {Error} If there's a variable inside text that's never set
      */
-    replaceVars(text, lookAnywhere) {
+    replaceVars(text: string, lookAnywhere?: boolean) {
         text = utils.unescape(text);
         const matches = text.match(Constants.VAR);
         if (matches) {
@@ -1106,7 +1114,7 @@ class RunInstance {
      * @return {String} Value of the given variable at the given step and branch
      * @throws {Error} If the variable is never set
      */
-    findVarValue(varname, isLocal, lookAnywhere) {
+    findVarValue(varname: string, isLocal, lookAnywhere) {
         let variableFull = '';
         let variableFullLookahead = '';
         if (isLocal) {
@@ -1424,7 +1432,7 @@ class RunInstance {
     /**
      * Sets the pause state of this RunInstance and its Runner
      */
-    setPause(isPaused) {
+    setPause(isPaused: boolean) {
         this.isPaused = isPaused;
         this.runner.isPaused = isPaused;
     }

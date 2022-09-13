@@ -3,6 +3,7 @@ import * as Constants from './constants.js';
 import Step from './step.js';
 import StepBlockNode from './stepblocknode.js';
 import StepNode from './stepnode.js';
+import { StepNodeIndex } from './types.js';
 import * as utils from './utils.js';
 
 /**
@@ -25,28 +26,28 @@ class Tree {
     stepDataMode: 'all' | 'fail' | 'none' = 'all'; // Keep step data for all steps, failed steps only, or no steps
 
     // OPTIONAL
-    groups: string[]; // Array of array of string. Only generate branches whose groups match the expression, no restrictions if this is undefined, --groups=a,b+c === [ ['a'], ['b', 'c'] ] === A or (B and C)
-    minFrequency: string; // Only generate branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
+    groups?: string[]; // Array of array of string. Only generate branches whose groups match the expression, no restrictions if this is undefined, --groups=a,b+c === [ ['a'], ['b', 'c'] ] === A or (B and C)
+    minFrequency?: 'high' | 'med' | 'low'; // Only generate branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
     noDebug?: boolean; // If true, throws an error if at least one ~, ~~, or $ is encountered in the tree at or below the given step
     noRandom?: boolean; // If true, does not randomize the order of branches generated
     debugHash?: string; // If set, only generate the one branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
     noCondNonParallel?: boolean; // If true, conditional non-parallel modifiers (!!) are ignored
 
     elapsed?: number; // number of ms it took for all branches to execute, set to -1 if paused
-    timeStarted?; // Date object (time) of when this tree started being executed
-    timeEnded?; // Date object (time) of when this tree ended execution
+    timeStarted?: Date; // Date object (time) of when this tree started being executed
+    timeEnded?: Date; // Date object (time) of when this tree ended execution
 
     counts?: {
-        running: 0; // total number of branches currently running
-        passed: 0; // total number of passed branches in this tree (including the ones that passed last time)
-        failed: 0; // total number of failed branches in this tree
-        skipped: 0; // total number of skipped branches in this tree
-        complete: 0; // total number of complete branches in this tree (passed, failed, or skipped)
-        total: 0; // total number of branches in this tree
-        totalToRun: 0; // total number of branches that will be in the next run (total number of branches minus branches passed last time if we're doing a --skip-passed)
+        running: number; // total number of branches currently running
+        passed: number; // total number of passed branches in this tree (including the ones that passed last time)
+        failed: number; // total number of failed branches in this tree
+        skipped: number; // total number of skipped branches in this tree
+        complete: number; // total number of complete branches in this tree (passed, failed, or skipped)
+        total: number; // total number of branches in this tree
+        totalToRun: number; // total number of branches that will be in the next run (total number of branches minus branches passed last time if we're doing a --skip-passed)
 
-        totalStepsComplete: 0; // total number of complete steps in this tree (not including steps that passed last time or are being skipped)
-        totalSteps: 0; // total number of steps in this tree (not including steps that passed last time or are being skipped)
+        totalStepsComplete: number; // total number of complete steps in this tree (not including steps that passed last time or are being skipped)
+        totalSteps: number; // total number of steps in this tree (not including steps that passed last time or are being skipped)
     };
 
     /**
@@ -131,8 +132,11 @@ class Tree {
      * @param {Boolean} [isPackaged] - If true, filename is a package file
      * @param {Boolean} [allowIndented] - If true, allows the first step to have indents
      */
-    parseIn(buffer, filename, isPackaged, allowIndented) {
+    parseIn(buffer: string, filename: string, isPackaged: boolean, allowIndented?: boolean) {
         const lines = buffer.split(/\n/);
+
+        type AmendedStepNode = StepNode & { codeBlockLine?: true; codeBlockEnd?: true };
+        const stepNodes: AmendedStepNode[] = [];
 
         // Convert each string in lines to a StepNode object
         // For a line that's part of a code block, insert the code block contents into the StepNode that started the code block and remove that line
@@ -164,32 +168,33 @@ class Tree {
                     lastStepNodeCreated.codeBlock += '\n' + line;
                 }
 
-                lines[i] = this.newStepNode().parseLine('', filename, lineNumber); // blank out the line we just handled
-                lines[i].codeBlockLine = true;
+                const stepNode: AmendedStepNode = this.newStepNode().parseLine('', filename, lineNumber);
+                stepNode.codeBlockLine = true;
                 if (currentlyInsideCodeBlockFromLineNum == -1) {
                     // if the code block just ended, mark it as such
-                    lines[i].indents = utils.numIndents(line, filename, lineNumber);
-                    lines[i].codeBlockEnd = true;
+                    stepNode.indents = utils.numIndents(line, filename, lineNumber);
+                    stepNode.codeBlockEnd = true;
                 }
+                stepNodes.push(stepNode);
             }
             else {
-                const s = this.newStepNode().parseLine(line, filename, lineNumber);
-                s.indents = utils.numIndents(line, filename, lineNumber);
+                const stepNode = this.newStepNode().parseLine(line, filename, lineNumber);
+                stepNode.indents = utils.numIndents(line, filename, lineNumber);
 
-                if (!allowIndented && !lastNonEmptyStepNode && s.indents != 0) {
+                if (!allowIndented && !lastNonEmptyStepNode && stepNode.indents != 0) {
                     utils.error('The first step must have 0 indents', filename, lineNumber);
                 }
 
                 // If this is the start of a new code block
-                if (s.hasCodeBlock()) {
+                if (stepNode.hasCodeBlock()) {
                     currentlyInsideCodeBlockFromLineNum = lineNumber;
                 }
 
-                lines[i] = s;
-                lastStepNodeCreated = lines[i];
+                stepNodes.push(stepNode);
+                lastStepNodeCreated = stepNode;
 
-                if (s.text != '') {
-                    lastNonEmptyStepNode = s;
+                if (stepNode.text != '') {
+                    lastNonEmptyStepNode = stepNode;
                 }
             }
         }
@@ -200,31 +205,31 @@ class Tree {
         }
 
         // Validations for .. step nodes
-        for (let i = 0; i < lines.length; i++) {
-            if (lines[i].text == '..') {
-                if (i > 0 && lines[i - 1].text != '' && lines[i - 1].indents == lines[i].indents) {
+        for (let i = 0; i < stepNodes.length; i++) {
+            if (stepNodes[i].text == '..') {
+                if (i > 0 && stepNodes[i - 1].text != '' && stepNodes[i - 1].indents == stepNodes[i].indents) {
                     utils.error(
                         'You cannot have a .. line at the same indent level as the adjacent line above',
                         filename,
-                        lines[i].lineNumber
+                        stepNodes[i].lineNumber
                     );
                 }
-                if ((i + 1 < lines.length && lines[i + 1].text == '') || i + 1 == lines.length) {
+                if ((i + 1 < stepNodes.length && stepNodes[i + 1].text == '') || i + 1 == stepNodes.length) {
                     utils.error(
                         'You cannot have a .. line without anything directly below',
                         filename,
-                        lines[i].lineNumber
+                        stepNodes[i].lineNumber
                     );
                 }
-                if (i + 1 < lines.length && lines[i + 1].indents != lines[i].indents) {
+                if (i + 1 < stepNodes.length && stepNodes[i + 1].indents != stepNodes[i].indents) {
                     utils.error(
                         'A .. line must be followed by a line at the same indent level',
                         filename,
-                        lines[i].lineNumber
+                        stepNodes[i].lineNumber
                     );
                 }
-                if (i + 1 < lines.length && lines[i + 1].text == '..') {
-                    utils.error('You cannot have two .. lines in a row', filename, lines[i].lineNumber);
+                if (i + 1 < stepNodes.length && stepNodes[i + 1].text == '..') {
+                    utils.error('You cannot have two .. lines in a row', filename, stepNodes[i].lineNumber);
                 }
             }
         }
@@ -234,8 +239,8 @@ class Tree {
         // 1) all lines are at the same indent level
         // 2) has no '' lines in the middle
         // 3) is followed by a '' line, indented '..' line, line that's differently indented, or end of file
-        for (let i = 0; i < lines.length; ) {
-            if (lines[i].text == '' || lines[i].text == '..') {
+        for (let i = 0; i < stepNodes.length; ) {
+            if (stepNodes[i].text == '' || stepNodes[i].text == '..') {
                 // The first line in a step block is a normal line
                 i++;
                 continue;
@@ -244,25 +249,25 @@ class Tree {
             // Current line may start a step block
             const potentialStepBlock = new StepBlockNode();
 
-            if (i > 0 && lines[i - 1].text == '..') {
+            if (i > 0 && stepNodes[i - 1].text == '..') {
                 potentialStepBlock.isSequential = true;
             }
 
-            potentialStepBlock.steps.push(lines[i]);
+            potentialStepBlock.steps.push(stepNodes[i]);
 
             // See how far down it goes
             let j;
-            for (j = i + 1; j < lines.length; j++) {
+            for (j = i + 1; j < stepNodes.length; j++) {
                 // var so that j is accessible outside the for loop
-                if (lines[j].codeBlockLine) {
+                if (stepNodes[j].codeBlockLine) {
                     continue;
                 }
-                else if (lines[j].text == '' || lines[j].indents != potentialStepBlock.steps[0].indents) {
+                else if (stepNodes[j].text == '' || stepNodes[j].indents != potentialStepBlock.steps[0].indents) {
                     // We've reached the end of the (potential) step block
                     break;
                 }
                 else {
-                    potentialStepBlock.steps.push(lines[j]);
+                    potentialStepBlock.steps.push(stepNodes[j]);
                 }
             }
 
@@ -270,15 +275,15 @@ class Tree {
                 // We've found a step block, which goes from lines index i to j
 
                 if (
-                    j < lines.length &&
-                    lines[j].text != '' &&
-                    lines[j].text != '..' &&
-                    lines[j].indents == potentialStepBlock.steps[0].indents + 1
+                    j < stepNodes.length &&
+                    stepNodes[j].text != '' &&
+                    stepNodes[j].text != '..' &&
+                    stepNodes[j].indents == potentialStepBlock.steps[0].indents + 1
                 ) {
                     utils.error(
                         'There must be an empty line under a step block if it has children directly underneath it. Try putting an empty line under this line.',
                         filename,
-                        lines[j].lineNumber - 1
+                        stepNodes[j].lineNumber - 1
                     );
                 }
 
@@ -310,7 +315,7 @@ class Tree {
                 }
 
                 // Have the StepBlockNode object we created replace its corresponding StepNodes
-                lines.splice(i, j - i, potentialStepBlock);
+                stepNodes.splice(i, j - i, potentialStepBlock);
                 i++; // next i will be one position past the new StepBlockNode's index
             }
             else {
@@ -319,23 +324,23 @@ class Tree {
         }
 
         // Remove steps that are '' or '..' (we don't need them anymore)
-        for (let i = 0; i < lines.length; ) {
-            if (lines[i] instanceof StepBlockNode) {
+        for (let i = 0; i < stepNodes.length; ) {
+            if (stepNodes[i] instanceof StepBlockNode) {
                 i++;
                 continue;
             }
-            else if (lines[i].text == '') {
-                this.deleteStepNode(lines[i].id);
-                lines.splice(i, 1);
+            else if (stepNodes[i].text == '') {
+                this.deleteStepNode(stepNodes[i].id);
+                stepNodes.splice(i, 1);
             }
-            else if (lines[i].text == '..') {
+            else if (stepNodes[i].text == '..') {
                 // Validate that .. steps have a StepBlockNode directly below
-                if (i + 1 < lines.length && !(lines[i + 1] instanceof StepBlockNode)) {
-                    utils.error('A .. line must be followed by a step block', filename, lines[i].lineNumber);
+                if (i + 1 < stepNodes.length && !(stepNodes[i + 1] instanceof StepBlockNode)) {
+                    utils.error('A .. line must be followed by a step block', filename, stepNodes[i].lineNumber);
                 }
                 else {
-                    this.deleteStepNode(lines[i].id);
-                    lines.splice(i, 1);
+                    this.deleteStepNode(stepNodes[i].id);
+                    stepNodes.splice(i, 1);
                 }
             }
             else {
@@ -346,8 +351,8 @@ class Tree {
         // Set the parents and children of each StepNode/StepBlockNode in lines, based on the indents of each StepNode/StepBlockNode
         // Insert the contents of lines into the tree (under this.root)
         let prevStepNode = null;
-        for (let i = 0; i < lines.length; i++) {
-            const currStepNode = lines[i]; // either a StepNode or StepBlockNode object
+        for (let i = 0; i < stepNodes.length; i++) {
+            const currStepNode = stepNodes[i]; // either a StepNode or StepBlockNode object
 
             // Packages
             if (isPackaged) {
@@ -656,7 +661,13 @@ ${branchAbove.output(this.stepNodeIndex)}
      * @return {Array} Array of Branch, containing the branches at and under stepNode (does not include the steps from branchAbove). Returns null if stepNode is a function declaration but isFunctionCall wasn't set (i.e., an unexpected function declaration - very rare scenario).
      * @throws {Error} If an error occurred
      */
-    branchify(stepNode, branchAbove = new Branch(), level = 0, isFunctionCall, isSequential) {
+    branchify(
+        stepNode: StepNode,
+        branchAbove = new Branch(),
+        level = 0,
+        isFunctionCall: boolean,
+        isSequential: boolean
+    ) {
         // ***************************************
         // 1) Initialize vars
         // ***************************************
@@ -700,14 +711,14 @@ ${branchAbove.output(this.stepNodeIndex)}
         //    (may be multiple branches if this step node is a function call, etc.)
         // ***************************************
 
-        let branchesFromThisStepNode = []; // Array of Branch
-        const fids = []; // If stepNode is a function call, all matching function declaration ids go here
+        let branchesFromThisStepNode: Branch[] = []; // Array of Branch
+        const fids: number[] = []; // If stepNode is a function call, all matching function declaration ids go here
 
         if (stepNode.indents == -1) {
             // We're at the root. Ignore it.
         }
         else if (stepNode.isFunctionCall) {
-            let newBranchesFromThisStepNode = [];
+            let newBranchesFromThisStepNode: Branch[] = [];
             const functionDeclarationNodes = this.findFunctionDeclarations(step, branchAbove);
 
             functionDeclarationNodes.forEach((functionDeclarationNode) => {
@@ -880,7 +891,7 @@ ${branchAbove.output(this.stepNodeIndex)}
             });
         }
 
-        function setHooks(child, self) {
+        function setHooks(child: StepNode, self: WEBGL_compressed_texture_etc1) {
             if (child.isHook) {
                 const hookStep = new Step(child.id);
                 hookStep.level = 0;
@@ -1082,7 +1093,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         /**
          * Temporarily places the given steps onto the end of branchAbove, executes f(), removes the temporary steps, then returns what f() returned
          */
-        function placeOntoBranchAbove(steps, f) {
+        function placeOntoBranchAbove(steps: Step[], f) {
             branchAbove.steps = branchAbove.steps.concat(steps);
             const ret = f();
             for (let i = 0; i < steps.length; i++) {
@@ -1098,7 +1109,7 @@ ${branchAbove.output(this.stepNodeIndex)}
      * @param {Boolean} [isRoot] - If true, branches are the children of the root step in the tree
      * @return {Array of Branch} Branches from branches that are not being removed due to $, ~, minFrequency, or groups
      */
-    removeUnwantedBranches(branches, isRoot) {
+    removeUnwantedBranches(branches: Branch[], isRoot: boolean) {
         if (this.debugHash) {
             return branches;
         }
@@ -1367,7 +1378,7 @@ ${branchAbove.output(this.stepNodeIndex)}
 
         // Randomize order of branches
         if (!this.noRandom) {
-            const randomizeOrder = function (arr) {
+            const randomizeOrder = function (arr: unknown[]) {
                 for (let i = arr.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
                     [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -1377,9 +1388,9 @@ ${branchAbove.output(this.stepNodeIndex)}
         }
 
         // Sort by frequency, but otherwise keeping the same order
-        const highBranches = [];
-        const medBranches = [];
-        const lowBranches = [];
+        const highBranches: Branch[] = [];
+        const medBranches: Branch[] = [];
+        const lowBranches: Branch[] = [];
         this.branches.forEach((branch) => {
             if (branch.frequency === 'high') {
                 highBranches.push(branch);
@@ -1503,7 +1514,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         /**
          * @return {Object} stepNodeIndex, but only with step nodes that are actually used at least once
          */
-        function serializeUsedStepNodes(stepNodeIndex) {
+        function serializeUsedStepNodes(stepNodeIndex: StepNodeIndex) {
             const o = {};
             for (const key in stepNodeIndex) {
                 if (Object.prototype.hasOwnProperty.call(stepNodeIndex, key)) {
@@ -1623,7 +1634,14 @@ ${branchAbove.output(this.stepNodeIndex)}
      * @param {Boolean} [runningOnly] - If true, only count branches that are currently running
      * @return {Number} Number of branches
      */
-    getBranchCount(runnableOnly, completeOnly, passedOnly, failedOnly, skippedOnly, runningOnly) {
+    getBranchCount(
+        runnableOnly: boolean,
+        completeOnly: boolean,
+        passedOnly: boolean,
+        failedOnly: boolean,
+        skippedOnly: boolean,
+        runningOnly?: boolean
+    ) {
         let count = 0;
         for (let i = 0; i < this.branches.length; i++) {
             const branch = this.branches[i];

@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
 import repl from 'node:repl';
+// @ts-expect-error - no types
 import readFiles from 'read-files-promise';
 import * as Constants from './constants.js';
 import { reporter, runner, tree } from './instances.js';
@@ -21,7 +22,7 @@ import * as utils from './utils.js';
 // import packageJson from '../package.json' assert { type: 'json' };
 import { readFileSync } from 'fs';
 const filePath = new URL('../../package.json', import.meta.url).pathname;
-const packageJson = JSON.parse(readFileSync(filePath));
+const packageJson = JSON.parse(readFileSync(filePath, 'utf-8'));
 
 const { version } = packageJson;
 
@@ -57,7 +58,7 @@ function setSigint() {
     });
 }
 
-async function exit(forcedStop, exitCode) {
+async function exit(forcedStop?: boolean, exitCode?: number) {
     if (forcedStop) {
         console.log('Stopping...');
         console.log('');
@@ -360,21 +361,16 @@ function restoreCursor() {
 /**
  * Returns "es" if count isn't 1
  */
-function plural(count) {
-    if (count == 1) {
-        return '';
-    }
-    else {
-        return 'es';
-    }
+function plural(count: number) {
+    return count == 1 ? '' : 'es';
 }
 
 (async () => {
-    const passedReplCommands = [];
-    let isBranchComplete;
+    const passedReplCommands: string[] = [];
+    let isBranchComplete: boolean;
     let replServer;
     let elapsed = '';
-    let progressBar = null;
+    let progressBar: progress.Bar;
     let codeBlockStep;
 
     /**
@@ -482,7 +478,7 @@ function plural(count) {
         try {
             fileBuffers = await readFiles([CONFIG_FILENAME], { encoding: 'utf8' });
         }
-        catch (e) {
+        catch {
             // it's ok if there's no config file
         }
 
@@ -582,7 +578,7 @@ function plural(count) {
         // Generate branches
         process.stdout.write('Generating branches...\x1B[?25l'); // temporary message + hide cursor
         try {
-            runner.init(tree);
+            runner.init();
         }
         finally {
             // Remove "Generating branches..."
@@ -758,9 +754,13 @@ function plural(count) {
                 }
 
                 // Remove unnecessary built-in commands
+                // @ts-expect-error deletion works
                 delete replServer.commands.load;
+                // @ts-expect-error deletion works
                 delete replServer.commands.break;
+                // @ts-expect-error deletion works
                 delete replServer.commands.clear;
+                // @ts-expect-error deletion works
                 delete replServer.commands.save;
 
                 replServer.on('exit', () => {
@@ -891,7 +891,7 @@ function plural(count) {
      */
     function updateElapsed() {
         const d = new Date(null);
-        d.setSeconds((new Date() - tree.timeStarted) / 1000);
+        d.setSeconds((+new Date() - tree.timeStarted) / 1000);
         elapsed = d.toISOString().substr(11, 8);
     }
 

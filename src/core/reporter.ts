@@ -5,8 +5,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import readFiles from 'read-files-promise';
 import { WebSocketServer } from 'ws';
-import Runner from './runner.js'
-import Tree from './tree.js'
+import Runner from './runner.js';
+import Tree from './tree.js';
 import * as utils from './utils.js';
 
 let reportFilename: string,
@@ -26,16 +26,16 @@ class Reporter {
     runner; // the Runner object to report on
 
     reportTemplate = ''; // template for html reports
-    reportTime = null; // Date when the report was generated
+    reportTime: Date | null = null; // Date when the report was generated
 
     isReportServer = true; // whether or not to run the report server
-    reportDomain = null; // domain:port where report server's api is available
-    wsServer = null; // websocket server object
+    reportDomain: string | null = null; // domain:port where report server's api is available
+    wsServer: WebSocketServer | null = null; // websocket server object
 
     prevSnapshot = null; // previous snapshot sent over websockets
 
-    timerFull = null; // timer that goes off when it's time to do a full write
-    timerSnapshot = null; // timer that goes off when it's time to do a snapshot write
+    timerFull: NodeJS.Timeout | null = null; // timer that goes off when it's time to do a full write
+    timerSnapshot: NodeJS.Timeout | null = null; // timer that goes off when it's time to do a snapshot write
 
     stopped = false; // true if this Reporter has been stopped
 

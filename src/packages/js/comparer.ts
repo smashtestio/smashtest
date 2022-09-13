@@ -1,5 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep.js';
 import * as Constants from '../../core/constants.js';
+import type { Error } from '../../core/types.js';
 import * as utils from '../../core/utils.js';
 
 const RESERVED_KEYWORDS = [
@@ -33,6 +34,10 @@ class ComparerNode {
 }
 
 class Comparer {
+    static defaultErrorStart = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + '-->';
+    static defaultErrorEnd = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY;
+    static seen: any[];
+
     /**
      * Compares the actual object against the expected object
      * Usage: expect(actualObj, errorStart, errorEnd, jsonClone).to.match(expectedObj)
@@ -44,7 +49,7 @@ class Comparer {
      * @param {Boolean} [jsonClone] - If true, compares using the rough clone method, aka JSON.stringify + JSON.parse (which handles multiple references to the same object inside actualObj, but also removes functions and undefineds, and converts them to null in arrays)
      * @throws {Error} If actualObj doesn't match expectedObj
      */
-    static expect(actualObj, errorStart: string, errorEnd: string, errorHeader: string, jsonClone?: boolean) {
+    static expect(actualObj, errorStart?: string, errorEnd?: string, errorHeader?: string, jsonClone?: boolean) {
         if (errorStart === undefined) {
             errorStart = Comparer.defaultErrorStart;
         }
@@ -83,7 +88,7 @@ class Comparer {
             actual = actual.value;
         }
 
-        const errors = [];
+        const errors: Error[] = [];
 
         if (typeof expected === 'object') {
             if (expected === null) {
@@ -393,7 +398,7 @@ class Comparer {
                                 !actual ||
                                 (!Object.prototype.hasOwnProperty.call(actual, key) && expected[key] !== undefined)
                             ) {
-                                errors.push({ blockError: true, text: 'missing', key: key, obj: expected[key] });
+                                errors.push({ blockError: true, text: 'missing', key, obj: expected[key] });
                             }
                             else {
                                 actual[key] = this.comparison(actual[key], expected[key], subsetMatching);
@@ -447,7 +452,7 @@ class Comparer {
      * @param {Boolean} [isRecursive] - If true, this is a recursive call from within hasErrors()
      * @return {Boolean} True if value has errors in it, false otherwise
      */
-    static hasErrors(value, isRecursive) {
+    static hasErrors(value, isRecursive: boolean) {
         // Do not traverse value if it's been seen already (in the case of object with circular references)
         if (this.wasSeen(value)) return false;
 
@@ -527,7 +532,7 @@ class Comparer {
      * @param {Boolean} [commaAtEnd] - If true, put a comma at the end of the printed value
      * @return {String} The pretty-printed version of value, including errors
      */
-    static print(value, errorStart, errorEnd, indents, commaAtEnd) {
+    static print(value, errorStart: string, errorEnd: string, indents: number, commaAtEnd: boolean) {
         if (!indents) {
             indents = 0;
         }
@@ -547,7 +552,7 @@ class Comparer {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         const self = this;
 
-        let errors = [];
+        let errors: Error[] = [];
         if (value instanceof ComparerNode) {
             errors = value.errors;
             value = value.value;
@@ -664,7 +669,7 @@ class Comparer {
      * @return A clone of the given value
      * NOTE: In non-json-clone, if there are multiple references to a shared object in value, that object will be shared in the clone as well
      */
-    static clone(value, jsonClone?: boolean) {
+    static clone(value: any, jsonClone?: boolean) {
         return jsonClone ? this.jsonClone(value) : cloneDeep(value);
     }
 
@@ -675,12 +680,9 @@ class Comparer {
      * An object value that's undefined or a function will be removed. An array value that's undefined or a function will be convered to null.
      * Will throw an error if value contains a circular reference
      */
-    static jsonClone(value) {
+    static jsonClone(value: any) {
         return JSON.parse(JSON.stringify(value));
     }
 }
 
 export default Comparer;
-
-Comparer.defaultErrorStart = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + '-->';
-Comparer.defaultErrorEnd = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY;
