@@ -1,9 +1,11 @@
 import chalk from 'chalk';
+import invariant from 'tiny-invariant';
 import Reporter from './reporter.js';
 import RunInstance from './runinstance.js';
 import Tree from './tree.js';
-import { Frequency, UserValue } from './types.js';
+import { Frequency } from './types.js';
 import * as utils from './utils.js';
+import BrowserInstance from '../packages/js/browserinstance.js';
 
 /**
  * Test runner
@@ -31,8 +33,8 @@ class Runner {
     consoleOutput = true; // If true, output debug info to console
     isRepl = false; // If true, run in REPL mode
 
-    persistent: { [key: string]: UserValue } = {}; // stores variables which persist from branch to branch, for the life of the Runner
-    globalInit: { [key: string]: UserValue } = {}; // init each branch with these global variables
+    persistent: { [key: string]: unknown } = {}; // stores variables which persist from branch to branch, for the life of the Runner
+    globalInit: { [key: string]: unknown } = {}; // init each branch with these global variables
     runInstances: RunInstance[] = []; // the currently-running RunInstance objects, each running a branch
 
     isPaused = false; // True if this runner has been paused (set by the RunInstance within this.runInstances)
@@ -198,12 +200,7 @@ class Runner {
      * @return {Step} The next not-yet-completed step in the first RunInstance, or null if the first RunInstance's branch is done
      */
     getNextReadyStep() {
-        if (this.runInstances.length == 0) {
-            return null;
-        }
-        else {
-            return this.runInstances[0].getNextReadyStep();
-        }
+        return this.runInstances[0]?.getNextReadyStep?.();
     }
 
     /**
@@ -217,7 +214,7 @@ class Runner {
      * Creates a single empty RunInstance and pauses it
      * Will be used by --repl
      */
-    createEmptyRunner(tree) {
+    createEmptyRunner(tree: Tree) {
         this.tree = tree;
         this.runInstances = [new RunInstance(this)];
         this.runInstances[0].isPaused = true;
@@ -250,7 +247,7 @@ class Runner {
     /**
      * Sets the given persistent variable to the given value
      */
-    setPersistent(varname: string, value) {
+    setPersistent<T>(varname: string, value: T) {
         this.persistent[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
@@ -258,7 +255,9 @@ class Runner {
     /**
      * Set/Get a persistent variable
      */
-    p(varname: string, value?) {
+    p<T = BrowserInstance[]>(varname: 'browsers', value?: T): T;
+    p<T>(varname: string, value?: T): T;
+    p(varname: string, value?: undefined): unknown {
         return value !== undefined ? this.setPersistent(varname, value) : this.getPersistent(varname);
     }
 
@@ -323,9 +322,11 @@ class Runner {
             }
         }
 
+        invariant(this.tree.timeStarted, 'Internal error: tree.timeStarted hasn\'t been initialized');
+
         this.tree.timeEnded = new Date();
         if (this.tree.elapsed !== -1) {
-            this.tree.elapsed = this.tree.timeEnded - this.tree.timeStarted; // only measure elapsed if we've never been paused
+            this.tree.elapsed = Number(this.tree.timeEnded) - Number(this.tree.timeStarted); // only measure elapsed if we've never been paused
         }
 
         this.isComplete = true;
@@ -336,14 +337,16 @@ class Runner {
      */
     formatStackTrace(error: Error) {
         let stack = error.stack;
+
+        invariant(stack, 'Internal error: error.stack is undefined');
+
         stack = stack.replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`);
 
-        let firstLine = stack.match(/.*/);
+        const firstLine = stack.match(/.*/);
         if (firstLine) {
-            firstLine = firstLine[0];
-            stack = stack.replace(firstLine, '');
+            stack = stack.replace(firstLine[0], '');
             stack = chalk.gray(stack);
-            stack = chalk.red(firstLine) + stack;
+            stack = chalk.red(firstLine[0]) + stack;
         }
 
         return stack;

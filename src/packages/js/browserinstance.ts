@@ -10,20 +10,21 @@ import * as firefox from 'selenium-webdriver/firefox.js';
 import * as ie from 'selenium-webdriver/ie.js';
 import * as safari from 'selenium-webdriver/safari.js';
 import Sinon from 'sinon';
+import invariant from 'tiny-invariant';
 import { reporter } from '../../core/instances.js';
 import RunInstance from '../../core/runinstance.js';
 import Runner from '../../core/runner.js';
 import Step from '../../core/step.js';
-import { BrowserParams } from '../../core/types.js';
+import { BrowserParams, EFElement } from '../../core/types.js';
 import * as utils from '../../core/utils.js';
 import Comparer from './comparer.js';
 import ElementFinder from './elementfinder.js';
 import { stubfetch } from './stubfetch.js';
 
 class BrowserInstance {
-    driver: WebDriver = null;
+    driver: WebDriver | null = null;
     runInstance;
-    startTime: Date;
+    startTime?: Date;
     params: BrowserParams = {};
     definedProps = ElementFinder.defaultProps();
 
@@ -44,6 +45,7 @@ class BrowserInstance {
         if (!browsers) {
             browsers = runInstance.p('browsers', []);
         }
+
         browsers.push(browser);
         runInstance.p('browsers', browsers);
 
@@ -84,6 +86,9 @@ class BrowserInstance {
      */
     static async killAllBrowsers(runner: Runner) {
         const browsers = runner.p('browsers');
+
+        invariant(browsers, '\'browser\' is not set during killAllBrowsers');
+
         if (browsers) {
             for (let i = 0; i < browsers.length; i++) {
                 const browser = browsers[i];
@@ -238,15 +243,31 @@ class BrowserInstance {
 
         // Log
         let logStr = `Starting browser '${params.name}'`;
-        params.version && (logStr += `, version '${params.version}'`);
-        params.platform && (logStr += `, platform '${params.platform}'`);
-        params.deviceEmulation && (logStr += `, device '${params.deviceEmulation}'`);
-        params.width && (logStr += `, width '${params.width}'`);
-        params.height && (logStr += `, height '${params.height}'`);
-        params.isHeadless &&
-            !['safari', 'internet explorer', 'MicrosoftEdge'].includes(params.name) &&
-            (logStr += ', headless mode');
-        params.serverUrl && (logStr += `, server url '${params.serverUrl}'`);
+        if (params.version) {
+            logStr += `, version '${params.version}'`;
+        }
+        if (params.platform) {
+            logStr += `, platform '${params.platform}'`;
+        }
+        if (params.deviceEmulation) {
+            logStr += `, device '${params.deviceEmulation}'`;
+        }
+        if (params.width) {
+            logStr += `, width '${params.width}'`;
+        }
+        if (params.height) {
+            logStr += `, height '${params.height}'`;
+        }
+        if (
+            params.isHeadless &&
+            params.name &&
+            !['safari', 'internet explorer', 'MicrosoftEdge'].includes(params.name)
+        ) {
+            logStr += ', headless mode';
+        }
+        if (params.serverUrl) {
+            logStr += `, server url '${params.serverUrl}'`;
+        }
 
         this.runInstance.log(logStr);
 
@@ -288,7 +309,6 @@ class BrowserInstance {
         try {
             if (this.driver) {
                 await this.driver.quit();
-                this.driver = null;
             }
         }
         catch (e) {
@@ -310,6 +330,9 @@ class BrowserInstance {
     async nav(url: string) {
         const URL_REGEX = /^(https?:\/\/|file:\/\/)?([^/]*(:[0-9]+)?)?(.*)/;
         let matches = url.match(URL_REGEX);
+
+        invariant(matches, `Invalid url: ${url}`);
+        invariant(this.driver, 'Missing driver instance');
 
         const protocol = matches[1] || 'http://';
         let domain = matches[2];
@@ -340,7 +363,7 @@ class BrowserInstance {
      * @param {String} text - The text to type in
      * @param {String, ElementFinder, or WebElement} element - The element to type into (same as the element sent to $())
      */
-    async type(text, element) {
+    async type(text: string, element: EFElement) {
         let items = text.split(/(?=(?<=[^\\])\[)|(?<=(?=[^\\])\])/g);
         items = items.map((item) => {
             const matches = item.match(/^\[(.*)\]$/);
@@ -365,7 +388,7 @@ class BrowserInstance {
      * @param {String} value - The string that the target item should match
      * @param {String, ElementFinder, or WebElement} dropdownElement - The dropdown element (same as the element sent to $())
      */
-    async selectByValue(value, dropdownElement) {
+    async selectByValue(value: string, dropdownElement: EFElement) {
         const EXACT_LOG = `Found item that exactly matches '${value}'`;
         const INEXACT_LOG = `Didn't find item that exactly matches '${value}'. Trying to find an item that contains it.`;
         const FOUND_LOG = `Found item that contains '${value}'`;
@@ -409,7 +432,7 @@ class BrowserInstance {
      * @param {String, ElementFinder, or WebElement} element - The target item (same as the element sent to $())
      * @param {String, ElementFinder, or WebElement} dropdownElement - The dropdown element (same as the element sent to $())
      */
-    async selectByElem(element, dropdownElement) {
+    async selectByElem(element: EFElement, dropdownElement: EFElement) {
         element = await this.$(element, true);
         dropdownElement = await this.$(dropdownElement, true);
 
@@ -622,13 +645,9 @@ class BrowserInstance {
      * @return {Promise} Promise that resolves to first WebDriver WebElement that was found
      * @throws {Error} If a matching element wasn't found in time, or if an element array wasn't properly matched in time
      */
-    async $(
-        elem: string | ElementFinder | WebElement,
-        tryClickable: boolean,
-        parentElem?: WebElement,
-        timeout?: number,
-        isContinue?: boolean
-    ) {
+    async $(elem: EFElement, tryClickable?: boolean, parentElem?: WebElement, timeout?: number, isContinue?: boolean) {
+        invariant(this.driver, 'Driver is not set in $()');
+
         timeout = timeout !== undefined ? timeout : 2000;
 
         let ef = null;
@@ -682,12 +701,7 @@ class BrowserInstance {
      * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found
      * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time
      */
-    async $$(
-        element: string | ElementFinder | WebElement,
-        parentElem: WebElement,
-        timeout: number,
-        isContinue: boolean
-    ) {
+    async $$(element: EFElement, parentElem: WebElement, timeout: number, isContinue: boolean) {
         timeout = timeout !== undefined ? timeout : 2000;
 
         let ef = null;
@@ -718,12 +732,7 @@ class BrowserInstance {
      * @return {Promise} Promise that resolves if the given element(s) disappear before the timeout
      * @throws {Error} If matching elements still found after timeout
      */
-    async not$(
-        element: string | ElementFinder | WebElement,
-        parentElem: string | ElementFinder | WebElement,
-        timeout?: number,
-        isContinue?: boolean
-    ) {
+    async not$(element: EFElement, parentElem: EFElement, timeout?: number, isContinue?: boolean) {
         timeout = timeout !== undefined ? timeout : 2000;
 
         let ef = null;
@@ -913,7 +922,7 @@ class BrowserInstance {
      * @param {Number} [timeout] - How many ms to wait before giving up (2000 ms if omitted)
      * @throws {Error} If element doesn't match state within the given time
      */
-    async verifyState(element: string | ElementFinder | WebElement, state, timeout: number) {
+    async verifyState(element: EFElement, state: EFElement, timeout: number) {
         const elem = await this.$(element, undefined, undefined, timeout, true);
         let stateElems = [];
         const ERR = 'The given element doesn\'t match the given state';
@@ -934,11 +943,7 @@ class BrowserInstance {
      * Verifies that every element that matches element also matches state
      * See verifyState() for param details
      */
-    async verifyEveryState(
-        element: string | ElementFinder | WebElement,
-        state: string | ElementFinder | WebElement,
-        timeout: number
-    ) {
+    async verifyEveryState(element: EFElement, state: EFElement, timeout: number) {
         const elems = await this.$$(element, undefined, timeout, true);
 
         for (let i = 0; i < elems.length; i++) {

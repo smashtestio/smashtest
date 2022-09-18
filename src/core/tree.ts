@@ -1,3 +1,4 @@
+import invariant from 'tiny-invariant';
 import Branch from './branch.js';
 import * as Constants from './constants.js';
 import Step from './step.js';
@@ -40,7 +41,7 @@ class Tree {
 
     // OPTIONAL
     groups?: string[][] | undefined; // Array of array of string. Only generate branches whose groups match the expression, no restrictions if this is undefined, --groups=a,b+c === [ ['a'], ['b', 'c'] ] === A or (B and C)
-    minFrequency?: Frequency; // Only generate branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
+    minFrequency?: Frequency | undefined; // Only generate branches at or above this frequency ('high', 'med', or 'low'), no frequency restrictions if this is undefined
     noDebug?: boolean; // If true, throws an error if at least one ~, ~~, or $ is encountered in the tree at or below the given step
     noRandom?: boolean; // If true, does not randomize the order of branches generated
     debugHash?: string | undefined; // If set, only generate the one branch with this hash in debug mode and ignore all $'s, ~'s, groups, and minFrequency
@@ -54,7 +55,7 @@ class Tree {
      * Creates a new StepNode, assigns it an id, and inserts it into this.stepNodeIndex
      * @return {StepNode} A new StepNode
      */
-    newStepNode(filename: string, lineNumber: number) {
+    newStepNode(filename?: string, lineNumber?: number) {
         const stepNode = new StepNode(this.stepNodeCount + 1, filename, lineNumber);
         this.stepNodeIndex[stepNode.id] = stepNode;
         this.stepNodeCount++;
@@ -91,7 +92,7 @@ class Tree {
      * @param {Step} step - A step
      * @returns {String} The code block associated with this step (either from its StepNode, or if it's a function call, from its corresponding function declaration's StepNode), '' if no code blocks found
      */
-    getCodeBlock(step: Step) {
+    getCodeBlock(step: Step): string {
         const stepNode = this.stepNodeIndex[step.id];
         if (stepNode.hasCodeBlock()) {
             return stepNode.codeBlock;
@@ -132,7 +133,7 @@ class Tree {
      * @param {Boolean} [isPackaged] - If true, filename is a package file
      * @param {Boolean} [allowIndented] - If true, allows the first step to have indents
      */
-    parseIn(buffer: string, filename: string, isPackaged: boolean, allowIndented?: boolean) {
+    parseIn(buffer: string, filename?: string, isPackaged?: boolean, allowIndented?: boolean) {
         const lines = buffer.split(/\n/);
 
         type AmendedStepNode = StepNode & { codeBlockLine?: true; codeBlockEnd?: true };
@@ -156,6 +157,8 @@ class Tree {
             }
 
             if (currentlyInsideCodeBlockFromLineNum !== -1) {
+                invariant(lastStepNodeCreated);
+
                 // we're currently inside a code block
                 const endRegex = new RegExp(
                     `^[ ]{${lastStepNodeCreated.indents * Constants.SPACES_PER_INDENT}}\\}\\s*(\\/\\/.*?)?\\s*$`
@@ -440,7 +443,7 @@ class Tree {
      * @return {Array of StepNode} The nearest function declaration step nodes that match the function call step
      * @throws {Error} If a matching function declaration could not be found
      */
-    findFunctionDeclarations(functionCall, branchAbove) {
+    findFunctionDeclarations(functionCall: Step, branchAbove: Branch) {
         branchAbove.steps.push(functionCall);
 
         const functionCallNode = this.stepNodeIndex[functionCall.id];
@@ -455,15 +458,14 @@ class Tree {
         // Say functionCall is F, and needs to be matched to *F. If we go up branchAbove and find another call F,
         // add the corresponding *F (and its equivalents) to a list of untouchables. F is never matched to an untouchable.
         // This prevents an F within a *F from infinitely recursing.
-        let untouchables = [];
-        for (
-            let stepNode = functionCallNode;
-            stepNode.indents !== -1;
-            stepNode = stepNode.parent || stepNode.containingStepBlock.parent
-        ) {
-            if (stepNode.isFunctionDeclaration && functionCallNodeToMatch.isFunctionMatch(stepNode)) {
+        let untouchables: StepNode[] = [];
+
+        let stepNode: StepNode | null | undefined = functionCallNode;
+        while (stepNode?.indents !== -1) {
+            if (stepNode?.isFunctionDeclaration && functionCallNodeToMatch.isFunctionMatch(stepNode)) {
                 untouchables = [...untouchables, ...this.equivalents(stepNode)];
             }
+            stepNode = stepNode?.parent || stepNode?.containingStepBlock?.parent;
         }
 
         // Try to find the function declarations we're looking for
@@ -495,7 +497,7 @@ class Tree {
                     const funcDeclAbove = this.stepNodeIndex[stepAbove.fid]; // this is *P from the example above
                     if (funcDeclAbove) {
                         const funcDeclAboveEquivalents = this.equivalents(funcDeclAbove);
-                        let pool = [];
+                        let pool: StepNode[] = [];
                         funcDeclAboveEquivalents.forEach((fd) => (pool = pool.concat(fd.children)));
 
                         const foundDeclarationNodes = searchAmong(pool, currStep);
@@ -523,7 +525,7 @@ ${branchAbove.output(this.stepNodeIndex)}
          * @param {Step} currStep - The current step in branchAbove we're looking at
          * @return {Array of StepNode} Step nodes that match functionCallNodeToMatch
          */
-        function searchAmong(pool, currStep) {
+        function searchAmong(pool: StepNode[], currStep: Step) {
             const matches = [];
             for (let i = 0; i < pool.length; i++) {
                 const sn = pool[i];
@@ -1070,7 +1072,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         }
 
         // If isNonParallel (!) is set, connect up the branches in branchesBelow
-        let nonParallelId = undefined;
+        let nonParallelId: number | undefined = undefined;
         if (
             step.fid &&
             (this.stepNodeIndex[step.fid].isNonParallel ||
@@ -1096,9 +1098,9 @@ ${branchAbove.output(this.stepNodeIndex)}
         /**
          * Temporarily places the given steps onto the end of branchAbove, executes f(), removes the temporary steps, then returns what f() returned
          */
-        function placeOntoBranchAbove(steps: Step[], f) {
+        function placeOntoBranchAbove(steps: Step[], func: () => Branch[]) {
             branchAbove.steps = branchAbove.steps.concat(steps);
-            const ret = f();
+            const ret = func();
             for (let i = 0; i < steps.length; i++) {
                 branchAbove.steps.pop();
             }
@@ -1548,9 +1550,9 @@ ${branchAbove.output(this.stepNodeIndex)}
         };
 
         for (let i = 0; i < this.branches.length; i++) {
-            const b = this.branches[i];
-            if (b.isRunning) {
-                snapshot.branches.push(b.serialize());
+            const branch = this.branches[i];
+            if (branch.isRunning) {
+                snapshot.branches.push(branch.serialize());
                 if (typeof max != 'undefined' && snapshot.branches.length >= max) {
                     break;
                 }
@@ -1565,8 +1567,8 @@ ${branchAbove.output(this.stepNodeIndex)}
                     // Did we already include prevBranch in snapshot?
                     let alreadyIncluded = false;
                     for (let i = 0; i < snapshot.branches.length; i++) {
-                        const b = snapshot.branches[i];
-                        if (b.hash == prevBranch.hash) {
+                        const branch = snapshot.branches[i];
+                        if (branch.hash === prevBranch.hash) {
                             alreadyIncluded = true;
                             break;
                         }
@@ -1575,9 +1577,9 @@ ${branchAbove.output(this.stepNodeIndex)}
                     if (!alreadyIncluded) {
                         // Find prevBranch's equivalent in this tree and put it into snapshot
                         for (let i = 0; i < this.branches.length; i++) {
-                            const b = this.branches[i];
-                            if (b.hash == prevBranch.hash) {
-                                snapshot.branches.push(b.serialize());
+                            const branch = this.branches[i];
+                            if (branch.hash === prevBranch.hash) {
+                                snapshot.branches.push(branch.serialize());
                                 break;
                             }
                         }
@@ -1806,7 +1808,7 @@ ${branchAbove.output(this.stepNodeIndex)}
      * @param {Boolean} [advance] - If true, advance the current step to the one returned, otherwise just return the next step
      * @return {Step} The next step in the given branch, null if there are none left
      */
-    nextStep(branch: Branch, advance: boolean): Step | null {
+    nextStep(branch: Branch, advance?: boolean): Step | null {
         if (branch.isComplete()) {
             if (advance) {
                 branch.steps.forEach((step) => delete step.isRunning);

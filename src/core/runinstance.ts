@@ -1,13 +1,16 @@
 import chalk from 'chalk';
 import { createRequire } from 'node:module';
 import path from 'node:path';
+import invariant from 'tiny-invariant';
 import tsNode from 'ts-node';
 import Branch from './branch.js';
 import * as Constants from './constants.js';
 import Runner from './runner.js';
 import Step from './step.js';
-import { UserValue } from './types.js';
+import StepNode from './stepnode.js';
+import { isSmashError, SmashError, VarBeingSet } from './types.js';
 import * as utils from './utils.js';
+import BrowserInstance from '../packages/js/browserinstance.js';
 
 const require = createRequire(import.meta.url);
 
@@ -40,8 +43,8 @@ class RunInstance {
     global: { [key: string]: unknown } = {}; // global variables
     local: { [key: string]: unknown } = {}; // local variables
 
-    localStack = []; // Array of objects, where each object stores local vars
-    localsPassedIntoFunc = {}; // local variables being passed into the function at the current step
+    localStack: { [key: string]: unknown }[] = []; // Array of objects, where each object stores local vars
+    localsPassedIntoFunc: { [key: string]: unknown } = {}; // local variables being passed into the function at the current step
 
     stepsRan = new Branch(); // record of all steps ran by this RunInstance, for inject()
 
@@ -60,9 +63,7 @@ class RunInstance {
      * @return {Promise} Promise that gets resolved once done executing
      */
     async run() {
-        if (this.isStopped) {
-            utils.error('Cannot run a stopped runner');
-        }
+        utils.assert(!this.isStopped, 'Cannot run a stopped runner');
 
         let wasPaused = false;
         let overrideDebug = false;
@@ -155,7 +156,11 @@ class RunInstance {
      * @throws {Error} If an error is thrown inside the step and error.fatal is set to true
      */
     async runStep(step: Step, branch: Branch, overrideDebug: boolean) {
+        invariant(step.level !== undefined, 'Internal error: step.level is undefined in runStep');
+
         const stepNode = this.tree.stepNodeIndex[step.id];
+
+        invariant(stepNode.text !== undefined, 'Internal error: stepNode.text is undefined in runStep');
 
         if (step.isSkipped) {
             return;
@@ -363,16 +368,17 @@ class RunInstance {
                     }
                 }
             }
-            catch (e) {
-                if (e.fatal) {
+            catch (err) {
+                if (isSmashError(err) && err.fatal) {
                     // if fatal is set, the error will bubble all the way up to the console and end execution
-                    throw e;
+                    throw err;
                 }
 
                 if (!this.isStopped) {
                     // if this RunInstance was stopped, just exit without marking this step (which likely could have failed as the framework was being torn down)
-                    error = this.validateError(e);
-                    this.fillErrorFromStep(error, step, inCodeBlock);
+                    error = this.validateError(err);
+
+                    error = this.fillErrorFromStep(error, step, inCodeBlock);
 
                     if (this.runner.outputErrors) {
                         this.outputError(error, stepNode);
@@ -392,7 +398,7 @@ class RunInstance {
             }
 
             step.timeEnded = new Date();
-            step.elapsed = step.timeEnded - step.timeStarted;
+            step.elapsed = Number(step.timeEnded) - Number(step.timeStarted);
 
             branch.markStep(isPassed ? 'pass' : 'fail', step, error, finishBranchNow, this.tree.stepDataMode);
         }
@@ -459,7 +465,7 @@ class RunInstance {
      * @param {Branch} [branchToGetError] - The Branch that will get the error and marked failed, if a failure happens here. If stepToGetError is also set, only stepToGetError will get the error obj, but branchToGetError will still be failed
      * @return {Boolean} True if the run was a success, false if there was a failure
      */
-    async runHookStep(step, stepToGetError, branchToGetError) {
+    async runHookStep(step: Step, stepToGetError: Step, branchToGetError: Branch) {
         if (step.isSkipped) {
             return;
         }
@@ -476,14 +482,14 @@ class RunInstance {
                 stepToGetError || branchToGetError
             );
         }
-        catch (e) {
+        catch (err) {
             if (this.isStopped) {
                 return true;
             }
 
-            let ex = this.validateError(e);
+            let ex = this.validateError(err);
 
-            this.fillErrorFromStep(ex, step, true);
+            ex = this.fillErrorFromStep(ex, step, true);
 
             if (this.runner.outputErrors) {
                 this.outputError(ex, stepNode);
@@ -538,7 +544,7 @@ class RunInstance {
     /**
      * Outputs the given error to the console, if allowed
      */
-    outputError(error, stepNode) {
+    outputError(error: Error, stepNode: StepNode) {
         const showTrace =
             (!this.tree.isDebug || this.tree.isExpressDebug) && this.stepsRan && this.stepsRan.steps.length > 0;
 
@@ -587,6 +593,8 @@ class RunInstance {
      * @return {Promise} Promise that resolves once the execution finishes, resolves to true if the branch is complete (including After Every Branch hooks), false otherwise
      */
     async skipOneStep() {
+        invariant(this.currBranch, 'Internal error: this.currBranch is undefined');
+
         if (this.currStep) {
             this.toNextReadyStep(); // move to the next not-yet-completed step
 
@@ -618,6 +626,7 @@ class RunInstance {
     async runLastStep() {
         const lastStep = this.getLastStep();
         if (lastStep) {
+            invariant(this.currBranch, 'Internal error: this.currBranch is undefined when there is lastStep');
             await this.runStep(lastStep, this.currBranch, true);
         }
     }
@@ -628,6 +637,7 @@ class RunInstance {
     getLastStep() {
         const currStep = this.getNextReadyStep();
         if (currStep) {
+            invariant(this.currBranch, 'Internal error: this.currBranch is undefined when there is currStep');
             const index = this.currBranch.steps.indexOf(currStep);
             if (index - 1 < 0) {
                 return null;
@@ -702,7 +712,7 @@ class RunInstance {
     /**
      * @return Value of the given local variable (can be undefined)
      */
-    getLocal(varname: string) {
+    getLocal(varname: string): unknown {
         varname = utils.keepCaseCanonicalize(varname);
         if (Object.prototype.hasOwnProperty.call(this.localsPassedIntoFunc, varname)) {
             return this.localsPassedIntoFunc[varname];
@@ -715,14 +725,14 @@ class RunInstance {
     /**
      * Sets the given persistent variable to the given value
      */
-    setPersistent<UserValue>(varname: string, value: UserValue) {
+    setPersistent<T>(varname: string, value: T) {
         return this.runner.setPersistent(varname, value);
     }
 
     /**
      * Sets the given global variable to the given value
      */
-    setGlobal<UserValue>(varname: string, value: UserValue) {
+    setGlobal<T>(varname: string, value: T) {
         this.global[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
@@ -730,7 +740,7 @@ class RunInstance {
     /**
      * Sets the given local variable to the given value
      */
-    setLocal<UserValue>(varname: string, value: UserValue) {
+    setLocal<T>(varname: string, value: T) {
         this.local[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
@@ -738,7 +748,7 @@ class RunInstance {
     /**
      * Sets a local variable being passed into a function
      */
-    setLocalPassedIn(varname: string, value: UserValue) {
+    setLocalPassedIn<T>(varname: string, value: T) {
         this.localsPassedIntoFunc[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
@@ -746,7 +756,7 @@ class RunInstance {
     /**
      * Sets a local variable on the last item in localStack
      */
-    setLocalOnStack(varname: string, value?: UserValue) {
+    setLocalOnStack(varname: string, value?: unknown) {
         this.localStack.at(-1)[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
@@ -754,7 +764,9 @@ class RunInstance {
     /**
      * Set/Get a persistent variable
      */
-    p(varname: string, value?: UserValue) {
+    p<T = BrowserInstance[]>(varname: 'browsers', value?: T): T;
+    p<T>(varname: string, value?: T): T;
+    p(varname: string, value?: undefined) {
         return this.runner.p(varname, value);
     }
 
@@ -904,8 +916,8 @@ class RunInstance {
      */
     evalCodeBlock(
         code: string,
-        funcName: string,
-        filename: string,
+        funcName?: string,
+        filename?: string,
         lineNumber = 1,
         logHere?: Step | Branch,
         isSync?: boolean
@@ -935,32 +947,32 @@ class RunInstance {
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function setPersistent(varname: string, value: UserValue) {
+        function setPersistent(varname: string, value: unknown) {
             return runInstance.setPersistent(varname, value);
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function setGlobal(varname: string, value: UserValue) {
+        function setGlobal(varname: string, value: unknown) {
             return runInstance.setGlobal(varname, value);
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function setLocal(varname: string, value: UserValue) {
+        function setLocal(varname: string, value: unknown) {
             return runInstance.setLocal(varname, value);
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function p(varname: string, value: UserValue) {
+        function p(varname: string, value: unknown) {
             return runInstance.p(varname, value);
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function g(varname: string, value: UserValue) {
+        function g(varname: string, value: unknown) {
             return runInstance.g(varname, value);
         }
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-        function l(varname: string, value: UserValue) {
+        function l(varname: string, value: unknown) {
             return runInstance.l(varname, value);
         }
 
@@ -1008,7 +1020,7 @@ class RunInstance {
         // Remove unsafe chars from funcName
         if (funcName) {
             funcName = funcName.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_]/g, '');
-            if (funcName != '') {
+            if (funcName !== '') {
                 funcName = '_for_' + funcName;
             }
         }
@@ -1090,12 +1102,16 @@ class RunInstance {
                 try {
                     value = this.findVarValue(name, isLocal, lookAnywhere);
                 }
-                catch (e) {
-                    if (e.name === 'RangeError' && e.message === 'Maximum call stack size exceeded') {
+                catch (err) {
+                    if (
+                        err instanceof Error &&
+                        err.name === 'RangeError' &&
+                        err.message === 'Maximum call stack size exceeded'
+                    ) {
                         utils.error('Infinite loop detected amongst variable references');
                     }
                     else {
-                        throw e; // re-throw
+                        throw err; // re-throw
                     }
                 }
 
@@ -1117,7 +1133,7 @@ class RunInstance {
      * @return {String} Value of the given variable at the given step and branch
      * @throws {Error} If the variable is never set
      */
-    findVarValue(varname: string, isLocal, lookAnywhere) {
+    findVarValue(varname: string, isLocal: boolean, lookAnywhere?: boolean) {
         let variableFull = '';
         let variableFullLookahead = '';
         if (isLocal) {
@@ -1222,7 +1238,7 @@ class RunInstance {
     /**
      * Logs the given text to logHere
      */
-    appendToLog(text, logHere) {
+    appendToLog(text: string, logHere: Step | Branch) {
         if (logHere && !this.isStopped) {
             logHere.appendToLog(text);
             if (this.runner.consoleOutput && typeof text === 'string') {
@@ -1241,7 +1257,7 @@ class RunInstance {
      * @param {Object} varBeingSet - A member of Step.varsBeingSet
      * @param {String} value - The value to set the variable
      */
-    setVarBeingSet(varBeingSet, value) {
+    setVarBeingSet(varBeingSet: VarBeingSet, value: unknown) {
         if (varBeingSet.isLocal) {
             this.setLocal(varBeingSet.name, value);
         }
@@ -1336,7 +1352,7 @@ class RunInstance {
     /**
      * Takes an Error caught from the execution of a step and adds filename and lineNumber parameters to it
      */
-    fillErrorFromStep(error, step, inCodeBlock) {
+    fillErrorFromStep(error: SmashError, step: Step, inCodeBlock: boolean) {
         const stepNode = this.tree.stepNodeIndex[step.id];
 
         error.filename = stepNode.filename;
@@ -1357,6 +1373,8 @@ class RunInstance {
 
         // If error occurred in a code block, set the lineNumber to be that from the stack trace rather than the first line of the code block
         if (inCodeBlock && !this.tree.getModifier(step, 'isPackaged')) {
+            invariant(error.stack, 'Internal error: thrown error doesn\'t have a stack trace');
+
             let matches = error.stack.toString().match(/at CodeBlock[^\n]+<anonymous>:[0-9]+/g);
             if (matches) {
                 matches = matches[0].match(/([0-9]+)$/g);
@@ -1365,14 +1383,16 @@ class RunInstance {
                 }
             }
         }
+
+        return error;
     }
 
     /**
      * If error is a valid object, returns it, otherwise returns an Error that says error is invalid
      */
-    validateError(error) {
-        if (typeof error != 'object') {
-            return new Error('A non-object was thrown inside this step. Only objects can be thrown.');
+    validateError(error: unknown): SmashError {
+        if (!isSmashError(error)) {
+            return new Error('A non-object was thrown inside this step. Only Error objects can be thrown.');
         }
         else {
             return error;
@@ -1382,7 +1402,7 @@ class RunInstance {
     /**
      * @return {Number} The line number offset for evalCodeBlock(), based on the given step
      */
-    getLineNumberOffset(step) {
+    getLineNumberOffset(step: Step) {
         const stepNode = this.tree.stepNodeIndex[step.id];
         if (stepNode.isFunctionCall && !this.tree.getModifier(step, 'isHook')) {
             const functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
@@ -1396,7 +1416,7 @@ class RunInstance {
     /**
      * @return {String} The filename of the given step's code block
      */
-    getFilenameOfCodeBlock(step) {
+    getFilenameOfCodeBlock(step: Step) {
         const stepNode = this.tree.stepNodeIndex[step.id];
         if (stepNode.hasCodeBlock()) {
             return stepNode.filename;
@@ -1411,6 +1431,8 @@ class RunInstance {
      * @return {Boolean} True if the RunInstance is currently paused, false otherwise. Also sets the current branch's elapsed.
      */
     checkForPaused() {
+        invariant(this.currBranch, 'Internal error: checkForPaused() called when no branch is running');
+
         if (this.isPaused) {
             this.currBranch.elapsed = -1;
             return true;
@@ -1423,6 +1445,8 @@ class RunInstance {
      * @return {Boolean} True if the RunInstance is currently stopped, false otherwise. Also sets the current branch's elapsed.
      */
     checkForStopped() {
+        invariant(this.currBranch, 'Internal error: checkForStopped() called when no branch is running');
+
         if (this.isStopped) {
             this.currBranch.timeEnded = new Date();
             this.currBranch.elapsed = this.currBranch.timeEnded - this.currBranch.timeStarted;
@@ -1443,7 +1467,7 @@ class RunInstance {
     /**
      * @return value, only with quotes attached if it's a string
      */
-    getLogValue(value) {
+    getLogValue(value: unknown) {
         if (typeof value === 'string') {
             return `\`${value}\``;
         }

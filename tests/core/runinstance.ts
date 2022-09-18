@@ -1363,7 +1363,7 @@ Step {
                 await runInstance.runStep(tree.branches[0].steps[0], tree.branches[0], false);
 
                 expect(tree.branches[0].steps[0].error.message).to.equal(
-                    'A non-object was thrown inside this step. Only objects can be thrown.'
+                    'A non-object was thrown inside this step. Only Error objects can be thrown.'
                 );
             });
 

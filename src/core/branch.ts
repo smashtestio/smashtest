@@ -4,7 +4,8 @@ import * as Constants from './constants.js';
 import Step from './step.js';
 import StepNode from './stepnode.js';
 import Tree from './tree.js';
-import { BranchState, Frequency, HookField, StepNodeIndex } from './types.js';
+import { pickBy } from './typehelpers.js';
+import { BranchState, Frequency, HookField, SmashError, StepNodeIndex } from './types.js';
 import * as utils from './utils.js';
 
 /**
@@ -380,7 +381,7 @@ class Branch {
     markStep(
         state: BranchState,
         step: Step,
-        error: Error,
+        error: SmashError,
         finishBranchNow: boolean,
         stepDataMode: Tree['stepDataMode']
     ) {
@@ -446,18 +447,21 @@ class Branch {
      * @return {Object} An Object representing this branch, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        const o = {
+        const obj = {
             steps: this.steps.map((step) => step.serialize())
         };
 
         if (this.isPassed || this.passedLastTime) {
-            o.isPassed = true;
+            obj.isPassed = true;
         }
 
-        utils.copyProps(o, this, ['isFailed', 'isSkipped', 'isRunning', 'error', 'log', 'elapsed', 'hash']);
-
-        return o;
+        return {
+            ...obj,
+            ...pickBy<Branch>(this, (value, key) => value !== undefined && Branch.serializeKeys.includes(key))
+        };
     }
+
+    static serializeKeys = ['isFailed', 'isSkipped', 'isRunning', 'error', 'log', 'elapsed', 'hash'] as const;
 }
 
 export default Branch;

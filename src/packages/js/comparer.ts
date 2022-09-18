@@ -1,6 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep.js';
 import * as Constants from '../../core/constants.js';
-import type { Constraints, Error } from '../../core/types.js';
+import { Constraints, ElementFinderError } from '../../core/types.js';
 import * as utils from '../../core/utils.js';
 
 export const RESERVED_KEYWORDS = [
@@ -36,7 +36,7 @@ class ComparerNode {
 class Comparer {
     static defaultErrorStart = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + '-->';
     static defaultErrorEnd = Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY;
-    static seen: unknown[];
+    static seen?: unknown[];
 
     /**
      * Compares the actual object against the expected object
@@ -94,7 +94,7 @@ class Comparer {
             actual = actual.value;
         }
 
-        const errors: Error[] = [];
+        const errors: ElementFinderError[] = [];
 
         if (typeof expected === 'object') {
             if (expected === null) {
@@ -513,7 +513,7 @@ class Comparer {
     /**
      * @return {Boolean} True if the given value was seen already, false otherwise
      */
-    static wasSeen(value) {
+    static wasSeen(value: unknown) {
         if (!Comparer.seen) {
             Comparer.seen = [];
         }
@@ -693,4 +693,3 @@ class Comparer {
 }
 
 export default Comparer;
-

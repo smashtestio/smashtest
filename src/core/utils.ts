@@ -1,8 +1,8 @@
 import util from 'node:util';
+import invariant from 'tiny-invariant';
 import * as tsNode from 'ts-node';
-import Branch from './branch.js';
 import * as Constants from './constants.js';
-import Tree from './tree.js';
+import { SmashError } from './types.js';
 
 /**
  * @return {String} str but without leading whitespace and quotes ('', "", []), returns str if there are no quotes
@@ -34,7 +34,7 @@ export const hasQuotes = (str: string) => {
  * Throws an Error with the given message, filename, and line number
  * @throws {Error}
  */
-export const error = (msg: string, filename?: string, lineNumber?: number) => {
+export const error = (msg: string, filename?: string, lineNumber?: number): never => {
     if (filename || lineNumber) {
         throw new Error(`${msg} [${filename || ''}:${lineNumber || ''}]`);
     }
@@ -43,10 +43,18 @@ export const error = (msg: string, filename?: string, lineNumber?: number) => {
     }
 };
 
+export function assert(condition: any, msg?: string, filename?: string, lineNumber?: number): asserts condition {
+    if (condition) {
+        return;
+    }
+
+    error(msg, filename, lineNumber);
+}
+
 /**
  * Logs the given object to console
  */
-export const log = (obj) => {
+export const log = (obj: unknown) => {
     console.log(util.inspect(obj, { depth: null }));
 };
 
@@ -194,10 +202,13 @@ export const numIndents = (line: string, filename: string, lineNumber: number) =
         return 0;
     }
 
+    // These should always match
     const spacesAtFront = line.match(/^( *)([^ ]|$)/);
     const whitespaceAtFront = line.match(/^(\s*)([^\s]|$)/);
 
-    if (spacesAtFront[1] != whitespaceAtFront[1]) {
+    invariant(spacesAtFront && whitespaceAtFront);
+
+    if (spacesAtFront[1] !== whitespaceAtFront[1]) {
         error('Spaces are the only type of whitespace allowed at the beginning of a step', filename, lineNumber);
     }
 
@@ -242,7 +253,11 @@ export const breather = async () => {
  * @param {Object} source - The object whose properties to copy
  * @param {Array of String} props - The properties to copy over
  */
-export const copyProps = (destination, source, props: string[]) => {
+export const copyProps = (
+    destination: { [key: string]: unknown },
+    source: { [key: string]: unknown },
+    props: string[]
+) => {
     props.forEach((prop) => {
         if (source[prop] !== undefined) {
             destination[prop] = source[prop];
@@ -253,17 +268,14 @@ export const copyProps = (destination, source, props: string[]) => {
 /**
  * @return {Object} Converts Error into a simple js object
  */
-export const serializeError = (error) => {
-    const o = {
-        message: error.message.toString(),
-        stack: error.stack.toString(),
+export const serializeError = (error: SmashError): SmashError => {
+    return {
+        message: error.message,
+        stack: error.stack,
         filename: error.filename,
-        lineNumber: error.lineNumber
+        lineNumber: error.lineNumber,
+        ...(error.continue && { continue: true })
     };
-
-    error.continue && (o.continue = true);
-
-    return o;
 };
 
 /**

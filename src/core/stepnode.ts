@@ -1,5 +1,7 @@
 import * as Constants from './constants.js';
 import StepBlockNode from './stepblocknode.js';
+import { pickBy } from './typehelpers.js';
+import { VarBeingSet } from './types.js';
 import * as utils from './utils.js';
 
 /**
@@ -73,7 +75,7 @@ class StepNode {
     /**
      * @return {Boolean} True if this step node has a code block, false otherwise
      */
-    hasCodeBlock() {
+    hasCodeBlock(this: StepNode): this is StepNode & { codeBlock: string } {
         return this.codeBlock !== undefined;
     }
 
@@ -99,9 +101,8 @@ class StepNode {
         }
 
         const matches = line.match(Constants.LINE_WHOLE);
-        if (!matches) {
-            utils.error('This step is not written correctly', filename, lineNumber); // NOTE: probably unreachable (LINE_WHOLE can match anything)
-        }
+
+        utils.assert(matches, 'This step is not written correctly', filename, lineNumber); // NOTE: probably unreachable (LINE_WHOLE can match anything)
 
         // Parsed parts of the line
         this.text = matches[7].trim();
@@ -378,7 +379,7 @@ class StepNode {
      * If this.text is in format {var1}=Step1, {{var2}}=Step2, etc., the returned array will contain objects {name: "var1", value: "Step1", isLocal: false}, {name: "var2", value: "Step2", isLocal: true} etc.
      */
     getVarsBeingSet() {
-        const varsBeingSet = [];
+        const varsBeingSet: VarBeingSet[] = [];
         let textCopy = this.text + '';
         let matches = textCopy.match(Constants.VARS_SET_WHOLE);
 
@@ -390,7 +391,7 @@ class StepNode {
             });
 
             textCopy = textCopy.replace(matches[1], ''); // strip the leading {var}=Step from the string
-            textCopy = textCopy.replace(/^,/, ''); // string the leading comma, if there is one
+            textCopy = textCopy.replace(/^,/, ''); // strip the leading comma, if there is one
             matches = textCopy.match(Constants.VARS_SET_WHOLE);
         }
 
@@ -467,12 +468,7 @@ class StepNode {
      * @return {Object} An Object representing this step node, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        const obj = {
-            id: this.id,
-            hasCodeBlock: this.hasCodeBlock()
-        };
-
-        utils.copyProps(obj, this, [
+        const keys: (keyof StepNode)[] = [
             'text',
             'filename',
             'lineNumber',
@@ -484,9 +480,13 @@ class StepNode {
             'isTextualStep',
             'isMultiBlockFunctionDeclaration',
             'isMultiBlockFunctionCall'
-        ]);
+        ];
 
-        return obj;
+        return {
+            id: this.id,
+            hasCodeBlock: this.hasCodeBlock(),
+            ...pickBy<StepNode>(this, (value, key) => value !== undefined && keys.includes(key))
+        };
     }
 }
 

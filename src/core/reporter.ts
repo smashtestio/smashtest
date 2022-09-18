@@ -3,10 +3,12 @@ import date from 'date-and-time';
 import getPort, { portNumbers } from 'get-port';
 import fs from 'node:fs';
 import path from 'node:path';
+// @ts-expect-error no declaration file for this module
 import readFiles from 'read-files-promise';
 import { WebSocketServer } from 'ws';
 import Runner from './runner.js';
 import Tree from './tree.js';
+import { Snapshot } from './types.js';
 import * as utils from './utils.js';
 
 let reportFilename: string,
@@ -32,7 +34,7 @@ class Reporter {
     reportDomain: string | null = null; // domain:port where report server's api is available
     wsServer: WebSocketServer | null = null; // websocket server object
 
-    prevSnapshot = null; // previous snapshot sent over websockets
+    prevSnapshot: Snapshot | null = null; // previous snapshot sent over websockets
 
     timerFull: NodeJS.Timeout | null = null; // timer that goes off when it's time to do a full write
     timerSnapshot: NodeJS.Timeout | null = null; // timer that goes off when it's time to do a snapshot write
@@ -182,15 +184,16 @@ class Reporter {
         //console.log(`Report server running on port ${port}`);
 
         this.wsServer.on('connection', (ws) => {
-            ws.on('message', (message) => {
+            ws.on('message', ($message) => {
                 const ERR_MSG = 'Invalid origin';
                 let isError = false;
                 try {
                     // message must be { origin: absolute filename or domain:port of client }
+                    let message: { origin: string };
                     try {
-                        message = JSON.parse(message);
+                        message = JSON.parse($message.toString('utf-8'));
                     }
-                    catch (e) {
+                    catch (err) {
                         throw new Error(ERR_MSG);
                     }
 
@@ -199,20 +202,23 @@ class Reporter {
                     }
 
                     // Validate that the client is either the current report html file or a page on the reportDomain origin
-                    const canonFilenameOrigin = function (origin) {
+                    const canonFilenameOrigin = function (origin: string) {
                         return decodeURI(origin).replace(/^\//, '').replace(/\\/g, '/');
                     };
+
                     if (
-                        canonFilenameOrigin(message.origin) != canonFilenameOrigin(this.getFullReportPath()) &&
+                        canonFilenameOrigin(message.origin) !== canonFilenameOrigin(this.getFullReportPath()) &&
                         !message.origin.startsWith(this.reportDomain)
                     ) {
                         throw new Error(ERR_MSG);
                     }
                 }
-                catch (e) {
-                    ws.send(JSON.stringify({ error: e.toString() }));
-                    ws.close();
-                    isError = true;
+                catch (err) {
+                    if (err instanceof Error) {
+                        ws.send(JSON.stringify({ error: err.toString() }));
+                        ws.close();
+                        isError = true;
+                    }
                 }
 
                 if (!isError) {

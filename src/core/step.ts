@@ -1,6 +1,6 @@
 import cloneDeep from 'lodash/cloneDeep.js';
-import { StepNodeIndex } from './types.js';
-import * as utils from './utils.js';
+import { pickBy } from './typehelpers.js';
+import { SmashError, StepNodeIndex } from './types.js';
 
 /**
  * Represents a step within a Branch
@@ -18,13 +18,15 @@ class Step {
     isSkipped?: boolean; // true if this step was skipped
     isRunning?: boolean; // true if this step is currently running
 
-    error?; // if this step failed, this is the Error that was thrown
-    log?; // Array of objects that represent the logs of this step
+    error?: SmashError; // if this step failed, this is the Error that was thrown
+    log?: { text: string }[]; // Array of objects that represent the logs of this step
 
     elapsed?: number; // number of ms it took this step to execute
     timeStarted?: Date; // Date object (time) of when this step started being executed
     timeEnded?: Date; // Date object (time) of when this step ended execution
 
+    beforeScreenshot?: unknown;
+    afterScreenshot?: unknown;
     targetCoords?: { x: number; y: number }; // if this is set, set the crosshairs on the before screenshot to these coords (where x and y are a percentage of the total width and height respectively)
 
     constructor(id: number) {
@@ -49,7 +51,7 @@ class Step {
      * Logs the given item to this Step
      * @param {Object or String} item - The item to log
      */
-    appendToLog(item) {
+    appendToLog(item: string | { text: string }) {
         if (!this.log) {
             this.log = [];
         }
@@ -83,13 +85,7 @@ class Step {
      * @return {Object} An Object representing this step, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        const o = {
-            id: this.id,
-            fid: this.fid,
-            level: this.level
-        };
-
-        utils.copyProps(o, this, [
+        const keys: (keyof Step)[] = [
             'isPassed',
             'isFailed',
             'isSkipped',
@@ -103,9 +99,14 @@ class Step {
             'beforeScreenshot',
             'afterScreenshot',
             'targetCoords'
-        ]);
+        ];
 
-        return o;
+        return {
+            id: this.id,
+            fid: this.fid,
+            level: this.level,
+            ...pickBy<Step>(this, (value, key) => value !== undefined && keys.includes(key))
+        };
     }
 }
 

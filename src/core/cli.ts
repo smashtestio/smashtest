@@ -21,6 +21,8 @@ import * as utils from './utils.js';
 // features, and it's stage 3 atm.
 // import packageJson from '../package.json' assert { type: 'json' };
 import { readFileSync } from 'fs';
+import { entries, Merge } from './typehelpers.js';
+import { Frequency } from './types.js';
 const filePath = new URL('../../package.json', import.meta.url).pathname;
 const packageJson = JSON.parse(readFileSync(filePath, 'utf-8'));
 
@@ -29,7 +31,6 @@ const { version } = packageJson;
 // ***************************************
 //  Globals
 // ***************************************
-
 let isReport = true;
 let isRecursive = false;
 
@@ -101,13 +102,13 @@ process.on('uncaughtException', (err) => {
 /**
  * Validates and sets the given flag within runner
  */
-function processFlag(name, value) {
+function processFlag(name: string, value: string) {
     try {
-        if (typeof name != 'string') {
-            name = name.toString();
+        if (typeof name !== 'string') {
+            name = String(name);
         }
-        if (typeof value != 'string' && value !== undefined) {
-            value = value.toString();
+        if (typeof value !== 'string' && value !== undefined) {
+            value = String(value);
         }
 
         let varName = null;
@@ -124,9 +125,7 @@ function processFlag(name, value) {
             break;
 
         case 'debug':
-            if (!value) {
-                utils.error('debug flag must be set to a hash');
-            }
+            utils.assert(value, 'debug flag must be set to a hash');
             runner.debugHash = value;
             break;
 
@@ -135,9 +134,7 @@ function processFlag(name, value) {
             break;
 
         case 'groups':
-            if (!value) {
-                utils.error('groups flag must include a group expression');
-            }
+            utils.assert(value, 'groups flag must include a group expression');
             runner.groups = value.split(/\s*,\s*/).map((group) => group.split(/\s*\+\s*/));
             break;
 
@@ -190,25 +187,29 @@ Options
             break;
 
         case 'max-parallel':
-            if (!value.match(/^[0-9]+$/) || parseInt(value) == 0) {
-                utils.error('Invalid max-parallel. It must be a positive integer above 0.');
-            }
+            utils.assert(
+                value.match(/^[0-9]+$/) && parseInt(value, 10) !== 0,
+                'Invalid max-parallel. It must be a positive integer above 0.'
+            );
 
-            runner.maxParallel = parseInt(value);
+            runner.maxParallel = parseInt(value, 10);
             break;
 
         case 'max-screenshots':
-            if (!value.match(/^[0-9]+$/) || parseInt(value) == 0) {
-                utils.error('Invalid max-screenshots. It must be a positive integer above 0.');
-            }
+            utils.assert(
+                value.match(/^[0-9]+$/) && parseInt(value, 10) !== 0,
+                'Invalid max-screenshots. It must be a positive integer above 0.'
+            );
 
-            runner.maxScreenshots = parseInt(value);
+            runner.maxScreenshots = parseInt(value, 10);
             break;
 
         case 'min-frequency':
-            if (Constants.FREQUENCIES.indexOf(value) == -1) {
-                utils.error('Invalid min-frequency. It must be either \'high\', \'med\', or \'low\'.');
-            }
+            // eslint-disable-next-line no-case-declarations
+            const isValid = (value: string): value is Frequency =>
+                Constants.FREQUENCIES.includes(value as Frequency);
+
+            utils.assert(isValid(value), 'Invalid min-frequency. It must be either \'high\', \'med\', or \'low\'.');
             runner.minFrequency = value;
             break;
 
@@ -318,23 +319,19 @@ Options
 
     // Validation functions
     function boolValue() {
-        if (!['true', 'false'].includes(value)) {
-            utils.error(`'${name}' flag must be set to either 'true' or 'false'`);
-        }
+        utils.assert(value === 'true' || value === 'false', `'${name}' flag must be set to either 'true' or 'false'`);
         return value === 'true';
     }
 
     function noValue() {
-        if (value) {
-            utils.error(`'${name}' flag cannot have a value`);
-        }
+        utils.assert(!value, `'${name}' flag cannot have a value`);
     }
 }
 
 /**
  * Handles a generic error
  */
-function onError(e, extraSpace, noEnd) {
+function onError(e: Error, extraSpace: boolean, noEnd: boolean) {
     restoreCursor();
 
     if (e.fatal || extraSpace) {
@@ -399,8 +396,8 @@ function plural(count: number) {
         console.log('');
     }
 
-    const wrapAction = (action) => {
-        return async function () {
+    const wrapAction = (action: () => Promise<void>) => {
+        return async function (this: repl.REPLServer) {
             console.log('');
             await action.call(this);
         };
@@ -471,21 +468,22 @@ function plural(count: number) {
         //  Parse inputs
         // ***************************************
 
-        let filenames = [];
-        let fileBuffers = null;
+        let filenames: string[] = [];
+        let fileBuffers: string[] = [];
+        let configBuffers = null;
 
         // Open config file, if there is one
         try {
-            fileBuffers = await readFiles([CONFIG_FILENAME], { encoding: 'utf8' });
+            configBuffers = await readFiles([CONFIG_FILENAME], { encoding: 'utf8' });
         }
         catch {
             // it's ok if there's no config file
         }
 
-        if (fileBuffers && fileBuffers.length > 0) {
+        if (configBuffers && configBuffers.length > 0) {
             let config = null;
             try {
-                config = JSON.parse(fileBuffers[0]);
+                config = JSON.parse(configBuffers[0]);
             }
             catch (e) {
                 utils.error(`Syntax error in ${CONFIG_FILENAME}`);
@@ -504,20 +502,21 @@ function plural(count: number) {
                 if (!matches) {
                     utils.error(`Invalid argument: ${arg}`);
                 }
+                else {
+                    const name = matches[1];
+                    const value = matches[3];
 
-                const name = matches[1];
-                const value = matches[3];
-
-                processFlag(name, value);
+                    processFlag(name, value);
+                }
             }
             else {
-                const newFilenames = await new Promise((resolve, reject) => {
+                const newFilenames = await new Promise<string[]>((resolve, reject) => {
                     glob(path.resolve(arg), { absolute: true }, (err, newFilenames) =>
                         err ? reject(err) : resolve(newFilenames)
                     );
                 });
 
-                filenames = filenames.concat(newFilenames);
+                filenames = [...filenames, ...newFilenames];
             }
         }
 
@@ -528,7 +527,7 @@ function plural(count: number) {
                 searchString = '**/*.smash';
             }
 
-            const smashFiles = await new Promise((resolve, reject) => {
+            const smashFiles = await new Promise<string[]>((resolve, reject) => {
                 // if no filenames passed in, just choose all the .smash files
                 glob(searchString, { absolute: true }, (err, smashFiles) => (err ? reject(err) : resolve(smashFiles)));
             });
@@ -541,7 +540,7 @@ function plural(count: number) {
             }
         }
 
-        const packageFilenames = await new Promise((resolve, reject) => {
+        const packageFilenames = await new Promise<string[]>((resolve, reject) => {
             glob(new URL('../packages', import.meta.url).pathname + '/*.smash', async (err, packageFilenames) => {
                 // new array of filenames under packages/
                 err ? reject(err) : resolve(packageFilenames);
@@ -558,7 +557,7 @@ function plural(count: number) {
             filenames = packageFilenames; // only include packages for a --repl
         }
         else {
-            filenames = filenames.concat(packageFilenames);
+            filenames = [...filenames, ...packageFilenames];
         }
 
         fileBuffers = await readFiles(filenames, { encoding: 'utf8' });
@@ -728,23 +727,27 @@ function plural(count: number) {
                     }
                 });
 
-                const commands = Object.entries(commandsMap);
-                for (const [shortcut, obj] of commands) {
+                const commands = entries(commandsMap);
+
+                for (const [shortcut, $obj] of commands) {
+                    const obj = $obj as Merge<typeof $obj>;
                     if (obj.name) {
                         // Is built-in command? (e.g. 'help')
                         if (replServer.commands[obj.name]) {
                             // Reuse built-in command properties
-                            Object.assign(replServer.commands[obj.name], obj);
+                            Object.assign(replServer.commands[obj.name] as typeof obj, obj);
                             // Write it back to our command store
                             Object.assign(commandsMap[shortcut], replServer.commands[obj.name]);
 
-                            commandsMap[shortcut].action = wrapAction(commandsMap[shortcut].action);
+                            const entry = commandsMap[shortcut] as typeof obj;
+                            entry.action = wrapAction(entry.action);
                         }
                         else {
                             replServer.defineCommand(obj.name, {
                                 help: obj.help,
                                 async action() {
-                                    await obj.action();
+                                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                                    await obj.action!();
                                     prePrompt();
                                     replServer.displayPrompt();
                                 }
