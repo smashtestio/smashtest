@@ -775,6 +775,7 @@ class BrowserInstance {
                     throw e;
                 }
             }
+            return;
         }
 
         await ef.find(this.driver, parentElem, true, isContinue, timeout);

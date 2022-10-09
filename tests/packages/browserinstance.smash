@@ -263,6 +263,7 @@ open browser
                         Given a page with multiple elements {
                             await setPageBody(`
                                 <div id="one" class="big">foobar</div>
+                                <div id="hidden" style="display: none"></div>
                             `);
                         }
 
@@ -288,6 +289,14 @@ open browser
 
                                     an error is thrown {
                                         await expect(not$(element, undefined, 1000)).to.be.rejectedWith(`Element still found after timeout (1 s)`);
+                                    }
+
+                                with a valid WebElement which is not visible {
+                                    g('element', await browser.driver.findElement(By.id('hidden')));
+                                }
+
+                                    no error is thrown {
+                                        await not$(element, undefined, 1000);
                                     }
 
                     - props() tests
