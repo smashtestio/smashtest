@@ -2,7 +2,7 @@ import util from 'node:util';
 import invariant from 'tiny-invariant';
 import * as tsNode from 'ts-node';
 import * as Constants from './constants.js';
-import { SmashError } from './types.js';
+import { SerializedSmashError, SmashError } from './types.js';
 
 /**
  * @return {String} str but without leading whitespace and quotes ('', "", []), returns str if there are no quotes
@@ -43,6 +43,7 @@ export const error = (msg: string, filename?: string, lineNumber?: number): neve
     }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function assert(condition: any, msg?: string, filename?: string, lineNumber?: number): asserts condition {
     if (condition) {
         return;
@@ -160,16 +161,17 @@ export const unescape = (str: string) => {
     });
 };
 
-/**
- * Prints an array of branches to console
- * @param {Tree} tree - The tree in which the branches live
- * @param {Array} Array of Branch to print out
- */
-export const printBranches = (tree: Tree, branches: Branch[]) => {
-    branches.forEach((b, i) => {
-        console.log(b.output(tree.stepNodeIndex, 'Branch ' + i));
-    });
-};
+// @todo Unreferenced
+// /**
+//  * Prints an array of branches to console
+//  * @param {Tree} tree - The tree in which the branches live
+//  * @param {Array} Array of Branch to print out
+//  */
+// export const printBranches = (tree: Tree, branches: Branch[]) => {
+//     branches.forEach((branch, idx) => {
+//         console.log(branch.output(tree.stepNodeIndex, 'Branch ' + idx));
+//     });
+// };
 
 /**
  * @return {String} text, but in a canonical format (trimmed, all lowercase, and all whitespace replaced with a single space)
@@ -192,7 +194,7 @@ export const keepCaseCanonicalize = (text: string) => {
  * @return {Integer} The number of indents in line (where each SPACES_PER_INDENT spaces counts as 1 indent). Always returns 0 for empty string or all whitespace.
  * @throws {Error} If there are an invalid number of spaces, or invalid whitespace chars, at the beginning of the step
  */
-export const numIndents = (line: string, filename: string, lineNumber: number) => {
+export const numIndents = (line: string, filename?: string, lineNumber?: number) => {
     if (line.match(/^\s*$/)) {
         // empty string or all whitespace
         return 0;
@@ -229,13 +231,13 @@ export const numIndents = (line: string, filename: string, lineNumber: number) =
 };
 
 /**
- * @param {Number} n - Number of indents
- * @param {Number} [s] - Spaces per indent, omit to use default
+ * @param {Number} indents - Number of indents
+ * @param {Number} [spacesPerIndent] - Spaces per indent, omit to use default
  * @return {String} n indents worth of spaces
  */
-export const getIndents = (n: number, s?: number) => {
+export const getIndentWhitespace = (indents: number, spacesPerIndent?: number) => {
     let spaces = '';
-    for (let i = 0; i < (s || Constants.SPACES_PER_INDENT) * n; i++) {
+    for (let i = 0; i < (spacesPerIndent || Constants.SPACES_PER_INDENT) * indents; i++) {
         spaces += ' ';
     }
     return spaces;
@@ -268,7 +270,7 @@ export const copyProps = (
 /**
  * @return {Object} Converts Error into a simple js object
  */
-export const serializeError = (error: SmashError): SmashError => {
+export const serializeError = (error: SmashError): SerializedSmashError => {
     return {
         message: error.message,
         stack: error.stack,

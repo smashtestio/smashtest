@@ -1,7 +1,7 @@
 import { WebDriver, WebElement } from 'selenium-webdriver';
 import invariant from 'tiny-invariant';
 import * as Constants from '../../core/constants.js';
-import { BrowserElementFinder, ElementFinderPayload, PropDefinition, Props } from '../../core/types.js';
+import { BrowserElementFinder, ElementFinderPayload, PropDefinition, Props, SmashError } from '../../core/types.js';
 import * as utils from '../../core/utils.js';
 import { browserFunction } from './elementfinder-browser.js';
 
@@ -147,10 +147,10 @@ class ElementFinder {
             if (line.trim() != '') {
                 const indents = utils.numIndents(line, filename, i + 1);
                 if (indents == baseIndent) {
-                    const spaces = utils.getIndents(1);
+                    const spaces = utils.getIndentWhitespace(1);
                     lines = lines.map((line) => spaces + line);
 
-                    lines.unshift(utils.getIndents(baseIndent) + 'body');
+                    lines.unshift(utils.getIndentWhitespace(baseIndent) + 'body');
 
                     parentLine = lines[0];
                     parentLineNumber = 1;
@@ -430,7 +430,7 @@ class ElementFinder {
         prop: string,
         def: string,
         input: string | undefined,
-        isNot: boolean,
+        isNot: boolean | undefined,
         definedProps: Props,
         toFront?: boolean
     ) {
@@ -498,8 +498,8 @@ class ElementFinder {
         const errorStartStr = errorStart || '-->';
         const errorEndStr = errorEnd || '';
 
-        const spaces = utils.getIndents(indents);
-        const nextSpaces = utils.getIndents(indents + 1);
+        const spaces = utils.getIndentWhitespace(indents);
+        const nextSpaces = utils.getIndentWhitespace(indents + 1);
 
         let error = '';
         if (this.error && this.error !== true) {
@@ -608,7 +608,7 @@ class ElementFinder {
      * @return {Promise} Promise that resolves to the object { ef: this ef with errors set, matches: Array of WebElements that were matched }
      * @throws {Error} If an element array wasn't properly matched
      */
-    async getAll(driver: WebDriver, parentElem: WebElement) {
+    async getAll(driver: WebDriver, parentElem?: WebElement) {
         const result = await driver.executeScript<ReturnType<typeof browserFunction>>(
             utils.es5(browserFunction),
             this.serializeJSON(),
@@ -636,9 +636,9 @@ class ElementFinder {
      */
     find(
         driver: WebDriver,
-        parentElem: WebElement,
-        isNot: boolean,
-        isContinue: boolean,
+        parentElem?: WebElement,
+        isNot?: boolean,
+        isContinue?: boolean,
         $timeout?: number,
         $pollFrequency?: number
     ) {
@@ -648,7 +648,7 @@ class ElementFinder {
         const start = new Date();
         let results;
 
-        return new Promise((resolve, reject) => {
+        return new Promise<WebElement[]>((resolve, reject) => {
             const doFind = async () => {
                 results = await this.getAll(driver, parentElem);
 
@@ -656,7 +656,7 @@ class ElementFinder {
                     const duration = Number(new Date()) - Number(start);
                     if (duration > timeout) {
                         const error = !isNot
-                            ? new Error(
+                            ? new SmashError(
                                 `Element${this.counter.max == 1 ? '' : 's'} not found${
                                     timeout > 0 ? ` in time (${timeout / 1000} s)` : ''
                                 }:\n\n${results.ef.print(
@@ -664,7 +664,7 @@ class ElementFinder {
                                     Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_GRAY
                                 )}`
                             )
-                            : new Error(
+                            : new SmashError(
                                 `Element${this.counter.max == 1 ? '' : 's'} still found${
                                     timeout > 0 ? ` after timeout (${timeout / 1000} s)` : ''
                                 }`
@@ -914,13 +914,13 @@ class ElementFinder {
                                 escape = CSS.escape;
                             }
                             const labelElem = document.querySelector('label[for="' + escape(elem.id) + '"]');
-                            if (labelElem) {
+                            if (labelElem instanceof HTMLElement) {
                                 labelText = labelElem.innerText;
                             }
                         }
 
                         let dropdownText = '';
-                        if (elem.options && typeof elem.selectedIndex !== undefined && elem.selectedIndex !== null) {
+                        if (elem instanceof HTMLSelectElement) {
                             dropdownText = elem.options[elem.selectedIndex].text;
                         }
 
@@ -965,12 +965,12 @@ class ElementFinder {
                             escape = CSS.escape;
                         }
                         const labelElem = document.querySelector('label[for="' + escape(elem.id) + '"]');
-                        if (labelElem) {
+                        if (labelElem instanceof HTMLElement) {
                             labelText = labelElem.innerText;
                         }
 
                         let dropdownText = '';
-                        if (elem.options && elem.selectedIndex !== undefined && elem.selectedIndex !== null) {
+                        if (elem instanceof HTMLSelectElement) {
                             dropdownText = elem.options[elem.selectedIndex].text;
                         }
 

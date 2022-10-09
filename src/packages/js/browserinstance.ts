@@ -9,13 +9,13 @@ import * as edge from 'selenium-webdriver/edge.js';
 import * as firefox from 'selenium-webdriver/firefox.js';
 import * as ie from 'selenium-webdriver/ie.js';
 import * as safari from 'selenium-webdriver/safari.js';
-import Sinon from 'sinon';
+import Sinon, { SinonFakeServer } from 'sinon';
 import invariant from 'tiny-invariant';
 import { reporter } from '../../core/instances.js';
 import RunInstance from '../../core/runinstance.js';
 import Runner from '../../core/runner.js';
 import Step from '../../core/step.js';
-import { BrowserParams, EFElement } from '../../core/types.js';
+import { BrowserParams, EFElement, FunctionProp } from '../../core/types.js';
 import * as utils from '../../core/utils.js';
 import Comparer from './comparer.js';
 import ElementFinder from './elementfinder.js';
@@ -25,7 +25,7 @@ class BrowserInstance {
     driver: WebDriver | null = null;
     runInstance;
     startTime?: Date;
-    params: BrowserParams = {};
+    params: BrowserParams | null = null;
     definedProps = ElementFinder.defaultProps();
 
     // ***************************************
@@ -342,12 +342,11 @@ class BrowserInstance {
             if (!domain) {
                 const currUrl = await this.driver.getCurrentUrl();
                 matches = currUrl.match(URL_REGEX);
+                invariant(
+                    matches?.[2],
+                    'Cannot determine domain to navigate to. Either include a domain or have the browser already be at a page with a domain.'
+                );
                 domain = matches[2];
-                if (!domain) {
-                    throw new Error(
-                        'Cannot determine domain to navigate to. Either include a domain or have the browser already be at a page with a domain.'
-                    );
-                }
             }
 
             url = protocol + domain + (path || '');
@@ -449,6 +448,8 @@ class BrowserInstance {
      * @return {Boolean} True if an alert is open, false otherwise
      */
     async isAlertOpen() {
+        invariant(this.driver, 'Missing driver instance in isAlertOpen');
+
         let alertOpen = true;
         try {
             await this.driver.switchTo().alert();
@@ -474,6 +475,7 @@ class BrowserInstance {
         script: Fn,
         ...args: unknown[]
     ): Promise<ReturnType<Fn>> {
+        invariant(this.driver, 'Missing driver instance in executeScript');
         return await this.driver.executeScript(script, ...args);
     }
 
@@ -484,6 +486,7 @@ class BrowserInstance {
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async executeAsyncScript<Fn extends (...args: any[]) => unknown>(script: Fn, ...args: unknown[]): Promise<unknown> {
+        invariant(this.driver, 'Missing driver instance in executeAsyncScript');
         return await this.driver.executeAsyncScript(script, ...args);
     }
 
@@ -585,7 +588,7 @@ class BrowserInstance {
     /**
      * Sets the crosshairs for the before screenshot to the given WebElement's coordinates
      */
-    async setCrosshairs(elem) {
+    async setCrosshairs(elem: WebElement) {
         if (!this.runInstance.currStep) {
             return;
         }
@@ -612,7 +615,7 @@ class BrowserInstance {
     /**
      * If the given WebElement is not currently scrolled into view, scrolls it into view and retakes the before screenshot
      */
-    async scrollIntoView(elem: Element) {
+    async scrollIntoView(elem: WebElement) {
         const isScrolledIntoView = await this.executeScript(
             utils.es5(function (elem: Element) {
                 const rect = elem.getBoundingClientRect();
@@ -650,25 +653,26 @@ class BrowserInstance {
 
         timeout = timeout !== undefined ? timeout : 2000;
 
-        let ef = null;
+        if (elem instanceof WebElement) {
+            return elem;
+        }
+
+        let ef: ElementFinder | null = null;
+
         if (typeof elem === 'string') {
             if (!elem.match(/\n/g)) {
                 elem = elem.trim();
             }
             ef = new ElementFinder(elem, this.definedProps);
         }
-        else if (elem instanceof ElementFinder) {
+        else {
             ef = elem;
         }
-        else {
-            return elem;
-        }
 
-        let results = null;
         if (tryClickable) {
             ef.addProp('clickable', 'clickable', undefined, undefined, this.definedProps, true);
             try {
-                results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
+                const results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
                 this.runInstance.log(`Clickable element found for \`${ef.print()}\``);
                 const result = results[0];
 
@@ -685,7 +689,7 @@ class BrowserInstance {
             }
         }
 
-        results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
+        const results = await ef.find(this.driver, parentElem, false, isContinue, timeout);
         const result = results[0];
 
         await this.scrollIntoView(result);
@@ -701,7 +705,9 @@ class BrowserInstance {
      * @return {Promise} Promise that resolves to Array of WebDriver WebElements that were found
      * @throws {Error} If matching elements weren't found in time, or if an element array wasn't properly matched in time
      */
-    async $$(element: EFElement, parentElem: WebElement, timeout: number, isContinue: boolean) {
+    async $$(element: EFElement, parentElem: WebElement | undefined, timeout: number, isContinue: boolean) {
+        invariant(this.driver, 'Driver is not set in $$()');
+
         timeout = timeout !== undefined ? timeout : 2000;
 
         let ef = null;
@@ -733,6 +739,8 @@ class BrowserInstance {
      * @throws {Error} If matching elements still found after timeout
      */
     async not$(element: EFElement, parentElem: EFElement, timeout?: number, isContinue?: boolean) {
+        invariant(this.driver, 'Driver is not set in not$()');
+
         timeout = timeout !== undefined ? timeout : 2000;
 
         let ef = null;
@@ -770,31 +778,32 @@ class BrowserInstance {
      * @param {Object} props - Object with format { 'name of prop': <String EF or function to add to the prop's defintion>, etc. }
      * @param {Boolean} [isAdd] - If true, does not override existing defintions, but adds to them
      */
-    props(props: { [key: string]: string | Function }, isAdd: boolean) {
-        for (const prop in props) {
-            if (Object.prototype.hasOwnProperty.call(props, prop)) {
-                if (typeof props[prop] === 'string') {
+    props(props: { [key: string]: string | FunctionProp | ElementFinder }, isAdd: boolean) {
+        for (const propName in props) {
+            if (Object.prototype.hasOwnProperty.call(props, propName)) {
+                let prop = props[propName];
+                if (typeof prop === 'string') {
                     // parse it as an EF
-                    props[prop] = new ElementFinder(props[prop], this.definedProps, undefined, this.runInstance.log);
+                    prop = new ElementFinder(prop, this.definedProps, undefined, this.runInstance.log);
                 }
-                else if (typeof props[prop] === 'function') {
+                else if (typeof prop === 'function') {
                     // empty
                 }
                 else {
                     throw new Error(
-                        `Invalid value of prop '${prop}'. Must be either a string ElementFinder or a function.`
+                        `Invalid value of prop '${propName}'. Must be either a string ElementFinder or a function.`
                     );
                 }
 
-                const [canonProp] = ElementFinder.canonicalizePropStr(prop);
+                const [canonProp] = ElementFinder.canonicalizePropStr(propName);
                 if (isAdd) {
                     if (!this.definedProps[canonProp]) {
                         this.definedProps[canonProp] = [];
                     }
-                    this.definedProps[canonProp].push(props[prop]);
+                    this.definedProps[canonProp].push(prop);
                 }
                 else {
-                    this.definedProps[canonProp] = [props[prop]];
+                    this.definedProps[canonProp] = [prop];
                 }
             }
         }
@@ -805,6 +814,7 @@ class BrowserInstance {
      * A prop matches an element if at least one of its definitions matches.
      * @param {Object} props - Object with format { 'name of prop': <String EF or function to add to the prop's defintion>, etc. }
      */
+    // eslint-disable-next-line @typescript-eslint/ban-types
     propsAdd(props: { [key: string]: string | Function }) {
         this.props(props, true);
     }
@@ -883,10 +893,13 @@ class BrowserInstance {
      * Throws error if cookie with the given name doesn't contain the given value within timeout ms
      */
     async verifyCookieContains(name: string, value: string, timeout: number) {
+        invariant(this.driver, 'Driver is not set in verifyCookieContains()');
+
         try {
             await this.driver.wait(async () => {
                 let cookie = null;
                 try {
+                    invariant(this.driver, 'Driver is not set in verifyCookieContains()');
                     cookie = await this.driver.manage().getCookie(name);
                 }
                 catch (e) {
@@ -974,7 +987,7 @@ class BrowserInstance {
      */
     async injectSinon() {
         const sinonExists = await this.executeScript(function () {
-            return typeof sinon !== 'undefined';
+            return window.sinon !== undefined;
         });
 
         if (!sinonExists) {
@@ -983,7 +996,10 @@ class BrowserInstance {
                 require.resolve('sinon').replace(/[^/]+$/, '') + '../pkg/sinon.js',
                 'utf-8'
             );
-            await this.executeScript(sinonCode);
+
+            invariant(this.driver, 'this.driver is not defined when sinonCode is injected');
+
+            await this.driver.executeScript(sinonCode);
 
             // Sinon doesn't stub fetch, for no explicit reason. This is a
             // feasible workaround.
@@ -1001,7 +1017,7 @@ class BrowserInstance {
         await this.mockTimeStop(); // stop any existing time mocks
         await this.injectSinon();
         await this.executeScript(function (timeStr) {
-            window.smashtestSinonClock = sinon.useFakeTimers({
+            window.smashtestSinonClock = window.sinon.useFakeTimers({
                 now: new Date(timeStr),
                 shouldAdvanceTime: true
             });
@@ -1078,7 +1094,8 @@ class BrowserInstance {
                 }
 
                 window.smashtestSinonFakeServer =
-                    window.smashtestSinonFakeServer || sinon.createFakeServer({ respondImmediately: true });
+                    window.smashtestSinonFakeServer ||
+                    (window.sinon.createFakeServer({ respondImmediately: true }) as SinonFakeServer);
                 window.smashtestSinonFakeServer.respondWith(method, url, response);
             },
             method,
@@ -1095,9 +1112,10 @@ class BrowserInstance {
      * See server.configure(config) in https://sinonjs.org/releases/latest/fake-xhr-and-server/#fake-server-options for details on what config options are available
      * Fails silently if no mock is currently active
      */
-    async mockHttpConfigure(config) {
+    async mockHttpConfigure(config: Record<string, unknown>) {
         await this.executeScript(function (config) {
             if (window.smashtestSinonFakeServer !== undefined) {
+                // @ts-expect-error this configure method might be missing from the @types definition
                 window.smashtestSinonFakeServer.configure(config);
             }
         }, config);

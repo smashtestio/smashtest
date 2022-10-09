@@ -740,11 +740,12 @@ H
                 assert.throws(() => {
                     tree.parseIn(
                         `A
-        B
+    B
+            C
 `,
                         'file.txt'
                     );
-                }, 'You cannot have a step that has 2 or more indents beyond the previous step [file.txt:2]');
+                }, 'You cannot have a step that has 2 or more indents beyond the previous step [file.txt:3]');
             });
         });
 

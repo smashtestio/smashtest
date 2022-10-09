@@ -163,21 +163,21 @@ class Branch {
 
     /**
      * @param {Function} stepNodeIndex - A object that maps ids to StepNodes
-     * @param {Number} [spaces] - Number of spaces before each line, 3 if omitted
+     * @param {Number} [indents] - Number of spaces before each line, 3 if omitted
      * @return {String} The string representation of this branch
      */
-    output(stepNodeIndex: StepNodeIndex, spaces: number) {
-        let beginSpace = '   ';
-        if (spaces !== undefined) {
-            beginSpace = utils.getIndents(spaces, ' ');
-        }
+    output(stepNodeIndex: StepNodeIndex, indents?: number) {
+        const whiteSpace = indents === undefined ? '   ' : utils.getIndentWhitespace(indents);
 
         let str = '';
         this.steps.forEach((s) => {
             const sn = stepNodeIndex[s.id];
-            const indentedText = utils.addWhitespaceToEnd(`${utils.getIndents(s.level, 2)}${sn.text || ''}`, 50);
+            const indentedText = utils.addWhitespaceToEnd(
+                `${utils.getIndentWhitespace(s.level, 2)}${sn.text || ''}`,
+                50
+            );
 
-            str += `${beginSpace}${indentedText}   ${s.locString(stepNodeIndex)}\n`;
+            str += `${whiteSpace}${indentedText}   ${s.locString(stepNodeIndex)}\n`;
         });
         return str;
     }
@@ -305,7 +305,7 @@ class Branch {
      * @param {Error} [error] - The Error object that caused the branch to fail (if an error occurred in a Step, that error should go into that Step, not here)
      * @param {String} [stepDataMode] - Keep data for all steps, steps in failed branches only, or no steps (valid values are 'all', 'fail', and 'none'). If omitted, defaults to 'all'.
      */
-    markBranch(state: BranchState, error: Error, stepDataMode: Tree['stepDataMode']) {
+    markBranch(state: BranchState, error: Error | undefined, stepDataMode: Tree['stepDataMode']) {
         // Reset state
         delete this.isPassed;
         delete this.isFailed;

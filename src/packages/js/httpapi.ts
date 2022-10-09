@@ -22,34 +22,34 @@ class HttpApi {
      * See request() in https://github.com/request/request for details on functions that can be used
      * @return {Promise} Promise that resolves with a Response object, when it is received. Response will also be stored in {response} global variable.
      */
-    makeReq(func, ...args: unknown[]) {
+    makeReq(func: Function, arg0: string | object, arg1?: object) {
         let uri = '';
-        if (typeof args[0] === 'string') {
-            uri = args[0];
+        if (typeof arg0 === 'string') {
+            uri = arg0;
         }
-        else if (typeof args[0] === 'object') {
-            if (args[0].uri) {
-                uri = args[0].uri;
+        else if (typeof arg0 === 'object') {
+            if ('uri' in arg0 && typeof arg0.uri === 'string') {
+                uri = arg0.uri;
             }
-            else if (args[0].url) {
-                uri = args[0].url;
+            else if ('url' in arg0 && typeof arg0.url === 'string') {
+                uri = arg0.url;
             }
         }
-        else if (typeof args[1] === 'object') {
-            if (args[1].uri) {
-                uri = args[1].uri;
+        else if (typeof arg1 === 'object') {
+            if ('uri' in arg1 && typeof arg1.uri === 'string') {
+                uri = arg1.uri;
             }
-            else if (args[1].url) {
-                uri = args[1].url;
+            else if ('url' in arg1 && typeof arg1.url === 'string') {
+                uri = arg1.url;
             }
         }
 
         let method = 'GET';
-        if (typeof args[0] === 'object' && Object.prototype.hasOwnProperty.call(args[0], 'method')) {
-            method = args[0].method;
+        if (typeof arg0 === 'object' && 'method' in arg0 && typeof arg0.method === 'string') {
+            method = arg0.method;
         }
-        else if (typeof args[1] === 'object' && Object.prototype.hasOwnProperty.call(args[1], 'method')) {
-            method = args[1].method;
+        else if (typeof arg1 === 'object' && 'method' in arg1 && typeof arg1.method === 'string') {
+            method = arg1.method;
         }
 
         this.runInstance.log(`Request:\n  ${method.toUpperCase()} ${uri}\n`);
@@ -84,7 +84,7 @@ class HttpApi {
      * Makes an HTTP GET request
      * See this.makeReq() for details on args and return value
      */
-    get(...args: unknown[]) {
+    get(...args: [string | object, object?]) {
         return this.makeReq(request.get, ...args);
     }
 
@@ -92,7 +92,7 @@ class HttpApi {
      * Makes an HTTP POST request
      * See this.makeReq() for details on args and return value
      */
-    post(...args: unknown[]) {
+    post(...args: [string | object, object?]) {
         return this.makeReq(request.post, ...args);
     }
 
@@ -100,7 +100,7 @@ class HttpApi {
      * Makes an HTTP PUT request
      * See this.makeReq() for details on args and return value
      */
-    put(...args: unknown[]) {
+    put(...args: [string | object, object?]) {
         return this.makeReq(request.put, ...args);
     }
 
@@ -108,7 +108,7 @@ class HttpApi {
      * Makes an HTTP PATCH request
      * See this.makeReq() for details on args and return value
      */
-    patch(...args: unknown[]) {
+    patch(...args: [string | object, object?]) {
         return this.makeReq(request.patch, ...args);
     }
 
@@ -124,7 +124,7 @@ class HttpApi {
      * Makes an HTTP HEAD request
      * See this.makeReq() for details on args and return value
      */
-    head(...args: unknown[]) {
+    head(...args: [string | object, object?]) {
         return this.makeReq(request.head, ...args);
     }
 
@@ -132,7 +132,7 @@ class HttpApi {
      * Makes an HTTP OPTIONS request
      * See this.makeReq() for details on args and return value
      */
-    options(...args: unknown[]) {
+    options(...args: [string | object, object?]) {
         return this.makeReq(request.options, ...args);
     }
 
@@ -158,15 +158,14 @@ class HttpApi {
     static Response = class Response {
         runInstance;
         response;
-
-        statusCode;
-        headers;
+        statusCode: number;
+        headers: object;
         error;
         body;
         rawBody;
         responseObj;
 
-        constructor(runInstance: RunInstance, error, response: Response, body: string) {
+        constructor(runInstance: RunInstance, error: Error, response: Response, body: string) {
             this.runInstance = runInstance;
             this.response = {
                 statusCode: response && response.statusCode,
@@ -200,7 +199,7 @@ class HttpApi {
             let headersLog = '';
             if (this.response.headers) {
                 for (const headerName in this.response.headers) {
-                    if (Object.prototype.hasOwnProperty.call(this.response.headers, headerName)) {
+                    if (headerName in this.response.headers) {
                         headersLog += `  ${headerName}: ${this.response.headers[headerName]}\n`;
                     }
                 }

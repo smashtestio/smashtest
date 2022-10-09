@@ -13,8 +13,7 @@
     "strict": true,
     "sourceMap": false,
     "allowJs": true,
-    "allowSyntheticDefaultImports": true,
-    "exactOptionalPropertyTypes": true
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.spec.ts"],

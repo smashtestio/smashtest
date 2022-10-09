@@ -1,9 +1,10 @@
 import cloneDeep from 'lodash/cloneDeep.js';
+import invariant from 'tiny-invariant';
 import * as Constants from '../../core/constants.js';
-import { Constraints, ElementFinderError } from '../../core/types.js';
+import { BlockError, Constraints, ConstraintsInstruction, ElementFinderError } from '../../core/types.js';
 import * as utils from '../../core/utils.js';
 
-export const RESERVED_KEYWORDS = [
+export const RESERVED_KEYWORDS: (keyof ConstraintsInstruction)[] = [
     '$typeof',
     '$regex',
     '$contains',
@@ -17,7 +18,7 @@ export const RESERVED_KEYWORDS = [
     '$anyOrder',
     '$exact',
     '$every'
-] as const;
+];
 
 /**
  * Replaces a value inside an object to mark that the Comparer was there, and to store any associated errors
@@ -259,7 +260,7 @@ class Comparer {
                 }
 
                 // { $code: (actual)=>{ return true/false; } } or { $code: "...true/false" } or { $code: "...return true/false" }
-                if (Object.prototype.hasOwnProperty.call(expected, '$code')) {
+                if ('$code' in expected) {
                     let success = true;
 
                     // Validate expected
@@ -291,7 +292,7 @@ class Comparer {
                 }
 
                 // { $length: <number> }
-                if (Object.prototype.hasOwnProperty.call(expected, '$length')) {
+                if ('$length' in expected) {
                     // Validate expected
                     if (typeof expected.$length !== 'number') {
                         throw new Error(`$length has to be a number: ${JSON.stringify(expected.$length)}`);
@@ -302,7 +303,7 @@ class Comparer {
                         errors.push(`isn't an object, array, or string so can't have a $length of ${expected.$length}`);
                     }
                     else {
-                        if (Object.prototype.hasOwnProperty.call(actual, 'length')) {
+                        if (typeof actual === 'string' || (actual && 'length' in actual)) {
                             if (actual.length !== expected.$length) {
                                 errors.push(`doesn't have a $length of ${expected.$length}`);
                             }
@@ -316,7 +317,7 @@ class Comparer {
                 }
 
                 // { $maxLength: <number> }
-                if (Object.prototype.hasOwnProperty.call(expected, '$maxLength')) {
+                if ('$maxLength' in expected) {
                     // Validate expected
                     if (typeof expected.$maxLength !== 'number') {
                         throw new Error(`$maxLength has to be a number: ${JSON.stringify(expected.$maxLength)}`);
@@ -329,8 +330,9 @@ class Comparer {
                         );
                     }
                     else {
-                        if (Object.prototype.hasOwnProperty.call(actual, 'length')) {
-                            if (actual.length > expected.$maxLength) {
+                        if (typeof actual === 'string' || (actual && 'length' in actual)) {
+                            const length = actual.length;
+                            if (typeof length === 'number' && length > expected.$maxLength) {
                                 errors.push(`is longer than the $maxLength of ${expected.$maxLength}`);
                             }
                         }
@@ -343,7 +345,7 @@ class Comparer {
                 }
 
                 // { $minLength: <number> }
-                if (Object.prototype.hasOwnProperty.call(expected, '$minLength')) {
+                if ('$minLength' in expected) {
                     // Validate expected
                     if (typeof expected.$minLength !== 'number') {
                         throw new Error(`$minLength has to be a number: ${JSON.stringify(expected.$minLength)}`);
@@ -356,8 +358,9 @@ class Comparer {
                         );
                     }
                     else {
-                        if (Object.prototype.hasOwnProperty.call(actual, 'length')) {
-                            if (actual.length < expected.$minLength) {
+                        if (typeof actual === 'string' || (actual && 'length' in actual)) {
+                            const length = actual.length;
+                            if (typeof length === 'number' && length < expected.$minLength) {
                                 errors.push(`is shorter than the $minLength of ${expected.$minLength}`);
                             }
                         }
@@ -392,18 +395,17 @@ class Comparer {
                 }
 
                 // If there are non-$ keys in expected, then expected is a plain object that needs to be a subset of the actual object
-                const expectedKeys = Object.keys(expected).filter((key) => RESERVED_KEYWORDS.indexOf(key) == -1);
+                const expectedKeys = Object.keys(expected).filter(
+                    (key) => !(RESERVED_KEYWORDS as string[]).includes(key)
+                );
                 if (exact || expectedKeys.length > 0) {
-                    if (typeof actual != 'object' || actual === null) {
+                    if (typeof actual !== 'object' || actual === null) {
                         errors.push('not an object');
                     }
                     else {
                         // Make sure every key in expected matches every key in actual
                         for (const key of expectedKeys) {
-                            if (
-                                !actual ||
-                                (!Object.prototype.hasOwnProperty.call(actual, key) && expected[key] !== undefined)
-                            ) {
+                            if (!actual || (!(key in actual) && expected[key] !== undefined)) {
                                 errors.push({ blockError: true, text: 'missing', key, obj: expected[key] });
                             }
                             else {
@@ -552,11 +554,11 @@ class Comparer {
 
         if (this.wasSeen(value)) return '[Circular]\n';
 
-        const spaces = utils.getIndents(indents);
-        const nextSpaces = utils.getIndents(indents + 1);
+        const spaces = utils.getIndentWhitespace(indents);
+        const nextSpaces = utils.getIndentWhitespace(indents + 1);
         let ret = '';
 
-        let errors: Error[] = [];
+        let errors: (BlockError & string)[] = [];
 
         if (value instanceof ComparerNode) {
             errors = value.errors;
@@ -634,6 +636,7 @@ class Comparer {
 
             let ret = `  ${errorStart}  `;
             for (const error of errors) {
+                invariant(typeof error === 'string', 'Error should be a string here');
                 ret += error.replace(/\n/g, ' ') + ', ';
             }
 

@@ -3,6 +3,7 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import invariant from 'tiny-invariant';
 import tsNode from 'ts-node';
+import BrowserInstance from '../packages/js/browserinstance.js';
 import Branch from './branch.js';
 import * as Constants from './constants.js';
 import Runner from './runner.js';
@@ -10,7 +11,6 @@ import Step from './step.js';
 import StepNode from './stepnode.js';
 import { isSmashError, SmashError, VarBeingSet } from './types.js';
 import * as utils from './utils.js';
-import BrowserInstance from '../packages/js/browserinstance.js';
 
 const require = createRequire(import.meta.url);
 
@@ -49,7 +49,7 @@ class RunInstance {
     stepsRan = new Branch(); // record of all steps ran by this RunInstance, for inject()
 
     stepTimeout = 60; // default timeout for steps, in secs
-    timer = null; // timer used to enforce step timeout
+    timer: number | null = null; // timer used to enforce step timeout
 
     constructor(runner: Runner) {
         this.runner = runner;
@@ -98,15 +98,15 @@ class RunInstance {
             // NOTE: pauses can only happen if there's one branch in total
             if (this.currBranch.beforeEveryBranch && !wasPaused) {
                 for (let i = 0; i < this.currBranch.beforeEveryBranch.length; i++) {
-                    const s = this.currBranch.beforeEveryBranch[i];
+                    const step = this.currBranch.beforeEveryBranch[i];
 
-                    await this.runHookStep(s, null, this.currBranch);
+                    await this.runHookStep(step, null, this.currBranch);
                     if (this.checkForStopped()) {
                         return;
                     }
                     else if (this.currBranch.isFailed) {
                         if (this.runner.consoleOutput && this.currBranch.error) {
-                            const sn = this.tree.stepNodeIndex[s.id];
+                            const sn = this.tree.stepNodeIndex[step.id];
                             this.outputError(this.currBranch.error, sn);
                             console.log('');
                         }
@@ -157,6 +157,7 @@ class RunInstance {
      */
     async runStep(step: Step, branch: Branch, overrideDebug: boolean) {
         invariant(step.level !== undefined, 'Internal error: step.level is undefined in runStep');
+        invariant(step.id !== undefined, 'Internal error: step.id is undefined in runStep');
 
         const stepNode = this.tree.stepNodeIndex[step.id];
 
@@ -173,9 +174,9 @@ class RunInstance {
 
         if (this.runner.consoleOutput) {
             console.log(
-                `Start:     ${utils.getIndents(step.level, 2)}${chalk.gray(stepNode.text.trim() || '(anon)')}     ${
-                    stepNode.filename ? chalk.gray(step.locString(this.tree.stepNodeIndex)) : ''
-                }`
+                `Start:     ${utils.getIndentWhitespace(step.level, 2)}${chalk.gray(
+                    stepNode.text.trim() || '(anon)'
+                )}     ${stepNode.filename ? chalk.gray(step.locString(this.tree.stepNodeIndex)) : ''}`
             );
         }
 
@@ -219,6 +220,9 @@ class RunInstance {
 
             // Handle the stack for {{local vars}}
             if (prevStep) {
+                invariant(prevStep.id !== undefined, 'prevStep.id must be defined');
+                invariant(prevStep.level !== undefined, 'prevStep.level must be defined');
+
                 const prevStepNode = this.tree.stepNodeIndex[prevStep.id];
                 const prevStepWasACodeBlockFunc = prevStepNode.isFunctionCall && this.tree.hasCodeBlock(prevStep);
 
@@ -369,7 +373,7 @@ class RunInstance {
                 }
             }
             catch (err) {
-                if (isSmashError(err) && err.fatal) {
+                if (typeof err === 'object' && err && 'fatal' in err && err.fatal) {
                     // if fatal is set, the error will bubble all the way up to the console and end execution
                     throw err;
                 }
@@ -389,7 +393,7 @@ class RunInstance {
             // Marks the step as passed/failed, sets the step's error and log
             isPassed = !error;
             finishBranchNow = false;
-            if (!isPassed) {
+            if (error) {
                 finishBranchNow = true;
                 if (error.continue || this.runner.pauseOnFail) {
                     // do not finish off the branch if error.continue is set, or if we're doing a pauseOnFail
@@ -420,7 +424,7 @@ class RunInstance {
         }
 
         if (this.runner.consoleOutput) {
-            const seconds = step.elapsed / 1000 || 0;
+            const seconds = step.elapsed !== undefined ? step.elapsed / 1000 : 0;
 
             let chalkToUse = null;
             const isGray = !this.tree.hasCodeBlock(step);
@@ -435,7 +439,7 @@ class RunInstance {
             }
 
             console.log(
-                `End:       ${utils.getIndents(step.level, 2)}` +
+                `End:       ${utils.getIndentWhitespace(step.level, 2)}` +
                     chalkToUse(stepNode.text.trim() || '(anon)') +
                     '    ' +
                     (!isGray
@@ -465,7 +469,7 @@ class RunInstance {
      * @param {Branch} [branchToGetError] - The Branch that will get the error and marked failed, if a failure happens here. If stepToGetError is also set, only stepToGetError will get the error obj, but branchToGetError will still be failed
      * @return {Boolean} True if the run was a success, false if there was a failure
      */
-    async runHookStep(step: Step, stepToGetError: Step, branchToGetError: Branch) {
+    async runHookStep(step: Step, stepToGetError: Step | null, branchToGetError: Branch) {
         if (step.isSkipped) {
             return;
         }
@@ -503,11 +507,8 @@ class RunInstance {
                 }
             }
             else if (branchToGetError) {
-                if (branchToGetError.error) {
-                    // do not set branchToGetError.error if it's already set
-                    ex = undefined;
-                }
-                branchToGetError.markBranch('fail', ex, this.tree.stepDataMode);
+                // do not set branchToGetError.error if it's already set
+                branchToGetError.markBranch('fail', branchToGetError.error ? undefined : ex, this.tree.stepDataMode);
             }
 
             return false;
@@ -573,6 +574,7 @@ class RunInstance {
      * @return {Promise} Promise that resolves once the execution finishes, resolves to true if the branch is complete (including After Every Branch hooks), false otherwise
      */
     async runOneStep() {
+        invariant(this.currBranch, 'this.currBranch must be defined in runOneStep');
         this.toNextReadyStep();
         if (this.currStep) {
             await this.runStep(this.currStep, this.currBranch, true);
@@ -757,7 +759,9 @@ class RunInstance {
      * Sets a local variable on the last item in localStack
      */
     setLocalOnStack(varname: string, value?: unknown) {
-        this.localStack.at(-1)[utils.keepCaseCanonicalize(varname)] = value;
+        const last = this.localStack.at(-1);
+        invariant(last, 'last item in localStack is undefined');
+        last[utils.keepCaseCanonicalize(varname)] = value;
         return value;
     }
 
@@ -794,6 +798,8 @@ class RunInstance {
             return null;
         }
 
+        invariant(this.currStep.id !== undefined, 'Internal error: this.currStep.id is undefined in getCurrStepNode');
+
         return this.tree.stepNodeIndex[this.currStep.id];
     }
 
@@ -801,7 +807,9 @@ class RunInstance {
      * Logs the given text
      */
     log(text: string) {
-        this.appendToLog(text, this.currStep || this.currBranch);
+        const stepOrBranch = this.currStep || this.currBranch;
+        invariant(stepOrBranch, 'Internal error: this.currStep or this.currBranch must be defined in log');
+        this.appendToLog(text, stepOrBranch);
     }
 
     /**
@@ -818,7 +826,7 @@ class RunInstance {
      * If only a package name is included, the var name is generated from packageName, but camel cased (e.g., one-two-three --> oneTwoThree)
      * The filename is the filename of the step being executed
      */
-    i(arg1: string | [string, string?], arg2: string | [string, string?] | undefined, filename: string): unknown {
+    i(arg1: string | [string, string?], arg2: string | [string, string?] | undefined, filename?: string): unknown {
         const requireOrImportAndSet = (packageName: string, exportName: string, varName: string) => {
             try {
                 const module = require(packageName);
@@ -828,8 +836,8 @@ class RunInstance {
                 this.setPersistent(varName, value);
                 return value;
             }
-            catch (e) {
-                if (e.code === 'ERR_REQUIRE_ESM') {
+            catch (err) {
+                if (err instanceof Error && 'code' in err && err.code === 'ERR_REQUIRE_ESM') {
                     return import(packageName).then((module) => {
                         const value = exportName === '*' ? module : module[exportName];
                         this.setPersistent(varName, value);
@@ -838,7 +846,7 @@ class RunInstance {
                 }
                 else {
                     // e.code === 'MODULE_NOT_FOUND'
-                    throw e;
+                    throw err;
                 }
             }
         };
@@ -860,6 +868,7 @@ class RunInstance {
 
         const isPath = packageName.match(/^(\.|\/)/);
         if (packageName.match(/^\.\/|^\.\.\//)) {
+            invariant(filename !== undefined, 'Internal error: filename must be defined in i()\'ing a relative path');
             // local file (non-npm package)
             packageName = `${path.dirname(filename)}/${packageName}`;
         }
@@ -869,6 +878,7 @@ class RunInstance {
         }
         catch (e) {
             if (!isPath) {
+                invariant(filename !== undefined, 'Internal error: filename must be in i()');
                 // search for node_modules in every directory up the file's path
                 let currPath = path.dirname(filename);
                 // eslint-disable-next-line no-constant-condition
@@ -928,6 +938,7 @@ class RunInstance {
 
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function log(text: string) {
+            invariant(logHere !== undefined, 'Internal error: logHere must be defined in log()');
             runInstance.appendToLog(text, logHere);
         }
 
@@ -989,6 +1000,7 @@ class RunInstance {
         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
         function dir() {
             // Absolute directory of the file where the currently executing step is
+            invariant(filename !== undefined, 'filename must be defined in dir()');
             return path.dirname(filename);
         }
 
@@ -1065,7 +1077,11 @@ class RunInstance {
         /**
          * Generates js code that converts variables into normal js vars, appends code to header, returns header
          */
-        function loadIntoJsVars(header: string, arr, getter: 'getLocal' | 'getGlobal' | 'getPersistent') {
+        function loadIntoJsVars(
+            header: string,
+            arr: Record<string, unknown>,
+            getter: 'getLocal' | 'getGlobal' | 'getPersistent'
+        ) {
             for (let varname in arr) {
                 if (Object.prototype.hasOwnProperty.call(arr, varname)) {
                     varname = utils.keepCaseCanonicalize(varname);
@@ -1176,6 +1192,8 @@ class RunInstance {
         let branch = this.currBranch;
         const step = this.currStep;
 
+        invariant(step, 'step is null');
+
         if (!branch) {
             branch = new Branch(); // temp branch that's going to be a container for the step
             branch.steps.push(step);
@@ -1184,10 +1202,12 @@ class RunInstance {
         const index = branch.steps.indexOf(step);
         for (let i = index; i < branch.steps.length; i++) {
             const s = branch.steps[i];
+            invariant(s.level !== undefined && step.level !== undefined, 'step levels must be filled in findVarValue');
             if (isLocal && s.level < step.level) {
                 break; // you cannot look outside a function's scope for a local var
             }
 
+            invariant(s.id !== undefined, 'step id must be filled in findVarValue');
             const sNode = this.tree.stepNodeIndex[s.id];
             const varsBeingSet = sNode.getVarsBeingSet();
             if (varsBeingSet) {
@@ -1273,14 +1293,16 @@ class RunInstance {
     async runAfterEveryBranch(currBranch: Branch) {
         if (currBranch.afterEveryBranch) {
             for (let i = 0; i < currBranch.afterEveryBranch.length; i++) {
-                const s = currBranch.afterEveryBranch[i];
-                await this.runHookStep(s, null, this.currBranch);
+                const step = currBranch.afterEveryBranch[i];
+                invariant(this.currBranch !== null, 'currBranch should be defined');
+                await this.runHookStep(step, null, this.currBranch);
                 if (this.checkForStopped()) {
                     return;
                 }
                 if (this.runner.consoleOutput && currBranch.error) {
-                    const sn = this.tree.stepNodeIndex[s.id];
-                    this.outputError(currBranch.error, sn);
+                    invariant(step.id !== undefined, 'step.id is undefined');
+                    const stepNode = this.tree.stepNodeIndex[step.id];
+                    this.outputError(currBranch.error, stepNode);
                     console.log('');
                 }
                 // finish running all After Every Branch steps, even if one fails, and even if there was a pause
@@ -1353,6 +1375,7 @@ class RunInstance {
      * Takes an Error caught from the execution of a step and adds filename and lineNumber parameters to it
      */
     fillErrorFromStep(error: SmashError, step: Step, inCodeBlock: boolean) {
+        invariant(step.id !== undefined, 'step.id is undefined');
         const stepNode = this.tree.stepNodeIndex[step.id];
 
         error.filename = stepNode.filename;
@@ -1366,6 +1389,7 @@ class RunInstance {
             !this.tree.getModifier(step, 'isHook') &&
             !this.tree.getModifier(step, 'isPackaged')
         ) {
+            invariant(step.fid !== undefined, 'step.fid must not be undefined when stepNode.isFunctionCall');
             const functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
             error.filename = functionDeclarationNode.filename;
             error.lineNumber = functionDeclarationNode.lineNumber;
@@ -1403,8 +1427,10 @@ class RunInstance {
      * @return {Number} The line number offset for evalCodeBlock(), based on the given step
      */
     getLineNumberOffset(step: Step) {
+        invariant(step.id !== undefined, 'step.id is undefined in getLineNumberOffset');
         const stepNode = this.tree.stepNodeIndex[step.id];
         if (stepNode.isFunctionCall && !this.tree.getModifier(step, 'isHook')) {
+            invariant(step.fid !== undefined, 'step.fid must not be undefined when stepNode.isFunctionCall is true');
             const functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
             return functionDeclarationNode.lineNumber;
         }
@@ -1417,11 +1443,14 @@ class RunInstance {
      * @return {String} The filename of the given step's code block
      */
     getFilenameOfCodeBlock(step: Step) {
+        invariant(step.id !== undefined, 'step.id is undefined in getFilenameOfCodeBlock');
+
         const stepNode = this.tree.stepNodeIndex[step.id];
         if (stepNode.hasCodeBlock()) {
             return stepNode.filename;
         }
         else {
+            invariant(step.fid !== undefined, 'step.fid is undefined in getFilenameOfCodeBlock');
             const functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
             return functionDeclarationNode.filename;
         }

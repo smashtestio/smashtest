@@ -1,6 +1,7 @@
 import cloneDeep from 'lodash/cloneDeep.js';
+import invariant from 'tiny-invariant';
 import { pickBy } from './typehelpers.js';
-import { SmashError, StepNodeIndex } from './types.js';
+import { SerializedSmashError, StepNodeIndex } from './types.js';
 
 /**
  * Represents a step within a Branch
@@ -18,7 +19,7 @@ class Step {
     isSkipped?: boolean; // true if this step was skipped
     isRunning?: boolean; // true if this step is currently running
 
-    error?: SmashError; // if this step failed, this is the Error that was thrown
+    error?: SerializedSmashError; // if this step failed, this is the Error that was thrown
     log?: { text: string }[]; // Array of objects that represent the logs of this step
 
     elapsed?: number; // number of ms it took this step to execute
@@ -29,7 +30,7 @@ class Step {
     afterScreenshot?: unknown;
     targetCoords?: { x: number; y: number }; // if this is set, set the crosshairs on the before screenshot to these coords (where x and y are a percentage of the total width and height respectively)
 
-    constructor(id: number) {
+    constructor(id: number | undefined) {
         this.id = id;
     }
 
@@ -71,10 +72,13 @@ class Step {
     locString(stepNodeIndex: StepNodeIndex) {
         const removePath = (str: string) => (str ? str.replace(/^.*[/\\]/, '') : '');
 
+        invariant(this.id !== undefined, 'Step must have an id to get its loc string');
+
         const sn = stepNodeIndex[this.id];
         let loc = sn.filename ? `${removePath(sn.filename)}:${sn.lineNumber}` : '';
         const fsn = this.fid ? stepNodeIndex[this.fid] : null; // function declaration step node
         if (fsn) {
+            invariant(fsn.filename, 'Function declaration step node must have a filename');
             loc += `${loc ? ' ' : ''}--> ${removePath(fsn.filename)}:${fsn.lineNumber}`;
         }
 

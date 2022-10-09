@@ -1,8 +1,7 @@
 import { WebElement } from 'selenium-webdriver';
-import { RESERVED_KEYWORDS } from '../packages/js/comparer.js';
 import ElementFinder from '../packages/js/elementfinder.js';
 import Branch from './branch.js';
-import { FREQUENCIES } from './constants.js';
+import { FREQUENCIES, HOOK_NAMES } from './constants.js';
 import StepNode from './stepnode.js';
 import Tree from './tree.js';
 
@@ -22,21 +21,31 @@ export type EFBlockError = {
 
 export type ElementFinderError = (string & { blockError?: undefined }) | BlockError;
 
-export type SmashError = {
-    message?: string | undefined;
+export class SmashError extends Error {
     fatal?: boolean;
-    stack?: string | undefined;
     filename?: string;
     lineNumber?: number;
     continue?: boolean;
-};
 
-export function isSmashError(error: unknown | SmashError): error is SmashError {
+    constructor(message: string) {
+        super(message);
+    }
+}
+
+export type SerializedSmashError = Omit<SmashError, 'name'>;
+
+export function isSmashError(error: unknown): error is SmashError {
     return error instanceof Error;
 }
 
+export function checkUnknownProp<Prop extends string>(obj: unknown, prop: Prop): unknown {
+    return typeof obj === 'object' && obj && prop in obj && obj[prop];
+}
+
+export type Prop = Array<(elems: Element[], input?: string) => Element[] | string>;
+
 export type Props = {
-    [key: string]: [(elems: Element[], input?: string) => Element[]];
+    [key: string]: Prop;
 };
 
 export type SerializedProps = {
@@ -53,26 +62,41 @@ export type PropDefinition = {
 export type Frequency = typeof FREQUENCIES[number];
 
 export type HookField = 'beforeEveryBranch' | 'afterEveryBranch' | 'beforeEveryStep' | 'afterEveryStep';
+export type HookName = typeof HOOK_NAMES[number];
 
 export type Modifier = '~' | '$';
 
-export type BrowserParams<Options = unknown> = Partial<{
+export type BrowserParams<Options = unknown> = {
     name: 'chrome' | 'firefox' | 'safari' | 'internet explorer' | 'MicrosoftEdge';
-    version: string;
-    platform: 'linux' | 'mac' | 'windows';
-    width: number;
-    height: number;
-    deviceEmulation: string;
-    isHeadless: boolean;
-    testServer: string | undefined;
-    serverUrl: string | undefined;
-    options: Options;
-    capabilities: unknown;
-}>;
-
-export type Constraints = {
-    [Key in typeof RESERVED_KEYWORDS[number]]: unknown;
+    version?: string;
+    platform?: 'linux' | 'mac' | 'windows';
+    width?: number;
+    height?: number;
+    deviceEmulation?: string;
+    isHeadless?: boolean;
+    testServer?: string | undefined;
+    serverUrl?: string | undefined;
+    options?: Options;
+    capabilities?: unknown;
 };
+
+export type ConstraintsInstruction = {
+    $typeof?: string;
+    $regex: RegExp;
+    $contains: unknown;
+    $max: number;
+    $min: number;
+    $code: unknown;
+    $length: number;
+    $maxLength: number;
+    $minLength: number;
+    $subset: unknown;
+    $anyOrder: unknown;
+    $exact: unknown;
+    $every: Constraints;
+};
+
+export type Constraints = Record<string, unknown> & ConstraintsInstruction;
 
 export type Snapshot = {
     tree: Tree;

@@ -1,14 +1,15 @@
+import invariant from 'tiny-invariant';
 import * as Constants from './constants.js';
 import StepBlockNode from './stepblocknode.js';
 import { pickBy } from './typehelpers.js';
-import { VarBeingSet } from './types.js';
+import { HookName, VarBeingSet } from './types.js';
 import * as utils from './utils.js';
 
 /**
  * Represents a step node within a Tree or StepBlock
  */
 class StepNode {
-    id: number; // number that uniquely identifies this step node (must be > 0)
+    id: number | undefined; // number that uniquely identifies this step node (must be > 0)
 
     indents = -1; // number of indents before this step node's text, where an indent consists of SPACES_PER_INDENT spaces
 
@@ -18,8 +19,9 @@ class StepNode {
     filename; // filename where this step node is from
     lineNumber; // line number where this step node is from
 
+    text = ''; // text of the command of the step node (not including spaces in front, modifiers, comments, etc.)
+
     // OPTIONAL
-    text?: string; // text of the command of the step node (not including spaces in front, modifiers, comments, etc.)
     canon?: string; // canonicalized text of the step node
 
     modifiers?: string[]; // Array of String, each of which represents an modifier (e.g., ['..', '+']) in front or behind the step node
@@ -66,7 +68,7 @@ class StepNode {
      * @param {String} filename - The filename of the file where this step is from
      * @param {Integer} lineNumber - The line number of this step
      */
-    constructor(id: number, filename: string, lineNumber: number) {
+    constructor(id?: number, filename?: string, lineNumber?: number) {
         this.id = id;
         this.filename = filename;
         this.lineNumber = lineNumber;
@@ -114,8 +116,10 @@ class StepNode {
         //   'Step [' is a multi-step-block function declaration
         //   '[' is a multi-level-step-block function declaration
         //   ']' is a multi-level-step-block function call to the last multi-level-step-block function declaration
-        this.isOpeningBracket =
-            (matches[5] && matches[5].trim() === '[') || (matches[20] && matches[20].trim() === '[');
+        this.isOpeningBracket = Boolean(
+            (matches[5] && matches[5].trim() === '[') || (matches[20] && matches[20].trim() === '[')
+        );
+
         if (matches[4] || this.isOpeningBracket) {
             if (this.isOpeningBracket && (!matches[4] || matches[4].trim() != '*')) {
                 this.isFunctionDeclaration = true;
@@ -178,7 +182,7 @@ class StepNode {
         else {
             // not a function declaration
             // Validate that a non-function declaration isn't using a hook step name
-            if (Constants.HOOK_NAMES.indexOf(utils.canonicalize(this.text)) !== -1) {
+            if (Constants.HOOK_NAMES.indexOf(utils.canonicalize(this.text) as HookName) !== -1) {
                 utils.error(
                     'You cannot have a function call with that name. That\'s reserved for hook function declarations.',
                     filename,
@@ -259,28 +263,27 @@ class StepNode {
 
         // Validate hook steps
         if (this.isHook) {
-            const canStepText = utils.canonicalize(this.text);
-            const index = Constants.HOOK_NAMES.indexOf(canStepText);
-            if (index == -1) {
-                utils.error('Invalid hook name', filename, lineNumber);
-            }
-            else {
-                if (!this.hasCodeBlock()) {
-                    utils.error('A hook must have a code block', filename, lineNumber);
-                }
-                if (this.modifiers && this.modifiers.length > 0) {
-                    utils.error(`A hook cannot have any modifiers (${this.modifiers[0]})`, filename, lineNumber);
-                }
-            }
+            const canStepText = utils.canonicalize(this.text) as HookName;
+            utils.assert(Constants.HOOK_NAMES.indexOf(canStepText) !== -1, 'Invalid hook name', filename, lineNumber);
+            utils.assert(this.hasCodeBlock(), 'A hook must have a code block', filename, lineNumber);
+            utils.assert(
+                !this.modifiers || this.modifiers.length === 0,
+                `A hook cannot have any modifiers (${this.modifiers?.[0]})`,
+                filename,
+                lineNumber
+            );
         }
 
         // Steps that set variables
         if (this.text.match(Constants.VARS_SET_WHOLE)) {
             // This step is a {var1} = Val1, {var2} = Val2, {{var3}} = Val3, etc. (one or more vars)
 
-            if (this.isFunctionDeclaration) {
-                utils.error('A step setting {variables} cannot start with a *', filename, lineNumber);
-            }
+            utils.assert(
+                !this.isFunctionDeclaration,
+                'A step setting {variables} cannot start with a *',
+                filename,
+                lineNumber
+            );
 
             const varsBeingSet = this.getVarsBeingSet();
 
@@ -365,7 +368,7 @@ class StepNode {
 
         // Set canon
         if (this.isFunctionDeclaration) {
-            this.canon = this.canonicalizeFunctionDeclarationText();
+            this.canon = this.canonicalizeFunctionDeclarationText(this.text);
         }
         else if (this.isFunctionCall) {
             this.canon = this.canonicalizeFunctionCallText();
@@ -425,22 +428,26 @@ class StepNode {
      * @throws {Error} if there's a case insensitive match but not a case sensitive match
      */
     isFunctionMatch(functionDeclarationNode: StepNode) {
+        invariant(
+            typeof this.canon === 'string',
+            'this.canon must be a string when matching a function call with a function declaration'
+        );
         let functionCallText = this.canon;
         const functionDeclarationText = functionDeclarationNode.canon;
-        if (functionCallText == functionDeclarationText) {
+        if (functionCallText === functionDeclarationText) {
             return true;
         }
         else {
             functionCallText = functionCallText.replace(/^\s*(given|when|then|and)\s*/i, '');
-            return functionCallText == functionDeclarationText;
+            return functionCallText === functionDeclarationText;
         }
     }
 
     /**
      * @return {String} Canonicalized text of this step node
      */
-    canonicalizeFunctionDeclarationText() {
-        let functionDeclarationText = this.text;
+    canonicalizeFunctionDeclarationText(text: string) {
+        let functionDeclarationText = text;
 
         // Canonicalize by replacing {vars} with {}'s
         functionDeclarationText = functionDeclarationText.replace(Constants.VAR, '{}');
@@ -455,6 +462,11 @@ class StepNode {
      */
     canonicalizeFunctionCallText() {
         let functionCallText = this.getFunctionCallText();
+
+        invariant(
+            typeof functionCallText === 'string',
+            'this.getFunctionCallText() must return a string when canonicalizing a function call'
+        );
 
         // Canonicalize by replacing {vars} and 'strings' with {}'s
         functionCallText = functionCallText.replace(Constants.STRING_LITERAL, '{}').replace(Constants.VAR, '{}');

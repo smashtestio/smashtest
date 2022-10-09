@@ -57,6 +57,7 @@ class Tree {
      */
     newStepNode(filename?: string, lineNumber?: number) {
         const stepNode = new StepNode(this.stepNodeCount + 1, filename, lineNumber);
+        invariant(stepNode.id !== undefined, 'stepNode.id should be defined in newStepNode');
         this.stepNodeIndex[stepNode.id] = stepNode;
         this.stepNodeCount++;
         return stepNode;
@@ -76,6 +77,7 @@ class Tree {
      * @return {Boolean} True if the given modifier is set on either step's StepNode or on its corresponding function declaration's StepNode (if step is a function call), false otherwise
      */
     getModifier(step: Step, modifierName: keyof StepNode) {
+        invariant(step.id !== undefined, 'stepNode.id should be defined in getModifier');
         const stepNode = this.stepNodeIndex[step.id];
         if (stepNode[modifierName]) {
             return true;
@@ -93,6 +95,7 @@ class Tree {
      * @returns {String} The code block associated with this step (either from its StepNode, or if it's a function call, from its corresponding function declaration's StepNode), '' if no code blocks found
      */
     getCodeBlock(step: Step): string {
+        invariant(step.id !== undefined, 'step.id should be defined in getCodeBlock');
         const stepNode = this.stepNodeIndex[step.id];
         if (stepNode.hasCodeBlock()) {
             return stepNode.codeBlock;
@@ -112,6 +115,7 @@ class Tree {
      * @return {Boolean} True if step or its corresponding function declaration has a step block, false otherwise
      */
     hasCodeBlock(step: Step) {
+        invariant(step.id !== undefined, 'step.id should be defined in hasCodeBlock');
         const stepNode = this.stepNodeIndex[step.id];
         if (stepNode.hasCodeBlock()) {
             return true;
@@ -276,25 +280,31 @@ class Tree {
 
             if (potentialStepBlock.steps.length > 1) {
                 // We've found a step block, which goes from lines index i to j
+                const sn = stepNodes[j];
 
                 if (
                     j < stepNodes.length &&
-                    stepNodes[j].text != '' &&
-                    stepNodes[j].text != '..' &&
-                    stepNodes[j].indents == potentialStepBlock.steps[0].indents + 1
+                    sn.text !== '' &&
+                    sn.text !== '..' &&
+                    sn.indents === potentialStepBlock.steps[0].indents + 1
                 ) {
+                    invariant(sn.lineNumber !== undefined);
                     utils.error(
                         'There must be an empty line under a step block if it has children directly underneath it. Try putting an empty line under this line.',
                         filename,
-                        stepNodes[j].lineNumber - 1
+                        sn.lineNumber - 1
                     );
                 }
 
+                const potentialStepBlockFirstStep = potentialStepBlock.steps[0];
+                invariant(potentialStepBlockFirstStep.lineNumber !== undefined);
+
                 potentialStepBlock.filename = filename;
                 potentialStepBlock.lineNumber = potentialStepBlock.isSequential
-                    ? potentialStepBlock.steps[0].lineNumber - 1
-                    : potentialStepBlock.steps[0].lineNumber;
+                    ? potentialStepBlockFirstStep.lineNumber - 1
+                    : potentialStepBlockFirstStep.lineNumber;
                 potentialStepBlock.indents = potentialStepBlock.steps[0].indents;
+
                 for (let k = 0; k < potentialStepBlock.steps.length; k++) {
                     potentialStepBlock.steps[k].containingStepBlock = potentialStepBlock;
 
@@ -328,21 +338,25 @@ class Tree {
 
         // Remove steps that are '' or '..' (we don't need them anymore)
         for (let i = 0; i < stepNodes.length; ) {
-            if (stepNodes[i] instanceof StepBlockNode) {
+            const sn = stepNodes[i];
+
+            if (sn instanceof StepBlockNode) {
                 i++;
                 continue;
             }
-            else if (stepNodes[i].text == '') {
-                this.deleteStepNode(stepNodes[i].id);
+            else if (sn.text == '') {
+                invariant(sn.id !== undefined);
+                this.deleteStepNode(sn.id);
                 stepNodes.splice(i, 1);
             }
-            else if (stepNodes[i].text == '..') {
+            else if (sn.text == '..') {
                 // Validate that .. steps have a StepBlockNode directly below
                 if (i + 1 < stepNodes.length && !(stepNodes[i + 1] instanceof StepBlockNode)) {
                     utils.error('A .. line must be followed by a step block', filename, stepNodes[i].lineNumber);
                 }
                 else {
-                    this.deleteStepNode(stepNodes[i].id);
+                    invariant(sn.id !== undefined);
+                    this.deleteStepNode(sn.id);
                     stepNodes.splice(i, 1);
                 }
             }
@@ -353,7 +367,7 @@ class Tree {
 
         // Set the parents and children of each StepNode/StepBlockNode in lines, based on the indents of each StepNode/StepBlockNode
         // Insert the contents of lines into the tree (under this.root)
-        let prevStepNode = null;
+        let prevStepNode: StepNode | null = null;
         for (let i = 0; i < stepNodes.length; i++) {
             const currStepNode = stepNodes[i]; // either a StepNode or StepBlockNode object
 
@@ -378,9 +392,12 @@ class Tree {
                     currStepNode.parent = this.root;
                 }
 
+                invariant(currStepNode.parent, 'currStepNode.parent should be defined');
+
                 currStepNode.parent.children.push(currStepNode);
             }
             else if (indentsAdvanced == 1) {
+                invariant(prevStepNode, 'prevStepNode should be defined');
                 // current step node is a child of the previous step node
                 currStepNode.parent = prevStepNode;
                 prevStepNode.children.push(currStepNode);
@@ -393,21 +410,25 @@ class Tree {
                 );
             }
             else {
+                invariant(prevStepNode, 'prevStepNode should be defined');
                 // indentsAdvanced < 0, and current step node is a child of an ancestor of the previous step node
                 let parent = prevStepNode.parent;
                 for (let j = indentsAdvanced; j < 0; j++) {
+                    invariant(parent, 'parent should be defined');
                     parent = parent.parent;
                 }
 
                 currStepNode.parent = parent;
+                invariant(parent, 'parent should be defined');
                 parent.children.push(currStepNode);
             }
 
             // If current step node is a multi-level-step-block function call
             if (currStepNode.isMultiBlockFunctionCall) {
+                invariant(currStepNode.parent, 'currStepNode.parent should be defined');
                 const ERR_MSG = 'Cannot find the \'[\' that corresponds to this \']\'';
                 if (currStepNode.parent.children.length > 1) {
-                    const lastSibling = currStepNode.parent.children[currStepNode.parent.children.length - 2];
+                    const lastSibling: StepNode = currStepNode.parent.children[currStepNode.parent.children.length - 2];
                     if (lastSibling.isMultiBlockFunctionDeclaration) {
                         currStepNode.multiBlockFid = lastSibling.id;
                         currStepNode.text = lastSibling.text;
@@ -443,14 +464,17 @@ class Tree {
      * @return {Array of StepNode} The nearest function declaration step nodes that match the function call step
      * @throws {Error} If a matching function declaration could not be found
      */
-    findFunctionDeclarations(functionCall: Step, branchAbove: Branch) {
+    findFunctionDeclarations(functionCall: Step, branchAbove: Branch): StepNode[] | undefined {
         branchAbove.steps.push(functionCall);
+
+        invariant(functionCall.id !== undefined, 'functionCall.id should be defined');
 
         const functionCallNode = this.stepNodeIndex[functionCall.id];
         const functionCallNodeToMatch = functionCallNode;
 
         // Multi-level step block function calls
         if (functionCallNode.isMultiBlockFunctionCall) {
+            invariant(functionCallNode.multiBlockFid, 'functionCallNode.multiBlockFid should be defined');
             branchAbove.steps.pop(); // restore branchAbove to how it was when it was passed in
             return [this.stepNodeIndex[functionCallNode.multiBlockFid]];
         }
@@ -475,6 +499,9 @@ class Tree {
             let stepAbove, stepNodeAbove, siblings;
             if (index > 0) {
                 stepAbove = branchAbove.steps[index - 1];
+
+                invariant(stepAbove.id, 'stepAbove.id should be defined');
+
                 stepNodeAbove = this.stepNodeIndex[stepAbove.id];
                 siblings = stepNodeAbove.containingStepBlock
                     ? stepNodeAbove.containingStepBlock.children
@@ -493,7 +520,7 @@ class Tree {
             // If nothing found, try going to the step right above (P), finding its corresponding function declaration (*P),
             // finding all equivalents to *P, and searching all of their children
             if (index > 0) {
-                if (stepNodeAbove && stepNodeAbove.isFunctionCall) {
+                if (stepNodeAbove && stepNodeAbove.isFunctionCall && stepAbove?.fid !== undefined) {
                     const funcDeclAbove = this.stepNodeIndex[stepAbove.fid]; // this is *P from the example above
                     if (funcDeclAbove) {
                         const funcDeclAboveEquivalents = this.equivalents(funcDeclAbove);
@@ -534,7 +561,12 @@ ${branchAbove.output(this.stepNodeIndex)}
                     sn.isFunctionDeclaration &&
                     functionCallNodeToMatch.isFunctionMatch(sn) &&
                     !untouchables.includes(sn) &&
-                    !(sn.isPrivateFunctionDeclaration && currStep.level > functionCall.level) // ignore private functions that are inaccessible)
+                    !(
+                        sn.isPrivateFunctionDeclaration &&
+                        typeof currStep.level === 'number' &&
+                        typeof functionCall.level === 'number' &&
+                        currStep.level > functionCall.level
+                    ) // ignore private functions that are inaccessible)
                 ) {
                     matches.push(sn);
                 }
@@ -552,9 +584,11 @@ ${branchAbove.output(this.stepNodeIndex)}
         let results: StepNode[] = [];
 
         const parents = [];
-        let sn;
-        for (sn = stepNode; sn && sn.isFunctionDeclaration; sn = sn.parent) {
+        let sn = stepNode;
+        while (sn && sn.isFunctionDeclaration) {
             parents.push(sn);
+            invariant(sn.parent, 'stepNode must have a parent when calling equivalents()');
+            sn = sn.parent;
         }
 
         results.push(sn);
@@ -581,7 +615,7 @@ ${branchAbove.output(this.stepNodeIndex)}
      * @return {Boolean} true if F is in {x}='val' format, false if F is a code block function
      * @throws {Error} If F is not the right format
      */
-    validateVarSettingFunction(step) {
+    validateVarSettingFunction(step: Step) {
         /*
         Acceptable formats of F:
 
@@ -603,6 +637,8 @@ ${branchAbove.output(this.stepNodeIndex)}
                 - No sequential (..) anything
                 - May contain steps, step blocks, or a combination of them
         */
+
+        invariant(step.id !== undefined && step.fid !== undefined, 'step.id and step.fid should be defined');
 
         const stepNode = this.stepNodeIndex[step.id];
         const functionDeclarationNode = this.stepNodeIndex[step.fid];
@@ -637,7 +673,7 @@ ${branchAbove.output(this.stepNodeIndex)}
             return true;
         }
 
-        function validateChild(child) {
+        function validateChild(child: StepNode) {
             const varsBeingSet = child.getVarsBeingSet();
             if (!varsBeingSet || varsBeingSet.length != 1 || varsBeingSet[0].isLocal) {
                 utils.error(
@@ -672,8 +708,8 @@ ${branchAbove.output(this.stepNodeIndex)}
         branchAbove = new Branch(),
         level = 0,
         isFunctionCall: boolean,
-        isSequential: boolean
-    ): Branch[] {
+        isSequential?: boolean
+    ): Branch[] | null {
         // ***************************************
         // 1) Initialize vars
         // ***************************************
@@ -727,8 +763,13 @@ ${branchAbove.output(this.stepNodeIndex)}
             let newBranchesFromThisStepNode: Branch[] = [];
             const functionDeclarationNodes = this.findFunctionDeclarations(step, branchAbove);
 
+            invariant(functionDeclarationNodes, 'functionDeclarationNodes should be defined');
+
             functionDeclarationNodes.forEach((functionDeclarationNode) => {
+                invariant(functionDeclarationNode.id !== undefined, 'functionDeclarationNode.id should be defined');
+
                 step.fid = functionDeclarationNode.id;
+
                 fids.push(step.fid);
 
                 let isReplaceVarsInChildren = false; // true if this step is {var}=F and F contains children in format {x}='val', false otherwise
@@ -741,8 +782,9 @@ ${branchAbove.output(this.stepNodeIndex)}
                 }
 
                 // Branchify the function declaration node
-                newBranchesFromThisStepNode = placeOntoBranchAbove([step], () =>
-                    this.branchify(functionDeclarationNode, branchAbove, level + 1, true)
+                newBranchesFromThisStepNode = placeOntoBranchAbove(
+                    [step],
+                    () => this.branchify(functionDeclarationNode, branchAbove, level + 1, true) || []
                 ); // there's no isSequential because isSequential does not extend into function calls
 
                 if (newBranchesFromThisStepNode.length == 0) {
@@ -760,8 +802,8 @@ ${branchAbove.output(this.stepNodeIndex)}
                         newBranchesFromThisStepNode.forEach((branch) => {
                             for (let i = 0; i < branch.steps.length; i++) {
                                 // handles mulitple levels of {var} = F
-                                const s = branch.steps[i];
-                                const sNode = this.stepNodeIndex[s.id];
+                                const step = branch.steps[i];
+                                const sNode = this.stepNodeIndex[step.id];
                                 const sVarsBeingSet = sNode.getVarsBeingSet();
 
                                 const originalName = sVarsBeingSet[0].name;
@@ -848,8 +890,8 @@ ${branchAbove.output(this.stepNodeIndex)}
         // Does not affect sequential steps
         // This is a performance optimization. Full $/~ reduction is done in removeUnwantedBranches().
         if (!isSequential) {
-            const stepNodeHasModifier = (c) => (c.isOnly || c.isDebug) && !c.isFunctionDeclaration;
-            const hasModifier = (c) =>
+            const stepNodeHasModifier = (c: StepNode) => (c.isOnly || c.isDebug) && !c.isFunctionDeclaration;
+            const hasModifier = (c: StepNode) =>
                 c instanceof StepBlockNode
                     ? c.steps.find((c) => stepNodeHasModifier(c)) && !c.isSequential
                     : stepNodeHasModifier(c);
@@ -965,8 +1007,9 @@ ${branchAbove.output(this.stepNodeIndex)}
                     if (child instanceof StepBlockNode && !child.isSequential) {
                         // If this child is a non-sequential step block, just call branchify() directly on each member
                         child.steps.forEach((s) => {
-                            let branchesFromChild = placeOntoBranchAbove(bigBranch.steps, () =>
-                                this.branchify(s, branchAbove, level, false, isSequential)
+                            let branchesFromChild = placeOntoBranchAbove(
+                                bigBranch.steps,
+                                () => this.branchify(s, branchAbove, level, false, isSequential) || []
                             );
                             if (branchesFromChild && branchesFromChild.length > 0) {
                                 branchesFromChild.forEach(
@@ -986,8 +1029,9 @@ ${branchAbove.output(this.stepNodeIndex)}
                     }
                     else {
                         // If this child is a step, call branchify() on it normally
-                        let branchesFromChild = placeOntoBranchAbove(bigBranch.steps, () =>
-                            this.branchify(child, branchAbove, level, false, isSequential)
+                        let branchesFromChild = placeOntoBranchAbove(
+                            bigBranch.steps,
+                            () => this.branchify(child, branchAbove, level, false, isSequential) || []
                         );
                         if (branchesFromChild && branchesFromChild.length > 0) {
                             branchesFromChild.forEach(
@@ -1012,8 +1056,9 @@ ${branchAbove.output(this.stepNodeIndex)}
                     if (child instanceof StepBlockNode && !child.isSequential) {
                         // If this child is a non-sequential step block, just call branchify() directly on each member
                         child.steps.forEach((s) => {
-                            const branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () =>
-                                this.branchify(s, branchAbove, level, false, isSequential)
+                            const branchesFromChild = placeOntoBranchAbove(
+                                branchFromThisStepNode.steps,
+                                () => this.branchify(s, branchAbove, level, false, isSequential) || []
                             );
                             if (branchesFromChild && branchesFromChild.length > 0) {
                                 branchesFromChildren = [...branchesFromChildren, ...branchesFromChild];
@@ -1023,8 +1068,9 @@ ${branchAbove.output(this.stepNodeIndex)}
                     }
                     else {
                         // If this child is a step, call branchify() on it normally
-                        const branchesFromChild = placeOntoBranchAbove(branchFromThisStepNode.steps, () =>
-                            this.branchify(child, branchAbove, level, false, isSequential)
+                        const branchesFromChild = placeOntoBranchAbove(
+                            branchFromThisStepNode.steps,
+                            () => this.branchify(child, branchAbove, level, false, isSequential) || []
                         );
                         if (branchesFromChild && branchesFromChild.length > 0) {
                             branchesFromChildren = branchesFromChildren.concat(branchesFromChild);
@@ -1060,12 +1106,14 @@ ${branchAbove.output(this.stepNodeIndex)}
         function attachHooksToBranch(hooks: Step[], hookName: HookField) {
             if (hooks && hooks.length > 0) {
                 branchesBelow.forEach((branchBelow) => {
-                    hooks.forEach((s) => {
+                    hooks.forEach((step) => {
                         if (!branchBelow[hookName]) {
                             branchBelow[hookName] = [];
                         }
 
-                        branchBelow[hookName].push(s.clone());
+                        const steps = branchBelow[hookName];
+                        invariant(steps);
+                        steps.push(step.clone());
                     });
                 });
             }
@@ -1129,20 +1177,20 @@ ${branchAbove.output(this.stepNodeIndex)}
             const branch = branches[i];
             if (branch.isOnly) {
                 // A $ was found
-                const o = this.findModifierDepth(branch, '$');
-                if (o.depth < shortestDepth || shortestDepth == -1) {
-                    shortestDepth = o.depth;
+                const obj = this.findModifierDepth(branch, '$');
+                if (obj.depth < shortestDepth || shortestDepth == -1) {
+                    shortestDepth = obj.depth;
                 }
             }
         }
         if (shortestDepth !== -1) {
             branches = branches.filter((branch) => {
-                const o = this.findModifierDepth(branch, '$');
-                if (!o) {
+                const obj = this.findModifierDepth(branch, '$');
+                if (!obj) {
                     return false;
                 }
                 else {
-                    return o.depth == shortestDepth;
+                    return obj.depth == shortestDepth;
                 }
             });
         }
@@ -1255,7 +1303,7 @@ ${branchAbove.output(this.stepNodeIndex)}
      * @param {Tree} self - This tree
      * @return {Object} Object, in format { step: the first Step in the given branch to contain modifier, depth: depth at which the modifier was found }, null if nothing found
      */
-    findModifierDepth(branch: Branch, modifier: Modifier) {
+    findModifierDepth(branch: Branch, modifier: Modifier): { step: Step; depth: number } {
         for (let i = 0; i < branch.steps.length; i++) {
             const step = branch.steps[i];
             const stepNode = this.stepNodeIndex[step.id];
@@ -1294,7 +1342,8 @@ ${branchAbove.output(this.stepNodeIndex)}
             }
         }
 
-        return null; // probably won't be reached
+        // @ts-expect-error probably won't be reached
+        return null;
     }
 
     /**
@@ -1782,7 +1831,7 @@ ${branchAbove.output(this.stepNodeIndex)}
      * @param {Step} step - The Step to mark
      * @param {Error} [error] - The Error object thrown during the execution of the step, if any
      */
-    markHookStep(state: 'pass' | 'fail', step: Step, error: Error) {
+    markHookStep(state: 'pass' | 'fail', step: Step, error: Error | undefined) {
         // Reset state
         delete step.isPassed;
         delete step.isFailed;

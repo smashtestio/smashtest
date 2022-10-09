@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any*/
-import type { Dictionary, IterateeShorthand, Many, NotVoid, NumericDictionary, PartialObject } from 'lodash'
-import mapValuesLodash from 'lodash/mapValues.js'
-import { default as pickByLodash, default as pickLodash } from 'lodash/pickBy.js'
+import type { Dictionary, IterateeShorthand, Many, NotVoid, NumericDictionary, PartialObject } from 'lodash';
+import mapValuesLodash from 'lodash/mapValues.js';
+import { default as pickByLodash, default as pickLodash } from 'lodash/pickBy.js';
 
 export type PossibleValues<T> = { [K in keyof T]-?: T[K] }[keyof T];
 

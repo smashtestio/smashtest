@@ -148,16 +148,16 @@ describe('Utils', () => {
         });
     });
 
-    describe('getIndents()', () => {
+    describe('getIndentWhitespace()', () => {
         it('returns indents', () => {
-            expect(utils.getIndents(0)).to.equal('');
-            expect(utils.getIndents(1)).to.equal('    ');
-            expect(utils.getIndents(2)).to.equal('        ');
-            expect(utils.getIndents(3)).to.equal('            ');
+            expect(utils.getIndentWhitespace(0)).to.equal('');
+            expect(utils.getIndentWhitespace(1)).to.equal('    ');
+            expect(utils.getIndentWhitespace(2)).to.equal('        ');
+            expect(utils.getIndentWhitespace(3)).to.equal('            ');
 
-            expect(utils.getIndents(0, 2)).to.equal('');
-            expect(utils.getIndents(1, 2)).to.equal('  ');
-            expect(utils.getIndents(2, 2)).to.equal('    ');
+            expect(utils.getIndentWhitespace(0, 2)).to.equal('');
+            expect(utils.getIndentWhitespace(1, 2)).to.equal('  ');
+            expect(utils.getIndentWhitespace(2, 2)).to.equal('    ');
         });
     });
 
