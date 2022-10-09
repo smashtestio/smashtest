@@ -34,7 +34,7 @@ export const hasQuotes = (str: string) => {
  * Throws an Error with the given message, filename, and line number
  * @throws {Error}
  */
-export const error = (msg: string, filename?: string, lineNumber?: number): never => {
+export const error = (msg?: string, filename?: string, lineNumber?: number): never => {
     if (filename || lineNumber) {
         throw new Error(`${msg} [${filename || ''}:${lineNumber || ''}]`);
     }
@@ -235,9 +235,9 @@ export const numIndents = (line: string, filename?: string, lineNumber?: number)
  * @param {Number} [spacesPerIndent] - Spaces per indent, omit to use default
  * @return {String} n indents worth of spaces
  */
-export const getIndentWhitespace = (indents: number, spacesPerIndent?: number) => {
+export const getIndentWhitespace = (indents?: number, spacesPerIndent?: number) => {
     let spaces = '';
-    for (let i = 0; i < (spacesPerIndent || Constants.SPACES_PER_INDENT) * indents; i++) {
+    for (let i = 0; i < (spacesPerIndent || Constants.SPACES_PER_INDENT) * (indents || 0); i++) {
         spaces += ' ';
     }
     return spaces;

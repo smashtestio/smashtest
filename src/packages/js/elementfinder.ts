@@ -1,7 +1,7 @@
 import { WebDriver, WebElement } from 'selenium-webdriver';
 import invariant from 'tiny-invariant';
 import * as Constants from '../../core/constants.js';
-import { BrowserElementFinder, ElementFinderPayload, PropDefinition, Props, SmashError } from '../../core/types.js';
+import { BrowserElementFinder, ElementFinderPayload, PropDefinition, Props, SerializedProps, SmashError } from '../../core/types.js';
 import * as utils from '../../core/utils.js';
 import { browserFunction } from './elementfinder-browser.js';
 
@@ -59,9 +59,9 @@ class ElementFinder {
      * @throws {Error} If there is a parse error
      */
     constructor(
-        str: string,
+        str: string | undefined,
         definedProps?: Props,
-        usedDefinedProps: Props = {},
+        usedDefinedProps: SerializedProps = {},
         logger?: (str: string) => void,
         parent?: ElementFinder,
         lineNumberOffset?: number,
@@ -91,7 +91,7 @@ class ElementFinder {
      * @return This object
      * @throws {Error} If there is a parse error
      */
-    parseIn(str: string | undefined, definedProps: Props, usedDefinedProps: Props, lineNumberOffset: number) {
+    parseIn(str: string | undefined, definedProps: Props, usedDefinedProps: SerializedProps, lineNumberOffset: number) {
         /**
          * @return {Boolean} True if s matches one of the prop patterns (ord, 'text', or defined prop with no input), false otherwise
          */
@@ -237,7 +237,10 @@ class ElementFinder {
                     this.counter = { min: parseInt(min), max: parseInt(min) };
                 }
 
-                if (this.counter.max < this.counter.min) {
+                const _max = this.counter.max;
+                const _min = this.counter.min;
+
+                if (_max !== undefined && _max < _min) {
                     utils.error(
                         'A counter\'s max cannot be less than its min',
                         filename,
@@ -247,12 +250,17 @@ class ElementFinder {
             }
 
             // Split into comma-separated props
-            const propStrs = parentLine.match(Constants.PROP_REGEX_COMMAS).filter((propStr) => propStr.trim() != '');
+            const match = parentLine.match(Constants.PROP_REGEX_COMMAS);
+            if (!match) {
+                throw new Error('Internal error: Comma separation regex should match on prop');
+            }
+
+            const propStrs = match.filter((propStr) => propStr.trim() != '');
             let implicitVisible = true;
 
             for (let i = 0; i < propStrs.length; i++) {
                 let propStr = propStrs[i].trim();
-                let canonPropStr = null;
+                let canonPropStr: string | null = null;
                 let input = null;
                 let matches = null;
 
@@ -333,7 +341,9 @@ class ElementFinder {
 
                 if (!canonPropStr) {
                     // if it hasn't been set yet
-                    [canonPropStr, input] = ElementFinder.canonicalizePropStr(propStr);
+                    const res = ElementFinder.canonicalizePropStr(propStr);
+                    canonPropStr = res[0];
+                    input = res[1];
                 }
 
                 if (Object.prototype.hasOwnProperty.call(definedProps, canonPropStr)) {
@@ -429,7 +439,7 @@ class ElementFinder {
     addProp(
         prop: string,
         def: string,
-        input: string | undefined,
+        input: string | number | undefined | null,
         isNot: boolean | undefined,
         definedProps: Props,
         toFront?: boolean
@@ -583,10 +593,7 @@ class ElementFinder {
         const payload: ElementFinderPayload = {
             ef: this.serialize(),
             definedProps: this.usedDefinedProps
-            // definedProps: mapValues(this.usedDefinedProps, ([fn]) => [fn.toString()] as const)
         };
-
-        // return JSON.stringify(payload);
 
         return JSON.stringify(payload, (k, v) => {
             if (typeof v === 'function') {
@@ -618,7 +625,8 @@ class ElementFinder {
 
         return {
             ef: ElementFinder.parseObj(result.ef),
-            matches: result.matches || []
+            // Do the Element -> WebElement bridging here
+            matches: (result.matches || []) as unknown as WebElement[]
         };
     }
 
@@ -697,7 +705,11 @@ class ElementFinder {
     static defaultProps(): Props {
         return {
             visible: [
-                utils.es5(function (elems) {
+                // It's a pain we have to add the arg annotations in every prop,
+                // but hopefully TS's inference will improve so we can remove
+                // them. The inference works well if a prop item would've been
+                // only a function, and not with a union with other types.
+                utils.es5(function (elems: Element[]) {
                     return elems.filter(function (elem) {
                         if (elem instanceof HTMLElement && (elem.offsetWidth === 0 || elem.offsetHeight === 0)) {
                             return false;
@@ -730,56 +742,56 @@ class ElementFinder {
             ],
 
             'any visibility': [
-                utils.es5(function (elems) {
+                utils.es5(function (elems: Element[]) {
                     return elems;
                 })
             ],
 
             enabled: [
-                utils.es5(function (elems) {
+                utils.es5(function (elems: Element[]) {
                     return elems.filter((elem) => elem.getAttribute('disabled') === null);
                 })
             ],
 
             disabled: [
-                utils.es5(function (elems) {
+                utils.es5(function (elems: Element[]) {
                     return elems.filter((elem) => elem.getAttribute('disabled') !== null);
                 })
             ],
 
             checked: [
-                utils.es5(function (elems) {
+                utils.es5(function (elems: Element[]) {
                     return elems.filter((elem) => elem instanceof HTMLInputElement && elem.checked);
                 })
             ],
 
             unchecked: [
-                utils.es5(function (elems) {
+                utils.es5(function (elems: Element[]) {
                     return elems.filter((elem) => elem instanceof HTMLInputElement && !elem.checked);
                 })
             ],
 
             selected: [
-                utils.es5(function (elems) {
+                utils.es5(function (elems: Element[]) {
                     return elems.filter((elem) => elem instanceof HTMLOptionElement && elem.selected);
                 })
             ],
 
             focused: [
-                utils.es5(function (elems) {
+                utils.es5(function (elems: Element[]) {
                     return elems.filter((elem) => elem === document.activeElement);
                 })
             ],
 
             element: [
-                utils.es5(function (elems) {
+                utils.es5(function (elems: Element[]) {
                     return elems;
                 })
             ],
 
             clickable: [
-                utils.es5(function (elems) {
-                    return elems.filter(function (elem) {
+                utils.es5(function (elems: Element[]) {
+                    return elems.filter(function (elem: Element & { disabled?: boolean }) {
                         const tagName = elem.tagName.toLowerCase();
                         return (
                             (tagName === 'a' ||
@@ -798,20 +810,20 @@ class ElementFinder {
             ],
 
             'page title': [
-                utils.es5(function (elems, input) {
+                utils.es5(function (elems: Element[], input?: string) {
                     return document.title == input ? elems : [];
                 })
             ],
 
             'page title contains': [
-                utils.es5(function (elems, input) {
+                utils.es5(function (elems: Element[], input?: string) {
                     if (input === undefined) return [];
                     return document.title.toLowerCase().indexOf(input.toLowerCase()) !== -1 ? elems : [];
                 })
             ],
 
             'page url': [
-                utils.es5(function (elems, input) {
+                utils.es5(function (elems: Element[], input?: string) {
                     if (input === undefined) return [];
                     // absolute or relative
                     return window.location.href === input ||
@@ -822,7 +834,7 @@ class ElementFinder {
             ],
 
             'page url contains': [
-                utils.es5(function (elems, input) {
+                utils.es5(function (elems: Element[], input?: string) {
                     if (input === undefined) return [];
                     return window.location.href.indexOf(input) !== -1 ? elems : [];
                 })
@@ -831,7 +843,7 @@ class ElementFinder {
             // Takes each elem and expands the container around it to its parent, parent's parent etc. until a container
             // containing input is found. Matches multiple elems if there's a tie.
             'next to': [
-                utils.es5(function (elems, input) {
+                utils.es5(function (elems: Element[], input?: string) {
                     if (input === undefined) return [];
 
                     function canon(str?: string) {
@@ -876,7 +888,7 @@ class ElementFinder {
             ],
 
             value: [
-                utils.es5(function (elems, input) {
+                utils.es5(function (elems: Element[], input?: string) {
                     // @ts-expect-error 'value' is present on a bunch of HTML
                     // elements, it's impossible to instanceof check for all of
                     // them
@@ -886,7 +898,7 @@ class ElementFinder {
 
             // Text is contained in innerText, value (including selected item in a select), placeholder, or associated label innerText
             contains: [
-                utils.es5(function (elems, input) {
+                utils.es5(function (elems: Element[], input?: string) {
                     if (input === undefined) return [];
 
                     function canon(str?: string) {
@@ -944,7 +956,7 @@ class ElementFinder {
 
             // Text is the exclusive and exact text in innerText, value (including selected item in a select), placeholder, or associated label innerText
             'contains exact': [
-                utils.es5(function (elems, input) {
+                utils.es5(function (elems: Element[], input?: string) {
                     if (input === undefined) return [];
 
                     function isMatch(str: string) {
@@ -993,7 +1005,7 @@ class ElementFinder {
             ],
 
             innertext: [
-                utils.es5(function (elems, input) {
+                utils.es5(function (elems: Element[], input?: string) {
                     if (input === undefined) return [];
 
                     function innerTextCanon(el: typeof elems[number]) {
@@ -1007,7 +1019,7 @@ class ElementFinder {
             ],
 
             selector: [
-                utils.es5(function (elems, input) {
+                utils.es5(function (elems: Element[], input?: string) {
                     if (input === undefined) return [];
 
                     let nodes = null;
@@ -1030,7 +1042,7 @@ class ElementFinder {
             ],
 
             xpath: [
-                utils.es5(function (elems, input) {
+                utils.es5(function (elems: Element[], input?: string) {
                     if (input === undefined) return [];
 
                     const result = document.evaluate(input, document, null, XPathResult.ANY_TYPE, null);
@@ -1048,7 +1060,7 @@ class ElementFinder {
 
             // Has css style 'name:value'
             style: [
-                utils.es5(function (elems, input) {
+                utils.es5(function (elems: Element[], input?: string) {
                     if (input === undefined) return [];
 
                     const matches = input.match(/^([^: ]+):(.*)$/);
@@ -1060,14 +1072,19 @@ class ElementFinder {
                     const value = matches[2];
 
                     return elems.filter(function (elem) {
-                        return window.getComputedStyle(elem)[name].toString() == value;
+                        const style = window.getComputedStyle(elem);
+                        // @ts-expect-error CSSStyleDeclaration is a weirdo API
+                        // with mixed style keys and number indices, and the
+                        // '[index: number]: string;' clause blocks the usage of
+                        // a name query in TS
+                        return style[name].toString() === value;
                     });
                 })
             ],
 
             // Same as an ord, returns nth elem, where n is 1-indexed
             position: [
-                utils.es5(function (elems, input) {
+                utils.es5(function (elems: Element[], input?: string) {
                     if (input === undefined) return [];
 
                     return [elems[parseInt(input) - 1]];
@@ -1075,11 +1092,11 @@ class ElementFinder {
             ],
 
             textbox: [
-                utils.es5(function (elems) {
+                utils.es5(function (elems: Element[]) {
                     const nodesArr = [...document.querySelectorAll('input, textarea')].filter((node) => {
                         const tagName = node.tagName.toLowerCase();
                         return (
-                            (tagName === 'input' &&
+                            (node instanceof HTMLInputElement &&
                                 (node.type === 'text' || node.type === 'password' || node.type === 'search')) ||
                             tagName === 'textarea'
                         );
@@ -1111,7 +1128,7 @@ class ElementFinder {
             input = utils.unescape(input);
         }
 
-        return [canonStr, input];
+        return [canonStr, input] as const;
     }
 }
 

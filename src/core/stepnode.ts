@@ -9,7 +9,7 @@ import * as utils from './utils.js';
  * Represents a step node within a Tree or StepBlock
  */
 class StepNode {
-    id: number | undefined; // number that uniquely identifies this step node (must be > 0)
+    id: number; // number that uniquely identifies this step node (must be > 0)
 
     indents = -1; // number of indents before this step node's text, where an indent consists of SPACES_PER_INDENT spaces
 
@@ -68,7 +68,7 @@ class StepNode {
      * @param {String} filename - The filename of the file where this step is from
      * @param {Integer} lineNumber - The line number of this step
      */
-    constructor(id?: number, filename?: string, lineNumber?: number) {
+    constructor(id: number, filename?: string, lineNumber?: number) {
         this.id = id;
         this.filename = filename;
         this.lineNumber = lineNumber;

@@ -28,9 +28,9 @@ class Step {
 
     beforeScreenshot?: unknown;
     afterScreenshot?: unknown;
-    targetCoords?: { x: number; y: number }; // if this is set, set the crosshairs on the before screenshot to these coords (where x and y are a percentage of the total width and height respectively)
+    targetCoords?: { x: number; y: number } | null; // if this is set, set the crosshairs on the before screenshot to these coords (where x and y are a percentage of the total width and height respectively)
 
-    constructor(id: number | undefined) {
+    constructor(id: number) {
         this.id = id;
     }
 

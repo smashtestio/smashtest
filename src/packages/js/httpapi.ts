@@ -1,5 +1,6 @@
 import request from 'request';
 import RunInstance from '../../core/runinstance.js';
+import { Constraints } from '../../core/types.js';
 import Comparer from './comparer.js';
 
 /**
@@ -22,7 +23,7 @@ class HttpApi {
      * See request() in https://github.com/request/request for details on functions that can be used
      * @return {Promise} Promise that resolves with a Response object, when it is received. Response will also be stored in {response} global variable.
      */
-    makeReq(func: Function, arg0: string | object, arg1?: object) {
+    makeReq(func: typeof request.get, arg0: string | object, arg1?: object) {
         let uri = '';
         if (typeof arg0 === 'string') {
             uri = arg0;
@@ -54,8 +55,14 @@ class HttpApi {
 
         this.runInstance.log(`Request:\n  ${method.toUpperCase()} ${uri}\n`);
 
+        const options = {
+            uri,
+            method,
+            ...(typeof arg0 === 'object' ? arg0 : typeof arg1 === 'object' ? arg1 : {})
+        };
+
         return new Promise((resolve) => {
-            func(...args, (error, response, body) => {
+            func(options, (error, response, body) => {
                 const responseObj = new HttpApi.Response(this.runInstance, error, response, body);
                 this.runInstance.g('response', responseObj);
                 resolve(responseObj);
@@ -68,7 +75,7 @@ class HttpApi {
      * See request() in https://github.com/request/request for details
      * @return {Promise} Promise that resolves when response comes back. Response will be stored in {response} variable.
      */
-    request(...args: unknown[]) {
+    request(...args: [string | object, object?]) {
         return this.makeReq(request, ...args);
     }
 
@@ -116,7 +123,7 @@ class HttpApi {
      * Makes an HTTP DELETE request
      * See this.makeReq() for details on args and return value
      */
-    del(...args: unknown[]) {
+    del(...args: [string | object, object?]) {
         return this.makeReq(request.del, ...args);
     }
 
@@ -133,6 +140,7 @@ class HttpApi {
      * See this.makeReq() for details on args and return value
      */
     options(...args: [string | object, object?]) {
+        // @ts-expect-error It does exist, check node_modules/request/index.js:68
         return this.makeReq(request.options, ...args);
     }
 
@@ -165,7 +173,7 @@ class HttpApi {
         rawBody;
         responseObj;
 
-        constructor(runInstance: RunInstance, error: Error, response: Response, body: string) {
+        constructor(runInstance: RunInstance, error: Error, response: request.Response, body: string) {
             this.runInstance = runInstance;
             this.response = {
                 statusCode: response && response.statusCode,
@@ -195,7 +203,7 @@ class HttpApi {
         /**
          * @throws {Error} If expectedObj doesn't match json response (see comparer.js, Comparer.expect())
          */
-        verify(expectedObj: unknown) {
+        verify(expectedObj: Constraints) {
             let headersLog = '';
             if (this.response.headers) {
                 for (const headerName in this.response.headers) {

@@ -21,6 +21,7 @@ import * as utils from './utils.js';
 // features, and it's stage 3 atm.
 // import packageJson from '../package.json' assert { type: 'json' };
 import { readFileSync } from 'fs';
+import invariant from 'tiny-invariant';
 import { entries, Merge } from './typehelpers.js';
 import { Frequency } from './types.js';
 const filePath = new URL('../../package.json', import.meta.url).pathname;
@@ -111,14 +112,13 @@ function processFlag(name: string, value: string) {
             value = String(value);
         }
 
-        let varName = null;
-        const matches = name.match(/^(g|p):(.*)$/);
-        if (matches) {
-            name = matches[1];
-            varName = matches[2];
+        const matches = name.match(/^(?<name>g|p):(?<varName>.*)$/);
+
+        if (matches?.groups) {
+            name = matches.groups.name;
         }
 
-        switch (name.toLowerCase()) {
+        switch (name) {
         case 'a':
             noValue();
             runner.skipPassed = false;
@@ -130,7 +130,8 @@ function processFlag(name: string, value: string) {
             break;
 
         case 'g':
-            runner.globalInit[varName] = value;
+            invariant(matches?.groups, '');
+            runner.globalInit[matches.groups.varName] = value;
             break;
 
         case 'groups':
@@ -223,7 +224,8 @@ Options
             break;
 
         case 'p':
-            runner.persistent[varName] = value;
+            invariant(matches?.groups, '');
+            runner.persistent[matches.groups.varName] = value;
             break;
 
         case 'random':
@@ -277,15 +279,17 @@ Options
                 runner.skipPassed = false;
             }
             else {
-                runner.skipPassed = value;
+                runner.skipPassed = Boolean(value);
             }
             break;
 
         case 'step-data':
-            if (!value.match(/all|fail|none/)) {
+            if (value === 'all' || value === 'fail' || value === 'none') {
+                tree.stepDataMode = value;
+            }
+            else {
                 utils.error('Invalid step-data. It must be \'all\', \'fail\', or \'none\'.');
             }
-            tree.stepDataMode = value;
             break;
 
         case 'test-server':
@@ -331,17 +335,19 @@ Options
 /**
  * Handles a generic error
  */
-function onError(e: Error, extraSpace: boolean, noEnd: boolean) {
+function onError(err: unknown, extraSpace?: boolean, noEnd?: boolean) {
     restoreCursor();
 
-    if (e.fatal || extraSpace) {
+    if ((err instanceof Error && 'fatal' in err && err.fatal) || extraSpace) {
         // extra spacing needed for fatal errors coming out of runner
         console.log('');
         console.log('');
     }
 
-    console.log(e.stack);
-    console.log('');
+    if (err instanceof Error) {
+        console.log(err.stack);
+        console.log('');
+    }
 
     if (!noEnd) {
         process.exit();
@@ -714,7 +720,7 @@ function plural(count: number) {
                             }
 
                             if (!runner.isStopped && !runner.isComplete) {
-                                callback(null);
+                                callback(null, undefined);
                             }
                         }
                         catch (e) {
@@ -722,7 +728,7 @@ function plural(count: number) {
                             console.log('');
 
                             prePrompt();
-                            callback(null);
+                            callback(null, undefined);
                         }
                     }
                 });
@@ -868,10 +874,10 @@ function plural(count: number) {
     /**
      * @return {Object} A new progress bar object
      */
-    function generateProgressBar(clearOnComplete) {
+    function generateProgressBar(clearOnComplete: boolean) {
         return new progress.Bar(
             {
-                clearOnComplete: clearOnComplete,
+                clearOnComplete,
                 barsize: 25,
                 hideCursor: true,
                 linewrap: true,

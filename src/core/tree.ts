@@ -11,7 +11,7 @@ import * as utils from './utils.js';
  * Represents the test tree
  */
 class Tree {
-    root = new StepNode(); // the root Step of the tree (parsed version of the text that got inputted)
+    root = new StepNode(0); // the root Step of the tree (parsed version of the text that got inputted)
     stepNodeIndex: { [key: string]: StepNode } = {}; // object where keys are ids and values are references to StepNodes under this.root
     stepNodeCount = 0; // number of StepNodes under this.root, used to generate StepNode ids
 
@@ -707,7 +707,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         stepNode: StepNode,
         branchAbove = new Branch(),
         level = 0,
-        isFunctionCall: boolean,
+        isFunctionCall?: boolean,
         isSequential?: boolean
     ): Branch[] | null {
         // ***************************************
@@ -1134,6 +1134,7 @@ ${branchAbove.output(this.stepNodeIndex)}
 
         if (nonParallelId !== undefined) {
             branchesBelow.forEach((branch) => {
+                invariant(nonParallelId !== undefined);
                 if (!branch.nonParallelIds) {
                     branch.nonParallelIds = [];
                 }
@@ -1355,10 +1356,14 @@ ${branchAbove.output(this.stepNodeIndex)}
     generateBranches() {
         // Branchify and detect infinite loops
         try {
-            this.branches = this.branchify(this.root);
+            this.branches = this.branchify(this.root) || [];
         }
-        catch (e) {
-            if (e.name === 'RangeError' && e.message === 'Maximum call stack size exceeded') {
+        catch (err) {
+            if (
+                err instanceof Error &&
+                err.name === 'RangeError' &&
+                err.message === 'Maximum call stack size exceeded'
+            ) {
                 if (this.latestBranchifiedStepNode) {
                     utils.error(
                         'Infinite loop detected',
@@ -1371,7 +1376,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                 }
             }
             else {
-                throw e;
+                throw err;
             }
         }
 
@@ -1460,12 +1465,22 @@ ${branchAbove.output(this.stepNodeIndex)}
             branch.steps.forEach((step, i) => {
                 let stepNode = this.stepNodeIndex[step.id];
                 if (stepNode.isAfterDebug && stepNode.isFunctionCall) {
+                    invariant(
+                        step.level !== undefined,
+                        'Internal error: step.level must not be undefined in generateBranches'
+                    );
                     const baseLevel = step.level;
                     let found = false;
                     delete stepNode.isAfterDebug;
                     for (i++; i < branch.steps.length; i++) {
                         const lastStepNode = stepNode;
                         step = branch.steps[i];
+
+                        invariant(
+                            step.level !== undefined,
+                            'Internal error: step.level must not be undefined in generateBranches'
+                        );
+
                         stepNode = this.stepNodeIndex[step.id];
 
                         if (step.level <= baseLevel) {
@@ -1562,7 +1577,7 @@ ${branchAbove.output(this.stepNodeIndex)}
          * @return {Object} stepNodeIndex, but only with step nodes that are actually used at least once
          */
         function serializeUsedStepNodes(stepNodeIndex: StepNodeIndex) {
-            const obj = {};
+            const obj: Record<string, unknown> = {};
             for (const key in stepNodeIndex) {
                 if (Object.prototype.hasOwnProperty.call(stepNodeIndex, key)) {
                     const stepNode = stepNodeIndex[key];
@@ -1594,7 +1609,7 @@ ${branchAbove.output(this.stepNodeIndex)}
      *     returnedObj also contains all the updated counts from this tree
      */
     serializeSnapshot(max: number, prevSnapshot: Snapshot) {
-        const snapshot: Snapsot = {
+        const snapshot: Snapshot = {
             branches: []
         };
 
@@ -1866,8 +1881,8 @@ ${branchAbove.output(this.stepNodeIndex)}
             return null;
         }
 
-        let runningStep = null;
-        let nextStep = null;
+        let runningStep: Step | null = null;
+        let nextStep: Step & StepNode | null = null;
         for (let i = 0; i < branch.steps.length; i++) {
             const step = branch.steps[i];
             if (step.isRunning) {
@@ -1906,7 +1921,7 @@ ${branchAbove.output(this.stepNodeIndex)}
 
         // If the next step is a -s or is already skipped, mark it as skipped and advance again
         if (advance && nextStep && (nextStep.isSkip || nextStep.isSkipped)) {
-            branch.markStep('skip', nextStep, undefined, undefined, this.stepDataMode);
+            branch.markStep('skip', nextStep, undefined, false, this.stepDataMode);
             return this.nextStep(branch, advance);
         }
 

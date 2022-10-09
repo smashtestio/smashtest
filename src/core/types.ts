@@ -1,4 +1,5 @@
 import { WebElement } from 'selenium-webdriver';
+import { ComparerNode } from '../packages/js/comparer.js';
 import ElementFinder from '../packages/js/elementfinder.js';
 import Branch from './branch.js';
 import { FREQUENCIES, HOOK_NAMES } from './constants.js';
@@ -38,24 +39,28 @@ export function isSmashError(error: unknown): error is SmashError {
     return error instanceof Error;
 }
 
-export function checkUnknownProp<Prop extends string>(obj: unknown, prop: Prop): unknown {
+export function checkUnknownProp<Prop extends string>(obj: Record<string, unknown>, prop: Prop): unknown {
     return typeof obj === 'object' && obj && prop in obj && obj[prop];
 }
 
-export type Prop = Array<(elems: Element[], input?: string) => Element[] | string>;
+export type FunctionProp = (elems: Element[], input?: string) => Element[];
+
+export type PropItem = FunctionProp | string | (ElementFinder | BrowserElementFinder);
+
+export type Prop = PropItem[];
 
 export type Props = {
-    [key: string]: Prop;
+    [key: string]: PropItem[];
 };
 
 export type SerializedProps = {
-    [key: string]: readonly [string];
+    [key: string]: Prop;
 };
 
 export type PropDefinition = {
     prop: string;
     def: string;
-    input?: string;
+    input?: string | null | number;
     not?: true | undefined;
 };
 
@@ -98,8 +103,19 @@ export type ConstraintsInstruction = {
 
 export type Constraints = Record<string, unknown> & ConstraintsInstruction;
 
+export type ComparisonBase =
+    | ComparisonBase[]
+    | ComparerNode[]
+    | { [index: string]: ComparisonBase }
+    | string
+    | number
+    | boolean
+    | undefined
+    | object
+    | null;
+
 export type Snapshot = {
-    tree: Tree;
+    tree?: Tree;
     branches: Branch[];
 };
 
@@ -134,9 +150,9 @@ export type SearchRecordEntry = {
     '[2] before': Element[];
     '[3] apply each prop': {
         'Applying prop': string;
-        '[1] definitions': string[];
-        '[2] before': Element[];
-        '[3] after': Element;
+        '[1] definitions': PropItem[];
+        '[2] before': Element[] | null;
+        '[3] after': Element[];
     }[];
     '[4] after': Element[];
 };

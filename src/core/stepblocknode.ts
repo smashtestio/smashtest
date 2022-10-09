@@ -7,7 +7,7 @@ import StepNode from './stepnode.js';
 class StepBlockNode extends StepNode {
     steps: StepNode[] = [];
 
-    constructor(id?: number) {
+    constructor(id: number) {
         super(id);
     }
 }

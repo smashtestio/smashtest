@@ -1,11 +1,12 @@
 import cloneDeep from 'lodash/cloneDeep.js';
 import crypto from 'node:crypto';
+import invariant from 'tiny-invariant';
 import * as Constants from './constants.js';
 import Step from './step.js';
 import StepNode from './stepnode.js';
 import Tree from './tree.js';
 import { pickBy } from './typehelpers.js';
-import { BranchState, Frequency, HookField, SmashError, StepNodeIndex } from './types.js';
+import { BranchState, Frequency, HookField, SerializedSmashError, SmashError, StepNodeIndex } from './types.js';
 import * as utils from './utils.js';
 
 /**
@@ -15,8 +16,7 @@ class Branch {
     steps: Step[] = [];
 
     // OPTIONAL
-    nonParallelIds?; // When multiple branches cannot be run in parallel (due to !), they are each given the same nonParallelId
-
+    nonParallelIds?: number[]; // When multiple branches cannot be run in parallel (due to !), they are each given the same nonParallelId
     frequency?: Frequency; // Frequency of this branch (either 'high', 'med', or 'low')
     groups?: string[]; // The groups that this branch is a part of
 
@@ -35,12 +35,12 @@ class Branch {
     isSkipped?: boolean; // true if this branch was skipped after an attempted run
     isRunning?: boolean; // true if this branch is currently running
 
-    error?; // If this branch failed, this represents the error that was thrown (only for failure that occurs within the branch but not within a particular step)
+    error?: SerializedSmashError; // If this branch failed, this represents the error that was thrown (only for failure that occurs within the branch but not within a particular step)
     log?: { text: string }[]; // Array of objects that represent the logs of this branch (logs related to the branch but not to a particular step)
 
     elapsed?: number; // number of ms it took this step to execute
-    timeStarted?; // Date object (time) of when this branch started being executed
-    timeEnded?; // Date object (time) of when this branch ended execution
+    timeStarted?: Date; // Date object (time) of when this branch started being executed
+    timeEnded?: Date; // Date object (time) of when this branch ended execution
 
     hash?: string; // hash value representing this branch
 
@@ -70,38 +70,45 @@ class Branch {
      * @param {Object} stepNodeIndex - An object that maps ids to StepNodes
      * @param {Boolean} [toFront] - If true, step is being inserted to the front of this branch, false otherwise
      */
-    mergeModifiers(step: Step, stepNodeIndex: StepNodeIndex, toFront: boolean) {
-        const stepNode = stepNodeIndex[step.id];
-        const functionDeclarationNode = stepNodeIndex[step.fid] || {};
+    mergeModifiers(step: Step, stepNodeIndex: StepNodeIndex, toFront?: boolean) {
+        function isFrequency(str: string): str is typeof Constants.FREQUENCIES[number] {
+            return (Constants.FREQUENCIES as unknown as string[]).includes(str);
+        }
 
-        if (stepNode.isSkipBranch || functionDeclarationNode.isSkipBranch) {
+        const stepNode = stepNodeIndex[step.id];
+        const functionDeclarationNode = step.fid !== undefined && stepNodeIndex[step.fid];
+
+        if (stepNode.isSkipBranch || (functionDeclarationNode && functionDeclarationNode.isSkipBranch)) {
             this.isSkipBranch = true;
         }
-        if (stepNode.isOnly || functionDeclarationNode.isOnly) {
+        if (stepNode.isOnly || (functionDeclarationNode && functionDeclarationNode.isOnly)) {
             this.isOnly = true;
         }
-        if (stepNode.isDebug || functionDeclarationNode.isDebug) {
+        if (stepNode.isDebug || (functionDeclarationNode && functionDeclarationNode.isDebug)) {
             this.isDebug = true;
         }
-        if (stepNode.groups || functionDeclarationNode.groups) {
-            const incomingGroups = (stepNode.groups || []).concat(functionDeclarationNode.groups || []);
-            incomingGroups.forEach((g) => {
-                if (Constants.FREQUENCIES.includes(g)) {
+        if (stepNode.groups || (functionDeclarationNode && functionDeclarationNode.groups)) {
+            const incomingGroups = [
+                ...(stepNode.groups || []),
+                ...((functionDeclarationNode && functionDeclarationNode.groups) || [])
+            ];
+            incomingGroups.forEach((group) => {
+                if (isFrequency(group)) {
                     if (toFront) {
                         if (!this.frequency) {
-                            this.frequency = g;
+                            this.frequency = group;
                         }
                     }
                     else {
-                        this.frequency = g;
+                        this.frequency = group;
                     }
                 }
                 else {
                     if (!this.groups) {
                         this.groups = [];
                     }
-                    if (!this.groups.includes(g)) {
-                        this.groups.push(g);
+                    if (!this.groups.includes(group)) {
+                        this.groups.push(group);
                     }
                 }
             });
@@ -123,8 +130,10 @@ class Branch {
     mergeToEnd(branch: Branch) {
         this.steps = this.steps.concat(branch.steps);
 
-        branch.nonParallelIds &&
-            (this.nonParallelIds = [].concat(this.nonParallelIds || []).concat(branch.nonParallelIds));
+        if (branch.nonParallelIds) {
+            this.nonParallelIds = [...(this.nonParallelIds || []), ...branch.nonParallelIds];
+        }
+
         branch.frequency && (this.frequency = branch.frequency);
 
         if (branch.groups) {
@@ -147,16 +156,21 @@ class Branch {
      * Copies the given hook type from branch to newBranch
      */
     copyHooks(branch: Branch, name: HookField, toBeginning: boolean) {
-        if (branch[name] !== undefined) {
+        const branchSteps = branch[name];
+
+        if (branchSteps !== undefined) {
             if (this[name] === undefined) {
                 this[name] = [];
             }
 
+            const thisSteps = this[name];
+            invariant(thisSteps);
+
             if (toBeginning) {
-                this[name] = [...branch[name], ...this[name]];
+                this[name] = [...branchSteps, ...thisSteps];
             }
             else {
-                this[name] = [...this[name], ...branch[name]];
+                this[name] = [...thisSteps, ...branchSteps];
             }
         }
     }
@@ -170,14 +184,14 @@ class Branch {
         const whiteSpace = indents === undefined ? '   ' : utils.getIndentWhitespace(indents);
 
         let str = '';
-        this.steps.forEach((s) => {
-            const sn = stepNodeIndex[s.id];
+        this.steps.forEach((step) => {
+            const stepNode = stepNodeIndex[step.id];
             const indentedText = utils.addWhitespaceToEnd(
-                `${utils.getIndentWhitespace(s.level, 2)}${sn.text || ''}`,
+                `${utils.getIndentWhitespace(step.level, 2)}${stepNode.text || ''}`,
                 50
             );
 
-            str += `${whiteSpace}${indentedText}   ${s.locString(stepNodeIndex)}\n`;
+            str += `${whiteSpace}${indentedText}   ${step.locString(stepNodeIndex)}\n`;
         });
         return str;
     }
@@ -353,7 +367,7 @@ class Branch {
 
                 // Clear out step
                 for (const key in step) {
-                    delete step[key];
+                    delete step[key as keyof typeof step];
                 }
 
                 // Restore properties of step we want to keep
@@ -381,7 +395,7 @@ class Branch {
     markStep(
         state: BranchState,
         step: Step,
-        error: SmashError,
+        error: SmashError | undefined | null,
         finishBranchNow: boolean,
         stepDataMode: Tree['stepDataMode']
     ) {
@@ -447,17 +461,13 @@ class Branch {
      * @return {Object} An Object representing this branch, but able to be converted to JSON and only containing the most necessary stuff for a report
      */
     serialize() {
-        const obj = {
-            steps: this.steps.map((step) => step.serialize())
-        };
-
-        if (this.isPassed || this.passedLastTime) {
-            obj.isPassed = true;
-        }
-
         return {
-            ...obj,
-            ...pickBy<Branch>(this, (value, key) => value !== undefined && Branch.serializeKeys.includes(key))
+            steps: this.steps.map((step) => step.serialize()),
+            ...(this.isPassed || this.passedLastTime ? { isPassed: true } : {}),
+            ...pickBy<Branch>(
+                this,
+                (value, key) => value !== undefined && (Branch.serializeKeys as unknown as string[]).includes(key)
+            )
         };
     }
 

@@ -9,7 +9,7 @@ import * as Constants from './constants.js';
 import Runner from './runner.js';
 import Step from './step.js';
 import StepNode from './stepnode.js';
-import { isSmashError, SmashError, VarBeingSet } from './types.js';
+import { isSmashError, SerializedSmashError, SmashError, VarBeingSet } from './types.js';
 import * as utils from './utils.js';
 
 const require = createRequire(import.meta.url);
@@ -49,7 +49,7 @@ class RunInstance {
     stepsRan = new Branch(); // record of all steps ran by this RunInstance, for inject()
 
     stepTimeout = 60; // default timeout for steps, in secs
-    timer: number | null = null; // timer used to enforce step timeout
+    timer: NodeJS.Timeout | null = null; // timer used to enforce step timeout
 
     constructor(runner: Runner) {
         this.runner = runner;
@@ -263,6 +263,8 @@ class RunInstance {
 
                 // Passing inputs into function calls
                 if (stepNode.isFunctionCall) {
+                    invariant(step.fid, 'step.fid must be defined in runStep');
+
                     const functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
 
                     // Set {vars} based on function declaration signature and function call signature
@@ -469,7 +471,7 @@ class RunInstance {
      * @param {Branch} [branchToGetError] - The Branch that will get the error and marked failed, if a failure happens here. If stepToGetError is also set, only stepToGetError will get the error obj, but branchToGetError will still be failed
      * @return {Boolean} True if the run was a success, false if there was a failure
      */
-    async runHookStep(step: Step, stepToGetError: Step | null, branchToGetError: Branch) {
+    async runHookStep(step: Step, stepToGetError: Step | null, branchToGetError: Branch | null) {
         if (step.isSkipped) {
             return;
         }
@@ -545,7 +547,7 @@ class RunInstance {
     /**
      * Outputs the given error to the console, if allowed
      */
-    outputError(error: Error, stepNode: StepNode) {
+    outputError(error: SerializedSmashError, stepNode: StepNode) {
         const showTrace =
             (!this.tree.isDebug || this.tree.isExpressDebug) && this.stepsRan && this.stepsRan.steps.length > 0;
 
@@ -602,7 +604,7 @@ class RunInstance {
 
             if (this.currStep) {
                 // if we still have a currStep and didn't fall off the end of the branch
-                this.currBranch.markStep('skip', this.currStep, undefined, undefined, this.tree.stepDataMode); // mark the current step as skipped
+                this.currBranch.markStep('skip', this.currStep, undefined, false, this.tree.stepDataMode); // mark the current step as skipped
                 this.currStep = this.tree.nextStep(this.currBranch, true, false); // advance to the next step (because we skipped the current one)
 
                 this.setPause(true);
@@ -681,6 +683,9 @@ class RunInstance {
         }
 
         const branchesToRun = this.tree.branchify(stepNode, branchAbove); // branchify so that if step is an already-defined function call, it will work
+
+        invariant(branchesToRun, 'branchesToRun must not be null in RunInstance:inject()');
+
         const stepsToRun = branchesToRun[0];
         this.stepsRan.mergeToEnd(stepsToRun);
 
@@ -929,7 +934,7 @@ class RunInstance {
         funcName?: string,
         filename?: string,
         lineNumber = 1,
-        logHere?: Step | Branch,
+        logHere?: Step | Branch | null,
         isSync?: boolean
     ) {
         // Functions accessible from a code block
@@ -1258,7 +1263,7 @@ class RunInstance {
     /**
      * Logs the given text to logHere
      */
-    appendToLog(text: string, logHere: Step | Branch) {
+    appendToLog(text: string, logHere: Step | Branch | null) {
         if (logHere && !this.isStopped) {
             logHere.appendToLog(text);
             if (this.runner.consoleOutput && typeof text === 'string') {
@@ -1312,7 +1317,7 @@ class RunInstance {
         currBranch.timeEnded = new Date();
         if (currBranch.elapsed !== -1) {
             // measure elapsed only if this RunInstance has never been paused
-            currBranch.elapsed = currBranch.timeEnded - currBranch.timeStarted;
+            currBranch.elapsed = Number(currBranch.timeEnded) - Number(currBranch.timeStarted);
         }
 
         if (this.runner.consoleOutput) {
@@ -1368,7 +1373,9 @@ class RunInstance {
      * Pop one local var context
      */
     popLocalStack() {
-        this.local = this.localStack.pop();
+        const ctx = this.localStack.pop();
+        invariant(ctx, 'ctx should be defined in popLocalStack()');
+        this.local = ctx;
     }
 
     /**
@@ -1478,7 +1485,7 @@ class RunInstance {
 
         if (this.isStopped) {
             this.currBranch.timeEnded = new Date();
-            this.currBranch.elapsed = this.currBranch.timeEnded - this.currBranch.timeStarted;
+            this.currBranch.elapsed = Number(this.currBranch.timeEnded) - Number(this.currBranch.timeStarted);
             return true;
         }
 

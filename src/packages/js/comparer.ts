@@ -1,7 +1,7 @@
 import cloneDeep from 'lodash/cloneDeep.js';
 import invariant from 'tiny-invariant';
 import * as Constants from '../../core/constants.js';
-import { BlockError, Constraints, ConstraintsInstruction, ElementFinderError } from '../../core/types.js';
+import { ComparisonBase, Constraints, ConstraintsInstruction, ElementFinderError } from '../../core/types.js';
 import * as utils from '../../core/utils.js';
 
 export const RESERVED_KEYWORDS: (keyof ConstraintsInstruction)[] = [
@@ -23,11 +23,11 @@ export const RESERVED_KEYWORDS: (keyof ConstraintsInstruction)[] = [
 /**
  * Replaces a value inside an object to mark that the Comparer was there, and to store any associated errors
  */
-class ComparerNode {
+export class ComparerNode {
     errors;
     value;
 
-    constructor(errors: string[], value: unknown) {
+    constructor(errors: ElementFinderError[], value: unknown) {
         this.errors = errors; // array of strings describing errors related to comparison
         this.value = value; // original actual value at the position of this ComparerNode
         //this.$comparerNode = true;
@@ -51,7 +51,7 @@ class Comparer {
      * @throws {Error} If actualObj doesn't match expectedObj
      */
     static expect(
-        actualObj: unknown,
+        actualObj: ComparisonBase,
         errorStart?: string,
         errorEnd?: string,
         errorHeader?: string,
@@ -68,6 +68,7 @@ class Comparer {
             to: {
                 match: (expectedObj: Constraints) => {
                     actualObj = this.clone(actualObj, jsonClone);
+
                     const comp = this.comparison(actualObj, expectedObj);
                     if (this.hasErrors(comp)) {
                         throw new Error(
@@ -88,7 +89,7 @@ class Comparer {
      * @param {Boolean} [subsetMatching] - If true, all objects and arrays are matched by subset (not just objects, as is the default)
      * @return {ComparerNode} A ComparerNode
      */
-    static comparison(actual: unknown, expected: Constraints, subsetMatching?: boolean) {
+    static comparison(actual: unknown, expected: unknown, subsetMatching?: boolean) {
         const originalActual = actual;
         if (actual instanceof ComparerNode) {
             // we've already been here
@@ -171,7 +172,7 @@ class Comparer {
             else {
                 // expected is a plain object
                 // { $typeof: "type" }
-                if (Object.prototype.hasOwnProperty.call(expected, '$typeof')) {
+                if ('$typeof' in expected) {
                     // Validate expected
                     if (typeof expected.$typeof !== 'string') {
                         throw new Error(`$typeof has to be a string: ${expected.$typeof}`);
@@ -189,7 +190,7 @@ class Comparer {
                 }
 
                 // { $regex: /regex/ } or { $regex: "regex" }
-                if (Object.prototype.hasOwnProperty.call(expected, '$regex')) {
+                if ('$regex' in expected) {
                     // Validate expected
                     let regex = null;
                     if (typeof expected.$regex === 'string') {
@@ -212,7 +213,7 @@ class Comparer {
                 }
 
                 // { $contains: "string" }
-                if (Object.prototype.hasOwnProperty.call(expected, '$contains')) {
+                if ('$contains' in expected) {
                     // Validate expected
                     if (typeof expected.$contains != 'string') {
                         throw new Error(`$contains has to be a string: ${JSON.stringify(expected.$contains)}`);
@@ -228,7 +229,7 @@ class Comparer {
                 }
 
                 // { $max: <number> }
-                if (Object.prototype.hasOwnProperty.call(expected, '$max')) {
+                if ('$max' in expected) {
                     // Validate expected
                     if (typeof expected.$max != 'number') {
                         throw new Error(`$max has to be a number: ${JSON.stringify(expected.$max)}`);
@@ -244,7 +245,7 @@ class Comparer {
                 }
 
                 // { $min: <number> }
-                if (Object.prototype.hasOwnProperty.call(expected, '$min')) {
+                if ('$min' in expected) {
                     // Validate expected
                     if (typeof expected.$min !== 'number') {
                         throw new Error(`$min has to be a number: ${JSON.stringify(expected.$min)}`);
@@ -373,7 +374,7 @@ class Comparer {
                 }
 
                 // { $every: <value> }
-                if (Object.prototype.hasOwnProperty.call(expected, '$every')) {
+                if ('$every' in expected) {
                     // Validate actual matches expected
                     if (typeof actual != 'object' || !(actual instanceof Array)) {
                         errors.push('not an array as needed for $every');
@@ -390,7 +391,7 @@ class Comparer {
 
                 // { $exact: true }
                 let exact = false;
-                if (Object.prototype.hasOwnProperty.call(expected, '$exact')) {
+                if ('$exact' in expected) {
                     exact = true;
                 }
 
@@ -405,11 +406,24 @@ class Comparer {
                     else {
                         // Make sure every key in expected matches every key in actual
                         for (const key of expectedKeys) {
-                            if (!actual || (!(key in actual) && expected[key] !== undefined)) {
-                                errors.push({ blockError: true, text: 'missing', key, obj: expected[key] });
+                            if (!actual || (!(key in actual) && Reflect.get(expected, key) !== undefined)) {
+                                errors.push({
+                                    blockError: true,
+                                    text: 'missing',
+                                    key,
+                                    obj: Reflect.get(expected, key)
+                                });
                             }
                             else {
-                                actual[key] = this.comparison(actual[key], expected[key], subsetMatching);
+                                Reflect.set(
+                                    actual,
+                                    key,
+                                    this.comparison(
+                                        Reflect.get(actual, key),
+                                        Reflect.get(expected, key),
+                                        subsetMatching
+                                    )
+                                );
                             }
                         }
 
@@ -418,9 +432,13 @@ class Comparer {
                             for (const key in actual) {
                                 if (Object.prototype.hasOwnProperty.call(actual, key)) {
                                     if (!Object.prototype.hasOwnProperty.call(expected, key)) {
-                                        actual[key] = this.createComparerNode(
-                                            ['this key isn\'t in $exact object'],
-                                            actual[key]
+                                        Reflect.set(
+                                            actual,
+                                            key,
+                                            this.createComparerNode(
+                                                ['this key isn\'t in $exact object'],
+                                                Reflect.get(actual, key)
+                                            )
                                         );
                                     }
                                 }
@@ -446,7 +464,7 @@ class Comparer {
      * @param {Anything} value - The value that will be replaced with the new ComparerNode
      * @return {ComparerNode} The ComparerNode that destination will be set to
      */
-    static createComparerNode(errors: string[], value) {
+    static createComparerNode(errors: ElementFinderError[], value: unknown) {
         if (value instanceof ComparerNode) {
             return new ComparerNode(value.errors.concat(errors), value.value);
         }
@@ -490,7 +508,7 @@ class Comparer {
                 // plain object
                 for (const key in value) {
                     if (Object.prototype.hasOwnProperty.call(value, key)) {
-                        if (this.hasErrors(value[key], true)) {
+                        if (this.hasErrors(Reflect.get(value, key), true)) {
                             this.endSeen(!isRecursive);
                             return true;
                         }
@@ -506,7 +524,7 @@ class Comparer {
     /**
      * Ends maintaining a list of seen objects (used to prevent infinite loops on circular objects). Only works if go is true.
      */
-    static endSeen(go) {
+    static endSeen(go: boolean) {
         if (go) {
             delete Comparer.seen;
         }
@@ -558,7 +576,8 @@ class Comparer {
         const nextSpaces = utils.getIndentWhitespace(indents + 1);
         let ret = '';
 
-        let errors: (BlockError & string)[] = [];
+        // let errors: (BlockError & string)[] = [];
+        let errors: ElementFinderError[] = [];
 
         if (value instanceof ComparerNode) {
             errors = value.errors;
@@ -570,7 +589,7 @@ class Comparer {
                 // remember, typeof null is "object"
                 ret += 'null' + (commaAtEnd ? ',' : '') + outputErrors() + '\n';
             }
-            else if (value instanceof Array) {
+            else if (Array.isArray(value)) {
                 ret += '[' + outputErrors() + '\n';
                 for (let i = 0; i < value.length; i++) {
                     ret +=
@@ -595,7 +614,13 @@ class Comparer {
                             key +
                             (hasWeirdChars ? '"' : '') +
                             ': ' +
-                            Comparer.print(value[key], errorStart, errorEnd, indents + 1, i < keys.length - 1);
+                            Comparer.print(
+                                Reflect.get(value, key),
+                                errorStart,
+                                errorEnd,
+                                indents + 1,
+                                i < keys.length - 1
+                            );
                     }
                 }
 
@@ -658,11 +683,13 @@ class Comparer {
 
             let ret = '\n';
             for (const error of errors) {
+                invariant(error.blockError, '\'error\' should be a block error here');
+
                 ret += nextSpaces + `${errorStart} ${error.text}\n`;
                 ret +=
                     nextSpaces +
                     (error.key ? error.key + ': ' : '') +
-                    Comparer.print(error.obj, errorStart, errorEnd, indents + 1) +
+                    Comparer.print(error.obj, errorStart, errorEnd, indents === undefined ? undefined : indents + 1) +
                     errorEnd +
                     '\n';
             }
@@ -679,7 +706,7 @@ class Comparer {
      * @return A clone of the given value
      * NOTE: In non-json-clone, if there are multiple references to a shared object in value, that object will be shared in the clone as well
      */
-    static clone(value: unknown, jsonClone?: boolean) {
+    static clone<T>(value: T, jsonClone?: boolean): T {
         return jsonClone ? this.jsonClone(value) : cloneDeep(value);
     }
 
@@ -690,7 +717,7 @@ class Comparer {
      * An object value that's undefined or a function will be removed. An array value that's undefined or a function will be convered to null.
      * Will throw an error if value contains a circular reference
      */
-    static jsonClone(value: unknown) {
+    static jsonClone<T>(value: T): T {
         return JSON.parse(JSON.stringify(value));
     }
 }

@@ -365,13 +365,16 @@ class BrowserInstance {
     async type(text: string, element: EFElement) {
         let items = text.split(/(?=(?<=[^\\])\[)|(?<=(?=[^\\])\])/g);
         items = items.map((item) => {
-            const matches = item.match(/^\[(.*)\]$/);
-            if (matches && matches[1]) {
-                const key = Key[matches[1].toUpperCase()];
-                if (!key) {
+            const keyName = item.match(/^\[(?<keyName>.*)\]$/)?.groups?.keyName?.toUpperCase();
+
+            const isKey = (keyName: string): keyName is keyof typeof Key => keyName in Key;
+
+            if (keyName) {
+                // @todo Add support for chord()?
+                if (!isKey(keyName) || keyName === 'chord') {
                     throw new Error(`Invalid key ${item}`);
                 }
-                return key;
+                return Key[keyName];
             }
             else {
                 return item;
@@ -532,6 +535,7 @@ class BrowserInstance {
         // Take screenshot
         let data = null;
         try {
+            invariant(this.driver, 'Missing driver instance in takeScreenshot');
             data = await this.driver.takeScreenshot();
         }
         catch (e) {
@@ -564,11 +568,14 @@ class BrowserInstance {
      * Clears the current branch's screenshots if the --step-data mode requires it
      */
     async clearUnneededScreenshots() {
+        invariant(this.runInstance.currBranch, 'currBranch is null in clearUnneededScreenshots');
+        invariant(this.runInstance.currBranch.hash, 'currBranch.hash is undefined in clearUnneededScreenshots');
+
         if (this.runInstance.tree.stepDataMode === 'fail' && !this.runInstance.currBranch.isFailed) {
             // NOTE: for stepDataMode of 'none', a screenshot wasn't created in the first place
             // Delete all screenshots with a filename that begins with the currBranch's hash
             const screenshotsDir = `${path.join(reporter.getPathFolder(), 'screenshots')}`;
-            let files = [];
+            let files: string[] = [];
             try {
                 files = fs.readdirSync(screenshotsDir);
             }
@@ -815,7 +822,7 @@ class BrowserInstance {
      * @param {Object} props - Object with format { 'name of prop': <String EF or function to add to the prop's defintion>, etc. }
      */
     // eslint-disable-next-line @typescript-eslint/ban-types
-    propsAdd(props: { [key: string]: string | Function }) {
+    propsAdd(props: { [key: string]: string | FunctionProp }) {
         this.props(props, true);
     }
 
@@ -843,40 +850,16 @@ class BrowserInstance {
      * @param {String} titleOrUrl - A string that the title or url must contain, or a string containing a regex that the title or url must match
      */
     async verifyAtPage(titleOrUrl: string, timeout: number) {
-        let obj = null;
+        let obj: Record<string, unknown> = {};
+        invariant(this.driver, 'Driver is not set in verifyAtPage()');
         try {
             await this.driver.wait(async () => {
-                obj = await this.executeScript(
-                    utils.es5(function (titleOrUrl: string) {
-                        let isMatched =
-                            document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) !== -1 ||
-                            window.location.href.indexOf(titleOrUrl) !== -1;
-
-                        if (!isMatched) {
-                            // try them as regexes
-                            try {
-                                isMatched = Boolean(
-                                    document.title.match(titleOrUrl) || window.location.href.match(titleOrUrl)
-                                );
-                            }
-                            catch {
-                                // in case of a bad regex
-                            }
-                        }
-
-                        return {
-                            isMatched,
-                            title: document.title,
-                            url: window.location.href
-                        };
-                    }),
-                    titleOrUrl
-                );
+                obj = await this.executeScript(utils.es5(verifier), titleOrUrl);
                 return obj.isMatched;
             }, timeout);
         }
-        catch (e) {
-            if (e instanceof Error && e.message.includes('Wait timed out after')) {
+        catch (err) {
+            if (err instanceof Error && err.message.includes('Wait timed out after')) {
                 throw new Error(
                     `Neither the page title ('${obj.title}'), nor the page url ('${
                         obj.url
@@ -884,8 +867,30 @@ class BrowserInstance {
                 );
             }
             else {
-                throw e;
+                throw err;
             }
+        }
+
+        function verifier(titleOrUrl: string) {
+            let isMatched =
+                document.title.toLowerCase().indexOf(titleOrUrl.toLowerCase()) !== -1 ||
+                window.location.href.indexOf(titleOrUrl) !== -1;
+
+            if (!isMatched) {
+                // try them as regexes
+                try {
+                    isMatched = Boolean(document.title.match(titleOrUrl) || window.location.href.match(titleOrUrl));
+                }
+                catch {
+                    // in case of a bad regex
+                }
+            }
+
+            return {
+                isMatched,
+                title: document.title,
+                url: window.location.href
+            };
         }
     }
 
@@ -1095,6 +1100,7 @@ class BrowserInstance {
 
                 window.smashtestSinonFakeServer =
                     window.smashtestSinonFakeServer ||
+                    // @ts-expect-error missing from the @types definition
                     (window.sinon.createFakeServer({ respondImmediately: true }) as SinonFakeServer);
                 window.smashtestSinonFakeServer.respondWith(method, url, response);
             },

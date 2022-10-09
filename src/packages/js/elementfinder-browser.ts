@@ -1,6 +1,6 @@
 // Elementfinder, which runs in the browser. This code must not import any
 // runtime variable, only types.
-import { BrowserElementFinder, ElementFinderPayload, SearchRecordEntry } from '../../core/types';
+import { BrowserElementFinder, ElementFinderPayload, PropItem, SearchRecordEntry } from '../../core/types';
 
 export const browserFunction = function (_payload: string, parentElem: Element, browserConsoleOutput: boolean) {
     const payload = JSON.parse(_payload) as ElementFinderPayload;
@@ -12,6 +12,11 @@ export const browserFunction = function (_payload: string, parentElem: Element, 
     findEF(ef, parentElem ? [...parentElem.querySelectorAll('*'), parentElem] : [...document.querySelectorAll('*')]);
 
     const matches = ef.matchMeElems && ef.matchMeElems.length > 0 ? ef.matchMeElems : ef.matchedElems;
+
+    if (!matches) {
+        // should be unreachable
+        throw new Error('matches must be defined at this point');
+    }
 
     if (browserConsoleOutput) {
         console.log('');
@@ -45,10 +50,7 @@ export const browserFunction = function (_payload: string, parentElem: Element, 
         });
     }
 
-    return {
-        ef: ef,
-        matches: matches
-    };
+    return { ef, matches };
 
     /**
      * Finds elements from pool that match the given ef
@@ -58,7 +60,16 @@ export const browserFunction = function (_payload: string, parentElem: Element, 
      * @param {Boolean} [additive] - If true, add to ef's existing matchedElems (don't clear it out)
      * @param {Boolean} [single] - If true, ignore ef's counter and uses a counter of 1x
      */
-    function findEF(ef: BrowserElementFinder, pool: Element[], additive?: boolean, single?: boolean) {
+    function findEF(
+        ef: BrowserElementFinder,
+        pool: Element[],
+        additive?: boolean,
+        single?: boolean
+        // this type predicate is supposed to tell TS that matchedElems is not
+        // undefined after calling findEF, but it doesn't work; I still need
+        // invariant()s. Nevertheless, I leave it here, because it _should_
+        // work, and the idea seems good.
+    ): ef is Omit<BrowserElementFinder, 'matchedElems'> & { matchedElems: Element[] } {
         ef.blockErrors = ef.blockErrors ?? [];
         ef.matchMeElems = ef.matchMeElems ?? [];
         ef.matchedElems = ef.matchedElems ?? [];
@@ -85,12 +96,20 @@ export const browserFunction = function (_payload: string, parentElem: Element, 
                 if (ef.isAnyOrder) {
                     // Element array, any order
                     // Remove from topElems the elems that match up with a child EF
-                    let foundElems: HTMLElement[] = [];
+                    let foundElems: Element[] = [];
                     for (let i = 0; i < ef.children.length; i++) {
                         const childEF = ef.children[i];
+
                         findEF(childEF, topElems);
-                        removeFromArr(topElems, childEF.matchedElems);
-                        foundElems = [...foundElems, ...childEF.matchedElems];
+
+                        const matchedElems = childEF.matchedElems;
+                        if (!matchedElems) {
+                            // should be unreachable
+                            return false;
+                        }
+
+                        removeFromArr(topElems, matchedElems);
+                        foundElems = [...foundElems, ...matchedElems];
                     }
 
                     if (topElems.length > 0) {
@@ -194,6 +213,11 @@ export const browserFunction = function (_payload: string, parentElem: Element, 
 
                         const elemsMatchingChild = childEF.matchedElems;
 
+                        if (!elemsMatchingChild) {
+                            // should be unreachable
+                            throw new Error('childEF.matchedElems is should be defined here');
+                        }
+
                         if (ef.isAnyOrder) {
                             // Remove all elemsMatchingChild and their descendants from pool
                             removeFromArr(pool, elemsMatchingChild);
@@ -254,9 +278,15 @@ export const browserFunction = function (_payload: string, parentElem: Element, 
             ef.children.forEach(function (childEF) {
                 if (childEF.matchMeElems) {
                     for (let i = 0; i < childEF.matchMeElems.length; i++) {
+                        const matchMeElems = ef.matchMeElems;
+                        if (!matchMeElems) {
+                            // should be unreachable
+                            return;
+                        }
+
                         const matchMeElem = childEF.matchMeElems[i];
-                        if (ef.matchMeElems.indexOf(matchMeElem) == -1) {
-                            ef.matchMeElems.push(matchMeElem);
+                        if (matchMeElems.indexOf(matchMeElem) == -1) {
+                            matchMeElems.push(matchMeElem);
                         }
                     }
                 }
@@ -264,6 +294,9 @@ export const browserFunction = function (_payload: string, parentElem: Element, 
 
             clearErrorsOfChildren(ef);
         }
+
+        // Remember, this function is a type predicate as well
+        return true;
     }
 
     /**
@@ -294,12 +327,21 @@ export const browserFunction = function (_payload: string, parentElem: Element, 
             const defs = definedProps[prop.def];
             for (let j = 0; j < defs.length; j++) {
                 const def = defs[j];
-                if (typeof def === 'object') {
+
+                const isEF = (val: PropItem): val is BrowserElementFinder => typeof val === 'object';
+
+                if (isEF(def)) {
                     // def is an EF
                     def.counter = { min: 1 }; // match multiple elements
                     findEF(def, pool);
                     const matched =
                         def.matchMeElems && def.matchMeElems.length > 0 ? def.matchMeElems : def.matchedElems;
+
+                    if (!matched) {
+                        // should be unreachable
+                        throw new Error('matched is should be defined at this point');
+                    }
+
                     approvedElems = approvedElems.concat(intersectArr(pool, matched));
                 }
                 else if (typeof def === 'string') {

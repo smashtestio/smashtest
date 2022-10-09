@@ -3,7 +3,7 @@ import invariant from 'tiny-invariant';
 import Reporter from './reporter.js';
 import RunInstance from './runinstance.js';
 import Tree from './tree.js';
-import { Frequency } from './types.js';
+import { Frequency, SerializedSmashError } from './types.js';
 import * as utils from './utils.js';
 import BrowserInstance from '../packages/js/browserinstance.js';
 
@@ -335,7 +335,7 @@ class Runner {
     /**
      * Injects [filename:lineNumber] into the given Error's stack trace, colors the lines, and returns it
      */
-    formatStackTrace(error: Error) {
+    formatStackTrace(error: SerializedSmashError) {
         let stack = error.stack;
 
         invariant(stack, 'Internal error: error.stack is undefined');
