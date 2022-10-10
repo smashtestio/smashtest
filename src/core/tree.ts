@@ -254,7 +254,7 @@ class Tree {
             }
 
             // Current line may start a step block
-            const potentialStepBlock = new StepBlockNode();
+            const potentialStepBlock = new StepBlockNode(0);
 
             if (i > 0 && stepNodes[i - 1].text == '..') {
                 potentialStepBlock.isSequential = true;
@@ -1608,7 +1608,7 @@ ${branchAbove.output(this.stepNodeIndex)}
      *     {Array} returnedObj.branches - contains n currently-running branches, as well as all the branches from prevSnapshot (used to update the branches a report is currently showing)
      *     returnedObj also contains all the updated counts from this tree
      */
-    serializeSnapshot(max: number, prevSnapshot: Snapshot) {
+    serializeSnapshot(max: number, prevSnapshot: Snapshot | undefined) {
         const snapshot: Snapshot = {
             branches: []
         };
@@ -1625,7 +1625,7 @@ ${branchAbove.output(this.stepNodeIndex)}
 
         // Include branches from prevSnapshot
         if (prevSnapshot) {
-            prevSnapshot.branches.forEach((prevBranch: Branch) => {
+            prevSnapshot.branches.forEach((prevBranch: ReturnType<Branch['serialize']>) => {
                 if (prevBranch.isRunning) {
                     // only include a branch from prevSnapshot if it was running back then
                     // Did we already include prevBranch in snapshot?
@@ -1882,7 +1882,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         }
 
         let runningStep: Step | null = null;
-        let nextStep: Step & StepNode | null = null;
+        let nextStep: Step | StepNode | null = null;
         for (let i = 0; i < branch.steps.length; i++) {
             const step = branch.steps[i];
             if (step.isRunning) {

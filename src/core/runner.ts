@@ -14,7 +14,7 @@ class Runner {
     tree; // The tree to run (just parsed in)
     reporter: Reporter | null = null; // The Reporter to use
 
-    flags = {}; // Flags passed in through the command line (e.g., --max-parallel=7 --no-debug --groups="one,two" --> {"max-parallel": "7", "no-debug": "true", "groups": "one,two"})
+    flags: Record<string, string> = {}; // Flags passed in through the command line (e.g., --max-parallel=7 --no-debug --groups="one,two" --> {"max-parallel": "7", "no-debug": "true", "groups": "one,two"})
 
     debugHash?: string; // Set to the hash of the branch to run as debug (overrides any $'s, ~'s, groups, or minFrequency)
     groups?: string[][]; // Array of array of string. Only run branches whose groups match the expression, no restrictions if this is undefined, --groups=a,b+c === [ ['a'], ['b', 'c'] ] === A or (B and C)

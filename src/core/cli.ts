@@ -409,7 +409,10 @@ function plural(count: number) {
         };
     };
 
-    const commandsMap = {
+    const commandsMap: Record<
+        string,
+        { name?: string; help?: string; action?: (this: repl.REPLServer) => Promise<void> }
+    > = {
         '': {
             action: wrapAction(async () => {
                 if (runner.isRepl && (isBranchComplete || tree.branches == 0)) {
@@ -720,7 +723,10 @@ function plural(count: number) {
                             }
 
                             if (!runner.isStopped && !runner.isComplete) {
-                                callback(null, undefined);
+                                // @ts-expect-error callback is incorrectly typed,
+                                // the second arg is optional and must not be passed
+                                // See https://github.com/nodejs/node/blob/main/lib/repl.js#L939
+                                callback(null);
                             }
                         }
                         catch (e) {
@@ -728,7 +734,10 @@ function plural(count: number) {
                             console.log('');
 
                             prePrompt();
-                            callback(null, undefined);
+                            // @ts-expect-error callback is incorrectly typed,
+                            // the second arg is optional and must not be passed
+                            // See https://github.com/nodejs/node/blob/main/lib/repl.js#L939
+                            callback(null);
                         }
                     }
                 });
@@ -746,14 +755,17 @@ function plural(count: number) {
                             Object.assign(commandsMap[shortcut], replServer.commands[obj.name]);
 
                             const entry = commandsMap[shortcut] as typeof obj;
+
+                            invariant(entry.action);
+
                             entry.action = wrapAction(entry.action);
                         }
                         else {
                             replServer.defineCommand(obj.name, {
                                 help: obj.help,
-                                async action() {
-                                    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                                    await obj.action!();
+                                async action(this: repl.REPLServer) {
+                                    invariant(obj.action);
+                                    await obj.action.call(this);
                                     prePrompt();
                                     replServer.displayPrompt();
                                 }
@@ -956,15 +968,17 @@ function plural(count: number) {
 
         isBranchComplete = false;
 
-        const command = commandsMap[input.trim()];
+        input = input.trim();
 
-        if (command) {
+        if (input in commandsMap) {
+            const command = commandsMap[input];
+            invariant(command.action);
             // Pass correct 'this' for the built-in commands
             await command.action.call(replServer);
         }
         else {
             if (codeBlockStep === null) {
-                if (input.trim() == '{') {
+                if (input === '{') {
                     // A code block has started. Continue inputting lines until a } is inputted.
                     codeBlockStep = '(anon step) ' + input;
                     return;

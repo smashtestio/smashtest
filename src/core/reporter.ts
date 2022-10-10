@@ -208,6 +208,7 @@ class Reporter {
 
                     if (
                         canonFilenameOrigin(message.origin) !== canonFilenameOrigin(this.getFullReportPath()) &&
+                        this.reportDomain &&
                         !message.origin.startsWith(this.reportDomain)
                     ) {
                         throw new Error(ERR_MSG);
@@ -255,13 +256,17 @@ class Reporter {
 
         // Write report, report data, and passed data to disk
         await Promise.all([
-            new Promise((res, rej) =>
+            new Promise<void>((res, rej) =>
                 fs.writeFile(reportFilename, this.reportTemplate, (err) => (err ? rej(err) : res()))
             ),
-            new Promise((res, rej) => fs.writeFile(reportDataFilename, reportData, (err) => (err ? rej(err) : res()))),
-            new Promise((res, rej) => fs.writeFile(passedDataFilename, passedData, (err) => (err ? rej(err) : res()))),
+            new Promise<void>((res, rej) =>
+                fs.writeFile(reportDataFilename, reportData, (err) => (err ? rej(err) : res()))
+            ),
+            new Promise<void>((res, rej) =>
+                fs.writeFile(passedDataFilename, passedData, (err) => (err ? rej(err) : res()))
+            ),
             this.history
-                ? new Promise((res, rej) =>
+                ? new Promise<void>((res, rej) =>
                     fs.writeFile(passedDataFilenameHistory, passedData, (err) => (err ? rej(err) : res()))
                 )
                 : undefined
@@ -318,7 +323,7 @@ class Reporter {
      * Reads in the given passed data file and marks passed branches as passed in this.tree
      * @param {String} [filename] - The relative filename to use, uses passed data file filename if omitted
      */
-    async markPassedFromPrevRun(filename) {
+    async markPassedFromPrevRun(filename?: string) {
         filename = filename || passedDataFilename;
         console.log(`Including passed branches from: ${chalk.gray(filename)}`);
         console.log('');

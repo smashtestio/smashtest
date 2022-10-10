@@ -745,7 +745,7 @@ class BrowserInstance {
      * @return {Promise} Promise that resolves if the given element(s) disappear before the timeout
      * @throws {Error} If matching elements still found after timeout
      */
-    async not$(element: EFElement, parentElem: EFElement, timeout?: number, isContinue?: boolean) {
+    async not$(element: EFElement, parentElem: WebElement | undefined, timeout?: number, isContinue?: boolean) {
         invariant(this.driver, 'Driver is not set in not$()');
 
         timeout = timeout !== undefined ? timeout : 2000;

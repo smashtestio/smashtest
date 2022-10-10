@@ -116,7 +116,7 @@ export type ComparisonBase =
 
 export type Snapshot = {
     tree?: Tree;
-    branches: Branch[];
+    branches: ReturnType<Branch['serialize']>[];
 };
 
 export type StepDataMode = Tree['stepDataMode'];
