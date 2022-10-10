@@ -707,7 +707,13 @@ function plural(count: number) {
                                 const line = linesToEval[i];
                                 await evalLine(line);
 
-                                if (runner.getLastStep().isPassed && !commandsMap[line.trim()]) {
+                                const lastStep = runner.getLastStep();
+                                // lastStep is null when the REPL session finishes from a 'resume' command. The root
+                                // cause is this.currBranch = this.tree.nextBranch() being null at the end of the
+                                // while loop in runInstance:run(). Whithout REPL, we don't get here, and with a REPL
+                                // step-by-step finish, runInstance:run() bails out with a 'return' in the middle of
+                                // the while loop (runinstance.ts:~132).
+                                if (lastStep && lastStep.isPassed && !commandsMap[line.trim()]) {
                                     passedReplCommands.push(line);
                                 }
 
