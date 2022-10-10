@@ -605,7 +605,10 @@ class RunInstance {
             if (this.currStep) {
                 // if we still have a currStep and didn't fall off the end of the branch
                 this.currBranch.markStep('skip', this.currStep, undefined, false, this.tree.stepDataMode); // mark the current step as skipped
-                this.currStep = this.tree.nextStep(this.currBranch, true, false); // advance to the next step (because we skipped the current one)
+
+                // this.currStep = this.tree.nextStep(this.currBranch, true, false); // advance to the next step (because we skipped the current one)
+                // @todo: need to check with Peter why 'false' as a third parameter was added before
+                this.currStep = this.tree.nextStep(this.currBranch, true);
 
                 this.setPause(true);
                 return false;
@@ -1334,7 +1337,9 @@ class RunInstance {
     toNextReadyStep() {
         const nextReadyStep = this.getNextReadyStep();
         if (!nextReadyStep || this.currStep !== nextReadyStep) {
-            this.currStep = this.tree.nextStep(this.currBranch, true, true);
+            // this.currStep = this.tree.nextStep(this.currBranch, true, true);
+            // @todo: need to check why 'true' as a last parameter was added before
+            this.currStep = this.tree.nextStep(this.currBranch, true);
         }
     }
 
