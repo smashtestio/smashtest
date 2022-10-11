@@ -372,13 +372,14 @@ class Branch {
 
                 // Restore properties of step we want to keep
                 step.id = id;
-                typeof fid != 'undefined' && (step.fid = fid);
-                typeof level != 'undefined' && (step.level = level);
 
-                isFailed && (step.isFailed = true);
-                isSkipped && (step.isSkipped = true);
-                isRunning && (step.isRunning = true);
-                isPassed && (step.isPassed = true);
+                if (fid !== undefined) step.fid = fid;
+                if (level !== undefined) step.level = level;
+
+                if (isFailed) step.isFailed = true;
+                if (isSkipped) step.isSkipped = true;
+                if (isRunning) step.isRunning = true;
+                if (isPassed) step.isPassed = true;
             }
         }
     }

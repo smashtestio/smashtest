@@ -137,9 +137,7 @@ class Runner {
      * @return {Promise} Promise that resolves once the execution finishes, resolves to true if the branch is complete (including After Every Branch hooks), false otherwise
      */
     async runOneStep() {
-        if (!this.isPaused) {
-            utils.error('Must be paused to run a step');
-        }
+        utils.assert(this.isPaused, 'Must be paused to run a step');
 
         const isBranchComplete = await this.runInstances[0].runOneStep();
         if (isBranchComplete) {
@@ -155,9 +153,7 @@ class Runner {
      * @return {Promise} Promise that resolves once the execution finishes, resolves to true if the branch is complete (including After Every Branch hooks), false otherwise
      */
     async skipOneStep() {
-        if (!this.isPaused) {
-            utils.error('Must be paused to skip a step');
-        }
+        utils.assert(this.isPaused, 'Must be paused to skip a step');
 
         const isBranchComplete = await this.runInstances[0].skipOneStep();
         if (isBranchComplete) {
@@ -172,9 +168,7 @@ class Runner {
      * @return {Promise} Promise that resolves once the execution finishes
      */
     async runLastStep() {
-        if (!this.isPaused) {
-            utils.error('Must be paused to run a step');
-        }
+        utils.assert(this.isPaused, 'Must be paused to run a step');
 
         await this.runInstances[0].runLastStep();
     }
@@ -187,9 +181,7 @@ class Runner {
      * @throws {Error} If a parse error of text occurs, or if this Runner isn't paused
      */
     async inject(text: string) {
-        if (!this.isPaused) {
-            utils.error('Must be paused to run a step');
-        }
+        utils.assert(this.isPaused, 'Must be paused to run a step');
 
         const branchRan = await this.runInstances[0].inject(text);
 

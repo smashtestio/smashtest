@@ -263,7 +263,7 @@ class RunInstance {
 
                 // Passing inputs into function calls
                 if (stepNode.isFunctionCall) {
-                    invariant(step.fid, 'step.fid must be defined in runStep');
+                    invariant(step.fid, 'step.fid must be defined if isFunctionCall is true');
 
                     const functionDeclarationNode = this.tree.stepNodeIndex[step.fid];
 
@@ -1337,8 +1337,9 @@ class RunInstance {
     toNextReadyStep() {
         const nextReadyStep = this.getNextReadyStep();
         if (!nextReadyStep || this.currStep !== nextReadyStep) {
+            invariant(this.currBranch, 'currBranch must not be null in toNextReadyStep');
             // this.currStep = this.tree.nextStep(this.currBranch, true, true);
-            // @todo: need to check why 'true' as a last parameter was added before
+            // @todo: need to check why 'true' as a third parameter was added before
             this.currStep = this.tree.nextStep(this.currBranch, true);
         }
     }

@@ -382,9 +382,10 @@ class Tree {
                 indentsAdvanced = currStepNode.indents - prevStepNode.indents;
             }
 
-            if (indentsAdvanced == 0) {
+            if (indentsAdvanced === 0) {
                 // current step node is a peer of the previous step node
                 if (prevStepNode) {
+                    invariant(prevStepNode.parent, 'prevStepNode.parent should be defined here');
                     currStepNode.parent = prevStepNode.parent;
                 }
                 else {
@@ -392,11 +393,9 @@ class Tree {
                     currStepNode.parent = this.root;
                 }
 
-                invariant(currStepNode.parent, 'currStepNode.parent should be defined');
-
                 currStepNode.parent.children.push(currStepNode);
             }
-            else if (indentsAdvanced == 1) {
+            else if (indentsAdvanced === 1) {
                 invariant(prevStepNode, 'prevStepNode should be defined');
                 // current step node is a child of the previous step node
                 currStepNode.parent = prevStepNode;
@@ -410,7 +409,7 @@ class Tree {
                 );
             }
             else {
-                invariant(prevStepNode, 'prevStepNode should be defined');
+                invariant(prevStepNode, 'prevStepNode should be defined here');
                 // indentsAdvanced < 0, and current step node is a child of an ancestor of the previous step node
                 let parent = prevStepNode.parent;
                 for (let j = indentsAdvanced; j < 0; j++) {
