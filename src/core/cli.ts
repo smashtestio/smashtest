@@ -415,7 +415,7 @@ function plural(count: number) {
     > = {
         '': {
             action: wrapAction(async () => {
-                if (runner.isRepl && (isBranchComplete || tree.branches == 0)) {
+                if (runner.isRepl && (isBranchComplete || tree.branches.length === 0)) {
                     // this is an empty repl, so exit
                     exit(false);
                 }
