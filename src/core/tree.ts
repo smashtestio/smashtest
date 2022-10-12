@@ -1918,6 +1918,18 @@ ${branchAbove.output(this.stepNodeIndex)}
             return null;
         }
 
+        // @ts-expect-error "isSkip" is never set here in real world usage, only
+        // in synthetic unit tests. The API suggested by the unit tests make
+        // sense, so I keep them in place, but TS rightfully complains that
+        // nextStep cannot be a StepNode, thus "isSkip" is always undefined.
+        // Furthermore, "isSkip" is never being checked, only set. Skipped steps
+        // become "isTextualStep" when the flag is detected, and that is being
+        // tested at stepnode.ts:~360. That in turn will control whether
+        // "isFunctionCall" is set, and then whether "fid" is set etc. (see
+        // tree.ts:~363 and runinstance.ts:~265) I couldn't encounter
+        // "isSkipped" being set here as well, but atm can't rule out that it
+        // is.
+        // Original comment:
         // If the next step is a -s or is already skipped, mark it as skipped and advance again
         if (advance && nextStep && (nextStep.isSkip || nextStep.isSkipped)) {
             branch.markStep('skip', nextStep, undefined, false, this.stepDataMode);
