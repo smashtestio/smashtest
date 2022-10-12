@@ -42,6 +42,7 @@
     "cli-progress": "^3.11.2",
     "clipboardy": "^3.0.0",
     "date-and-time": "^2.4.1",
+    "find-chrome-bin": "^1.0.2",
     "get-port": "^6.1.2",
     "glob": "^8.0.3",
     "jimp": "^0.16.1",
@@ -82,12 +83,14 @@
     "src/**"
   ],
   "scripts": {
-    "test:unit": "NODE_OPTIONS=\"${NODE_OPTIONS} --loader ts-node/esm\" nyc --reporter=lcov mocha tests/core/*.ts tests/packages/*.ts",
     "typecheck": "tsc",
+    "test:unit": "NODE_OPTIONS=\"${NODE_OPTIONS} --loader ts-node/esm\" nyc --reporter=lcov mocha tests/core/*.ts tests/packages/*.ts",
     "test:browser:chrome": "./src/core/cli.ts tests/packages/*.smash --groups=chrome",
-    "test:browser:chrome:debug": "./src/core/cli.ts tests/packages/*.smash --groups=chrome --max-parallel=1 --headless=false",
+    "test:browser:chrome:debug": "npm run test:browser:chrome -- --max-parallel=1 --headless=false",
+    "test:browser:chrome:debug:report": "(npm run open-report &) && npm run test:browser:chrome:debug",
     "test": "npm run test:unit && npm run test:browser:chrome",
-    "prepublishOnly": "eslint . && npm run test:unit"
+    "open-report": "node -e 'require(`find-chrome-bin`).findChrome().then(i => require(`child_process`).spawn(i.executablePath, [`file:///${process.cwd()}/smashtest/report.html`]))'",
+    "prepublishOnly": "tsc && eslint . && npm run test:unit"
   },
   "bin": {
     "smashtest": "./src/core/cli.ts"
