@@ -1,6 +1,7 @@
 {
   "name": "smashtest",
   "version": "1.7.0",
+  "type": "module",
   "description": "smashtest",
   "keywords": [
     "smashtest",
@@ -32,46 +33,66 @@
   "license": "MIT",
   "homepage": "smashtest.io",
   "dependencies": {
-    "chai": "^4.2.0",
+    "@swc/core": "^1.3.0",
+    "@types/chai": "^4.3.3",
+    "@types/node": "^18.7.18",
+    "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
-    "chalk": "^2.4.2",
-    "cli-progress": "^2.1.1",
+    "chalk": "^5.0.1",
+    "cli-progress": "^3.11.2",
     "clipboardy": "^3.0.0",
-    "date-and-time": "^0.10.0",
-    "get-port": "^5.0.0",
-    "glob": "^7.1.3",
-    "jimp": "^0.6.4",
-    "lodash": "^4.17.15",
-    "md5": "^2.2.1",
-    "mustache": "^3.0.1",
+    "date-and-time": "^2.4.1",
+    "find-chrome-bin": "^1.0.2",
+    "get-port": "^6.1.2",
+    "glob": "^8.0.3",
+    "jimp": "^0.16.1",
+    "lodash": "^4.17.21",
+    "md5": "^2.3.0",
+    "prettier-eslint": "^15.0.1",
     "read-files-promise": "^1.1.1",
     "request": "^2.88.0",
-    "request-promise-native": "^1.0.7",
-    "selenium-webdriver": "^4.0.0-alpha.1",
-    "ws": "^7.0.0"
+    "selenium-webdriver": "^4.4.0",
+    "sinon": "^14.0.0",
+    "tiny-invariant": "^1.2.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.1-beta",
+    "ws": "^8.8.1"
   },
   "devDependencies": {
-    "body-parser": "^1.19.0",
+    "@types/cli-progress": "^3.11.0",
+    "@types/glob": "^8.0.0",
+    "@types/lodash": "^4.14.185",
+    "@types/mocha": "^9.1.1",
+    "@types/request": "^2.48.8",
+    "@types/selenium-webdriver": "^4.1.5",
+    "@types/sinon": "^10.0.13",
+    "@typescript-eslint/eslint-plugin": "^5.36.2",
+    "@typescript-eslint/parser": "^5.36.2",
+    "body-parser": "^1.20.0",
     "chromedriver": "^105.0.0",
-    "cookie-parser": "^1.4.4",
-    "express": "^4.17.1",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.1",
     "mocha": "^10.0.0",
-    "nyc": "^15.1.0",
-    "util": "^0.11.1"
+    "nyc": "^15.1.0"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/smashtestio/smashtest.git"
   },
   "files": [
-    "src/**",
-    "packages/**"
+    "src/**"
   ],
   "scripts": {
-    "test": "nyc --reporter=lcov mocha tests/core/*.js tests/packages/*.js",
-    "test:browser:chrome": "PATH=$PATH:node_modules/chromedriver/lib/chromedriver node ./src/cli.js tests/packages/*.smash --groups=chrome"
+    "typecheck": "tsc",
+    "test:unit": "NODE_OPTIONS=\"${NODE_OPTIONS} --loader ts-node/esm\" nyc --reporter=lcov mocha tests/core/*.ts tests/packages/*.ts",
+    "test:browser:chrome": "./src/core/cli.ts tests/packages/*.smash --groups=chrome",
+    "test:browser:chrome:debug": "npm run test:browser:chrome -- --max-parallel=1 --headless=false",
+    "test:browser:chrome:debug:report": "(npm run open-report &) && npm run test:browser:chrome:debug",
+    "test": "npm run test:unit && npm run test:browser:chrome",
+    "open-report": "node -e 'require(`find-chrome-bin`).findChrome().then(i => require(`child_process`).spawn(i.executablePath, [`file:///${process.cwd()}/smashtest/report.html`]))'",
+    "prepublishOnly": "tsc && eslint . && npm run test:unit"
   },
   "bin": {
-    "smashtest": "./src/cli.js"
+    "smashtest": "./src/core/cli.ts"
   }
 }

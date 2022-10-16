@@ -1533,7 +1533,7 @@ Open test page
                         - Verify error $s #manual
 
     * If browser isn't safari +? {
-        if(browser.params.name == 'safari') {
+        if(browser.params.name === 'safari') {
             log(`Since browser is safari, all further steps will be skipped and the branch will be passed`);
             runInstance.currBranch.markBranch('pass');
         }

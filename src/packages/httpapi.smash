@@ -1,0 +1,17 @@
+// ***************************************
+//  Hooks
+// ***************************************
+
+*** Before Every Branch {
+    const HttpApi = await i('HttpApi', './js/httpapi.ts');
+    const api = g('api', new HttpApi(runInstance));
+
+    g('request', api.request.bind(api));
+    g('get', api.get.bind(api));
+    g('post', api.post.bind(api));
+    g('put', api.put.bind(api));
+    g('patch', api.patch.bind(api));
+    g('del', api.del.bind(api));
+    g('head', api.head.bind(api));
+    g('options', api.options.bind(api));
+}

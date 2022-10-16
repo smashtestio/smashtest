@@ -14,7 +14,7 @@
     });
 
     app.post('/one', (req, res) => {
-        if(req.body.one == 'two') {
+        if(req.body.one === 'two') {
             res.status(201).send('post response');
         }
         else {
@@ -23,7 +23,7 @@
     });
 
     app.put('/one', (req, res) => {
-        if(req.body.one == 'two') {
+        if(req.body.one === 'two') {
             res.status(202).send('put response');
         }
         else {
@@ -32,7 +32,7 @@
     });
 
     app.patch('/one', (req, res) => {
-        if(req.body.one == 'two') {
+        if(req.body.one === 'two') {
             res.status(203).send('patch response');
         }
         else {
@@ -41,7 +41,7 @@
     });
 
     app.delete('/one', (req, res) => {
-        if(req.body.one == 'two') {
+        if(req.body.one === 'two') {
             res.status(203).send('delete response');
         }
         else {
@@ -58,7 +58,7 @@
     });
 
     app.get('/cookie-check', (req, res) => {
-        if(req.cookies.key1 == 'value1' && req.cookies.key2 == 'value2') {
+        if(req.cookies.key1 === 'value1' && req.cookies.key2 === 'value2') {
             res.status(200).send('good cookies');
         }
         else {
