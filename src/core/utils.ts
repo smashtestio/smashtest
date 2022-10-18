@@ -292,6 +292,7 @@ export const addWhitespaceToEnd = (s: string, len: number) => {
 
 const compiler = tsNode.create({
     transpileOnly: true,
+    swc: false,
     compilerOptions: {
         target: 'es5'
     }

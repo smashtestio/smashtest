@@ -4677,7 +4677,7 @@ Something {
                 expect(tree.branches[0].steps[0].error.filename).to.equal('file.txt');
                 expect(tree.branches[0].steps[0].error.lineNumber).to.equal(5);
 
-                expect(tree.branches[0].steps[0].error.stack).to.contain('at RunInstance.runInstance.badFunc');
+                expect(tree.branches[0].steps[0].error.stack).to.contain('ReferenceError: cc is not defined');
                 expect(
                     !!tree.branches[0].steps[0].error.stack.match(/at CodeBlock_for_Something[^\n]+<anonymous>:5:17\)/)
                 ).to.equal(true);
