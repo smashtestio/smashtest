@@ -606,9 +606,9 @@ class RunInstance {
                 // if we still have a currStep and didn't fall off the end of the branch
                 this.currBranch.markStep('skip', this.currStep, undefined, false, this.tree.stepDataMode); // mark the current step as skipped
 
-                // this.currStep = this.tree.nextStep(this.currBranch, true, false); // advance to the next step (because we skipped the current one)
-                // @todo: need to check with Peter why 'false' as a third parameter was added before
-                this.currStep = this.tree.nextStep(this.currBranch, true);
+                // Third parameter was for skipping/not skipping branches having already failed steps
+                // See https://github.com/smashtestio/smashtest/commit/c35aff31c422f793b0933428b8380c96aae2aa6a
+                this.currStep = this.tree.nextStep(this.currBranch, true /*, false */); // advance to the next step (because we skipped the current one)
 
                 this.setPause(true);
                 return false;
@@ -1338,9 +1338,9 @@ class RunInstance {
         const nextReadyStep = this.getNextReadyStep();
         if (!nextReadyStep || this.currStep !== nextReadyStep) {
             invariant(this.currBranch, 'currBranch must not be null in toNextReadyStep');
-            // this.currStep = this.tree.nextStep(this.currBranch, true, true);
-            // @todo: need to check why 'true' as a third parameter was added before
-            this.currStep = this.tree.nextStep(this.currBranch, true);
+            // Third parameter was for skipping/not skipping branches having already failed steps
+            // See https://github.com/smashtestio/smashtest/commit/c35aff31c422f793b0933428b8380c96aae2aa6a
+            this.currStep = this.tree.nextStep(this.currBranch, true /*, true */);
         }
     }
 
