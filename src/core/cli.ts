@@ -1,4 +1,4 @@
-#!/usr/bin/env -S ts-node-esm --swc
+#!/usr/bin/env ts-node-esm
 
 import chalk from 'chalk';
 import progress from 'cli-progress';

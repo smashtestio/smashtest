@@ -20,6 +20,7 @@
   "include": ["./**/*.ts"],
   "exclude": ["node_modules", "**/*.spec.ts"],
   "ts-node": {
-    "transpileOnly": true
+    "transpileOnly": true,
+    "swc": true
   }
 }
