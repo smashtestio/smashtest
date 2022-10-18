@@ -163,6 +163,19 @@
         }
     }
 
+    * Click each {{element}} {
+        const elems = await $$(element);
+        elems.forEach(elem => elem.click());
+    }
+
+    * Drag {{elementFrom}} to {{elementTo}} {
+        await browser.driver.actions({bridge: true}).dragAndDrop(elementFrom, elementTo).perform();
+    }
+
+    * Drag {{elementFrom}} to {{x}}, {{y}} {
+        await browser.driver.actions({bridge: true}).dragAndDrop(elementFrom, {x: parseInt(x), y: parseInt(y)}).perform();
+    }
+
     * Hover over {{element}} {
         let elem = await $(element, true);
         if(browser.params.name == 'safari') {
