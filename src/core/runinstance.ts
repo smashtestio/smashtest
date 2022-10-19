@@ -11,6 +11,7 @@ import Step from './step.js';
 import StepNode from './stepnode.js';
 import { isSmashError, SerializedSmashError, SmashError, VarBeingSet } from './types.js';
 import * as utils from './utils.js';
+import fileUrl from 'file-url';
 
 const require = createRequire(import.meta.url);
 
@@ -846,7 +847,8 @@ class RunInstance {
             }
             catch (err) {
                 if (err instanceof Error && 'code' in err && err.code === 'ERR_REQUIRE_ESM') {
-                    return import(packageName).then((module) => {
+                    const importPath = isPath ? fileUrl(packageName) : packageName;
+                    return import(importPath).then((module) => {
                         const value = exportName === '*' ? module : module[exportName];
                         this.setPersistent(varName, value);
                         return value;
@@ -874,8 +876,9 @@ class RunInstance {
             return this.getPersistent(varName);
         }
 
-        const isPath = packageName.match(/^(\.|\/)/);
-        if (packageName.match(/^\.\/|^\.\.\//)) {
+        const isPath = /^[./]/.test(packageName);
+
+        if (/^\.\.?\//.test(packageName)) {
             invariant(filename !== undefined, 'Internal error: filename must be defined in i()\'ing a relative path');
             // local file (non-npm package)
             packageName = `${path.dirname(filename)}/${packageName}`;

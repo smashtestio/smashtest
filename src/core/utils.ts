@@ -34,12 +34,12 @@ export const hasQuotes = (str: string) => {
  * Throws an Error with the given message, filename, and line number
  * @throws {Error}
  */
-export const error = (msg?: string, filename?: string, lineNumber?: number): never => {
+export const error = (msg?: string, filename?: string, lineNumber?: number, outputStack = true) => {
     if (filename || lineNumber) {
-        throw new Error(`${msg} [${filename || ''}:${lineNumber || ''}]`);
+        throw Object.assign(new Error(`${msg} [${filename || ''}:${lineNumber || ''}]`), { outputStack });
     }
     else {
-        throw new Error(msg);
+        throw Object.assign(new Error(msg), { outputStack });
     }
 };
 
@@ -289,6 +289,20 @@ export const addWhitespaceToEnd = (s: string, len: number) => {
     }
     return s;
 };
+
+/**
+ * @return {String} Different normalization steps on pathnames and glob patterns for Windows
+ */
+export function normalizePathname(pathname: string) {
+    // Strip leading '/' from Windows '/C:/paths' from URL().pathname
+    // See https://github.com/nodejs/node/issues/23026#issuecomment-423754481
+    let path = process.platform !== 'win32' ? pathname : pathname.replace(/^\/(?=\w:)/, '');
+
+    // The 'glob' package only accepts forward slash paths
+    path = path.replace(/\\/g, '/');
+
+    return path;
+}
 
 const compiler = tsNode.create({
     transpileOnly: true,

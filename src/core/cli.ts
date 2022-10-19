@@ -24,7 +24,8 @@ import { readFileSync } from 'fs';
 import invariant from 'tiny-invariant';
 import { entries, Merge } from './typehelpers.js';
 import { Frequency } from './types.js';
-const filePath = new URL('../../package.json', import.meta.url).pathname;
+
+const filePath = utils.normalizePathname(new URL('../../package.json', import.meta.url).pathname);
 const packageJson = JSON.parse(readFileSync(filePath, 'utf-8'));
 
 const { version } = packageJson;
@@ -345,7 +346,7 @@ function onError(err: unknown, extraSpace?: boolean, noEnd?: boolean) {
     }
 
     if (err instanceof Error) {
-        console.log(err.stack);
+        console.log('outputStack' in err && err.outputStack === false ? 'Error: ' + err.message : err.stack);
         console.log('');
     }
 
@@ -519,11 +520,13 @@ function plural(count: number) {
                 }
             }
             else {
-                const newFilenames = await new Promise<string[]>((resolve, reject) => {
-                    glob(path.resolve(arg), { absolute: true }, (err, newFilenames) =>
-                        err ? reject(err) : resolve(newFilenames)
-                    );
-                });
+                const newFilenames = glob.sync(utils.normalizePathname(path.resolve(arg)), { absolute: true });
+
+                // If it's a concrete filename with no glob wildcard, and
+                // there's no match, it's probably a typo, so throw an error
+                if (newFilenames.length === 0 && !/[*?]/.test(arg)) {
+                    // utils.error(`File not found: ${arg}`);
+                }
 
                 filenames = [...filenames, ...newFilenames];
             }
@@ -536,10 +539,8 @@ function plural(count: number) {
                 searchString = '**/*.smash';
             }
 
-            const smashFiles = await new Promise<string[]>((resolve, reject) => {
-                // if no filenames passed in, just choose all the .smash files
-                glob(searchString, { absolute: true }, (err, smashFiles) => (err ? reject(err) : resolve(smashFiles)));
-            });
+            // if no filenames passed in, just choose all the .smash files
+            const smashFiles = glob.sync(utils.normalizePathname(searchString), { absolute: true });
 
             if (!smashFiles) {
                 utils.error('No files found');
@@ -549,12 +550,9 @@ function plural(count: number) {
             }
         }
 
-        const packageFilenames = await new Promise<string[]>((resolve, reject) => {
-            glob(new URL('../packages', import.meta.url).pathname + '/*.smash', async (err, packageFilenames) => {
-                // new array of filenames under packages/
-                err ? reject(err) : resolve(packageFilenames);
-            });
-        });
+        const packageFilenames = glob.sync(
+            utils.normalizePathname(new URL('../packages', import.meta.url).pathname) + '/*.smash'
+        );
 
         if (!packageFilenames || packageFilenames.length == 0) {
             utils.error('Make sure ../packages/ directory exists in the directory you\'re running this from');

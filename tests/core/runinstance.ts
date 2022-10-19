@@ -6400,7 +6400,7 @@ Step {
     runInstance.one = await i('./branch.ts');
 }
 `,
-                'file.txt'
+                new URL(import.meta.url + '/../../../src/core/file.txt').pathname
             );
 
             const runner = new Runner(tree);
@@ -6424,7 +6424,7 @@ Step {
     runInstance.two = await i('../../node_modules/chai');
 }
 `,
-                '../../tests/core/file.txt'
+                new URL(import.meta.url + '/../../../tests/core/file.txt').pathname
             );
 
             const runner = new Runner(tree);
@@ -6447,7 +6447,7 @@ Step {
     runInstance.one = await i('../../node_modules/chalk');
 }
 `,
-                '../../tests/core/file.txt'
+                new URL(import.meta.url + '/../../../tests/core/file.txt').pathname
             );
 
             const runner = new Runner(tree);
@@ -6472,7 +6472,7 @@ Step {
     runInstance.one = await i('chalk');
 }
 `,
-                'file.txt'
+                new URL(import.meta.url + '/../../../src/core/file.txt').pathname
             );
 
             const runner = new Runner(tree);
@@ -6611,7 +6611,7 @@ Step {
     runInstance.one = await i('./examples/module-esm.mjs');
 }
 `,
-                '../../tests/core/file.txt'
+                new URL(import.meta.url + '/../../../tests/core/file.txt').pathname
             );
 
             const runner = new Runner(tree);
@@ -6634,7 +6634,7 @@ Step {
     runInstance.one = await i('./examples/module-esm.ts');
 }
 `,
-                '../../tests/core/file.txt'
+                new URL(import.meta.url + '/../../../tests/core/file.txt').pathname
             );
 
             const runner = new Runner(tree);
@@ -6657,7 +6657,7 @@ Step {
     runInstance.one = await i('./examples/module-cjs.js');
 }
 `,
-                '../../tests/core/file.txt'
+                new URL(import.meta.url + '/../../../tests/core/file.txt').pathname
             );
 
             const runner = new Runner(tree);
@@ -6683,7 +6683,7 @@ Step {
     runInstance.one = await i('./examples/module-esm.js');
 }
 `,
-                '../../tests/core/file.txt'
+                new URL(import.meta.url + '/../../../tests/core/file.txt').pathname
             );
 
             const runner = new Runner(tree);
@@ -6706,7 +6706,7 @@ Step {
     runInstance.one = await i(['./examples/module-esm.js', '*']);
 }
 `,
-                '../../tests/core/file.txt'
+                new URL(import.meta.url + '/../../../tests/core/file.txt').pathname
             );
 
             const runner = new Runner(tree);

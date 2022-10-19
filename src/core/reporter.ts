@@ -111,9 +111,10 @@ class Reporter {
         }
 
         // Load template
-        const buffers = await readFiles([new URL('report-template.html', import.meta.url).pathname], {
-            encoding: 'utf8'
-        });
+        const buffers = await readFiles(
+            [utils.normalizePathname(new URL('report-template.html', import.meta.url).pathname)],
+            { encoding: 'utf8' }
+        );
         if (!buffers || !buffers[0]) {
             utils.error('report-template.html not found');
         }
