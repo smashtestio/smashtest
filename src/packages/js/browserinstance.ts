@@ -1,5 +1,5 @@
 /* globals sinon */
-import * as Jimp from 'jimp';
+import Jimp from 'jimp';
 import * as fs from 'node:fs';
 import { createRequire } from 'node:module';
 import * as path from 'node:path';
