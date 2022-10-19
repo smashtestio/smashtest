@@ -525,7 +525,7 @@ function plural(count: number) {
                 // If it's a concrete filename with no glob wildcard, and
                 // there's no match, it's probably a typo, so throw an error
                 if (newFilenames.length === 0 && !/[*?]/.test(arg)) {
-                    // utils.error(`File not found: ${arg}`);
+                    utils.error(`File not found: ${arg}`);
                 }
 
                 filenames = [...filenames, ...newFilenames];
