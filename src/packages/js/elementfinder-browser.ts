@@ -164,12 +164,12 @@ export const browserFunction = function (_payload: string, parentElem: Element, 
                                 // currChildEF matches currTopElem
                                 indexE++;
 
-                                if (matchedElemensCount == currChildEF.counter.max) {
+                                if (matchedElemensCount === currChildEF.counter.max) {
                                     indexC++;
                                 }
                             }
                             else {
-                                if (matchedElemensCount == 0) {
+                                if (matchedElemensCount === 0) {
                                     if (hasChildErrors(currChildEF)) {
                                         currChildEF.error = true;
                                     }
@@ -199,7 +199,7 @@ export const browserFunction = function (_payload: string, parentElem: Element, 
 
                     for (let j = 0; j < ef.children.length; j++) {
                         const childEF = ef.children[j];
-                        if (pool.length == 0) {
+                        if (pool.length === 0) {
                             remove = true; // topElem has no children left, but more children are expected, so remove topElem from contention
                             break;
                         }
@@ -239,9 +239,9 @@ export const browserFunction = function (_payload: string, parentElem: Element, 
                     }
                 }
 
-                if (topElems.length == 0) {
+                if (topElems.length === 0) {
                     if (min > 0) {
-                        if (originalTopElemCount == 1) {
+                        if (originalTopElemCount === 1) {
                             ef.error = 'found, but doesn\'t contain the right children';
                         }
                         else {
@@ -285,7 +285,7 @@ export const browserFunction = function (_payload: string, parentElem: Element, 
                         }
 
                         const matchMeElem = childEF.matchMeElems[i];
-                        if (matchMeElems.indexOf(matchMeElem) == -1) {
+                        if (matchMeElems.indexOf(matchMeElem) === -1) {
                             matchMeElems.push(matchMeElem);
                         }
                     }
@@ -377,7 +377,7 @@ export const browserFunction = function (_payload: string, parentElem: Element, 
                 record['[4] after'] = pool;
             }
 
-            if (pool.length == 0) {
+            if (pool.length === 0) {
                 if (ef.counter.min > 0) {
                     ef.error = 'not found (zero matches after `' + prop.prop + '` applied)';
                 }

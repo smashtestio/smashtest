@@ -112,7 +112,7 @@ class Runner {
 
         await this.stopReporter();
 
-        return this.getNextReadyStep() == null;
+        return this.getNextReadyStep() === null;
     }
 
     /**

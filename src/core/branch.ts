@@ -216,7 +216,7 @@ class Branch {
             }
         }
 
-        if (thisLen != branchLen) {
+        if (thisLen !== branchLen) {
             return false;
         }
 
@@ -224,17 +224,17 @@ class Branch {
             const stepNodeA = stepNodeIndex[this.steps[i].id];
             const stepNodeB = stepNodeIndex[branch.steps[i].id];
 
-            if (getCanonicalStepText(stepNodeA) != getCanonicalStepText(stepNodeB)) {
+            if (getCanonicalStepText(stepNodeA) !== getCanonicalStepText(stepNodeB)) {
                 return false;
             }
 
             if (stepNodeA.hasCodeBlock()) {
-                if (stepNodeA.codeBlock != stepNodeB.codeBlock) {
+                if (stepNodeA.codeBlock !== stepNodeB.codeBlock) {
                     return false;
                 }
             }
             else {
-                if (this.steps[i].fid != branch.steps[i].fid) {
+                if (this.steps[i].fid !== branch.steps[i].fid) {
                     return false;
                 }
             }
@@ -246,7 +246,7 @@ class Branch {
             let text = stepNode.text.replace(/\s+/g, ' ');
             if (stepNode.modifiers) {
                 stepNode.modifiers.forEach((modifier) => {
-                    if (modifier != '~' && modifier != '$' && modifier != '$s') {
+                    if (modifier !== '~' && modifier !== '$' && modifier !== '$s') {
                         text += ' ' + modifier;
                     }
                 });
@@ -343,7 +343,7 @@ class Branch {
             clearDataOfSteps.call(this);
         }
         else if (stepDataMode === 'fail') {
-            if (state != 'fail') {
+            if (state !== 'fail') {
                 clearDataOfSteps.call(this);
             }
         }
@@ -420,7 +420,7 @@ class Branch {
         }
 
         // If this is the very last step in this branch, mark this branch as passed/failed
-        if (finishBranchNow || this.steps.indexOf(step) + 1 == this.steps.length) {
+        if (finishBranchNow || this.steps.indexOf(step) + 1 === this.steps.length) {
             this.finishOffBranch(stepDataMode);
         }
     }

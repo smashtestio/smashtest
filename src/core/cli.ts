@@ -294,7 +294,7 @@ Options
             break;
 
         case 'test-server':
-            if (value == '') {
+            if (value === '') {
                 runner.testServer = undefined; // --test-server="" is the same as not setting test-server at all
                 break;
             }
@@ -366,7 +366,7 @@ function restoreCursor() {
  * Returns "es" if count isn't 1
  */
 function plural(count: number) {
-    return count == 1 ? '' : 'es';
+    return count === 1 ? '' : 'es';
 }
 
 (async () => {
@@ -564,7 +564,7 @@ function plural(count: number) {
             utils.normalizePathname(new URL('../packages', import.meta.url).pathname) + '/*.smash'
         );
 
-        if (!packageFilenames || packageFilenames.length == 0) {
+        if (!packageFilenames || packageFilenames.length === 0) {
             utils.error('Make sure ../packages/ directory exists in the directory you\'re running this from');
         }
 
@@ -579,7 +579,7 @@ function plural(count: number) {
 
         fileBuffers = await readFiles(filenames, { encoding: 'utf8' });
 
-        if (fileBuffers.length == 0) {
+        if (fileBuffers.length === 0) {
             utils.error('No files found');
         }
 
@@ -626,7 +626,7 @@ function plural(count: number) {
             runner.reporter = reporter;
         }
 
-        if (tree.branches.length == 0 && !runner.isRepl) {
+        if (tree.branches.length === 0 && !runner.isRepl) {
             utils.error('0 branches generated from given files');
         }
 
@@ -650,7 +650,7 @@ function plural(count: number) {
         if (!runner.isRepl) {
             tree.updateCounts();
 
-            if (tree.counts.totalToRun == 0 && runner.skipPassed) {
+            if (tree.counts.totalToRun === 0 && runner.skipPassed) {
                 console.log('No branches left to run. All branches have passed last time.');
                 outputCompleteMessage(true);
                 restoreCursor();
@@ -726,11 +726,11 @@ function plural(count: number) {
                                 }
 
                                 if (
-                                    i == linesToEval.length - 1 &&
+                                    i === linesToEval.length - 1 &&
                                     codeBlockStep === null &&
                                     !runner.isStopped &&
                                     !runner.isComplete &&
-                                    line.trim() != 'e'
+                                    line.trim() !== 'e'
                                 ) {
                                     prePrompt(); // include prompt after last line, and only if we're not in the middle of inputting a code block
                                 }
@@ -971,9 +971,9 @@ function plural(count: number) {
             // we're currently inputting a code block
             codeBlockStep += '\n' + input;
             if (
-                input.length == 0 ||
-                input.trim() != '}' ||
-                numberOfSpacesInFront(firstLine(codeBlockStep)) != numberOfSpacesInFront(lastLine(codeBlockStep))
+                input.length === 0 ||
+                input.trim() !== '}' ||
+                numberOfSpacesInFront(firstLine(codeBlockStep)) !== numberOfSpacesInFront(lastLine(codeBlockStep))
             ) {
                 // not the end of code block input
                 return;

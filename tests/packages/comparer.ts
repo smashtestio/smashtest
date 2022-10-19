@@ -1230,7 +1230,7 @@ describe('Comparer', () => {
                         }
                     });
                     expect(Comparer.print(obj)).to.equal(
-                        '"Foobar"  -->  failed the $code \'(actual) => { return actual.toLowerCase() == "hoo"; }\''
+                        '"Foobar"  -->  failed the $code \'(actual) => { return actual.toLowerCase() === "hoo"; }\''
                     );
                 });
 
@@ -1245,14 +1245,14 @@ describe('Comparer', () => {
                 });
 
                 it('expected=$code string that returns true', () => {
-                    const obj = Comparer.comparison('Foobar', { $code: 'return actual.toLowerCase() == "foobar"' });
+                    const obj = Comparer.comparison('Foobar', { $code: 'return actual.toLowerCase() === "foobar"' });
                     expect(Comparer.print(obj)).to.equal('"Foobar"');
                 });
 
                 it('expected=$code string that returns false', () => {
-                    const obj = Comparer.comparison('Foobar', { $code: 'return actual.toLowerCase() == "hoo";' });
+                    const obj = Comparer.comparison('Foobar', { $code: 'return actual.toLowerCase() === "hoo";' });
                     expect(Comparer.print(obj)).to.equal(
-                        '"Foobar"  -->  failed the $code \'return actual.toLowerCase() == "hoo";\''
+                        '"Foobar"  -->  failed the $code \'return actual.toLowerCase() === "hoo";\''
                     );
                 });
 
@@ -1263,14 +1263,14 @@ describe('Comparer', () => {
                 });
 
                 it('expected=$code string that evaluates true', () => {
-                    const obj = Comparer.comparison('Foobar', { $code: 'actual.toLowerCase() == "foobar"' });
+                    const obj = Comparer.comparison('Foobar', { $code: 'actual.toLowerCase() === "foobar"' });
                     expect(Comparer.print(obj)).to.equal('"Foobar"');
                 });
 
                 it('expected=$code string that evaluates false', () => {
-                    const obj = Comparer.comparison('Foobar', { $code: 'actual.toLowerCase() == "hoo"' });
+                    const obj = Comparer.comparison('Foobar', { $code: 'actual.toLowerCase() === "hoo"' });
                     expect(Comparer.print(obj)).to.equal(
-                        '"Foobar"  -->  failed the $code \'actual.toLowerCase() == "hoo"\''
+                        '"Foobar"  -->  failed the $code \'actual.toLowerCase() === "hoo"\''
                     );
                 });
             });
@@ -2161,7 +2161,7 @@ describe('Comparer', () => {
 ]`);
 
                     obj = Comparer.comparison([1, '2', false, null, undefined], {
-                        $every: { $code: 'actual != \'foo\'' }
+                        $every: { $code: 'actual !== \'foo\'' }
                     });
                     expect(Comparer.print(obj)).to.equal(`[
     1,
@@ -2240,7 +2240,7 @@ describe('Comparer', () => {
                         $typeof: 'string',
                         $regex: /foo.*/,
                         $contains: 'bar',
-                        $code: 'actual.toUpperCase() == "FOOBAR"',
+                        $code: 'actual.toUpperCase() ===  "FOOBAR"',
                         $length: 6,
                         $minLength: 3,
                         $maxLength: 10
@@ -2307,7 +2307,7 @@ describe('Comparer', () => {
                         $typeof: 'string',
                         $regex: /foo.*/,
                         $contains: 'cat',
-                        $code: 'actual.toUpperCase() == "FOOBAR"',
+                        $code: 'actual.toUpperCase() === "FOOBAR"',
                         $length: 7,
                         $minLength: 3,
                         $maxLength: 10

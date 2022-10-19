@@ -153,7 +153,7 @@ class Tree {
         for (let i = 0, lineNumber = 1; i < lines.length; i++, lineNumber++) {
             const line = lines[i];
 
-            if (line.match(Constants.FULL_LINE_COMMENT) && currentlyInsideCodeBlockFromLineNum == -1) {
+            if (line.match(Constants.FULL_LINE_COMMENT) && currentlyInsideCodeBlockFromLineNum === -1) {
                 // ignore lines that are fully comments
                 lines.splice(i, 1);
                 i--;
@@ -177,7 +177,7 @@ class Tree {
 
                 const stepNode: AmendedStepNode = this.newStepNode(filename, lineNumber).parseLine('');
                 stepNode.codeBlockLine = true;
-                if (currentlyInsideCodeBlockFromLineNum == -1) {
+                if (currentlyInsideCodeBlockFromLineNum === -1) {
                     // if the code block just ended, mark it as such
                     stepNode.indents = utils.numIndents(line, filename, lineNumber);
                     stepNode.codeBlockEnd = true;
@@ -188,7 +188,7 @@ class Tree {
                 const stepNode = this.newStepNode(filename, lineNumber).parseLine(line);
                 stepNode.indents = utils.numIndents(line, filename, lineNumber);
 
-                if (!allowIndented && !lastNonEmptyStepNode && stepNode.indents != 0) {
+                if (!allowIndented && !lastNonEmptyStepNode && stepNode.indents !== 0) {
                     utils.error('The first step must have 0 indents', filename, lineNumber);
                 }
 
@@ -200,7 +200,7 @@ class Tree {
                 stepNodes.push(stepNode);
                 lastStepNodeCreated = stepNode;
 
-                if (stepNode.text != '') {
+                if (stepNode.text !== '') {
                     lastNonEmptyStepNode = stepNode;
                 }
             }
@@ -213,29 +213,29 @@ class Tree {
 
         // Validations for .. step nodes
         for (let i = 0; i < stepNodes.length; i++) {
-            if (stepNodes[i].text == '..') {
-                if (i > 0 && stepNodes[i - 1].text != '' && stepNodes[i - 1].indents == stepNodes[i].indents) {
+            if (stepNodes[i].text === '..') {
+                if (i > 0 && stepNodes[i - 1].text !== '' && stepNodes[i - 1].indents === stepNodes[i].indents) {
                     utils.error(
                         'You cannot have a .. line at the same indent level as the adjacent line above',
                         filename,
                         stepNodes[i].lineNumber
                     );
                 }
-                if ((i + 1 < stepNodes.length && stepNodes[i + 1].text == '') || i + 1 == stepNodes.length) {
+                if ((i + 1 < stepNodes.length && stepNodes[i + 1].text === '') || i + 1 === stepNodes.length) {
                     utils.error(
                         'You cannot have a .. line without anything directly below',
                         filename,
                         stepNodes[i].lineNumber
                     );
                 }
-                if (i + 1 < stepNodes.length && stepNodes[i + 1].indents != stepNodes[i].indents) {
+                if (i + 1 < stepNodes.length && stepNodes[i + 1].indents !== stepNodes[i].indents) {
                     utils.error(
                         'A .. line must be followed by a line at the same indent level',
                         filename,
                         stepNodes[i].lineNumber
                     );
                 }
-                if (i + 1 < stepNodes.length && stepNodes[i + 1].text == '..') {
+                if (i + 1 < stepNodes.length && stepNodes[i + 1].text === '..') {
                     utils.error('You cannot have two .. lines in a row', filename, stepNodes[i].lineNumber);
                 }
             }
@@ -247,7 +247,7 @@ class Tree {
         // 2) has no '' lines in the middle
         // 3) is followed by a '' line, indented '..' line, line that's differently indented, or end of file
         for (let i = 0; i < stepNodes.length; ) {
-            if (stepNodes[i].text == '' || stepNodes[i].text == '..') {
+            if (stepNodes[i].text === '' || stepNodes[i].text === '..') {
                 // The first line in a step block is a normal line
                 i++;
                 continue;
@@ -256,7 +256,7 @@ class Tree {
             // Current line may start a step block
             const potentialStepBlock = new StepBlockNode(0);
 
-            if (i > 0 && stepNodes[i - 1].text == '..') {
+            if (i > 0 && stepNodes[i - 1].text === '..') {
                 potentialStepBlock.isSequential = true;
             }
 
@@ -269,7 +269,7 @@ class Tree {
                 if (stepNodes[j].codeBlockLine) {
                     continue;
                 }
-                else if (stepNodes[j].text == '' || stepNodes[j].indents != potentialStepBlock.steps[0].indents) {
+                else if (stepNodes[j].text === '' || stepNodes[j].indents !== potentialStepBlock.steps[0].indents) {
                     // We've reached the end of the (potential) step block
                     break;
                 }
@@ -344,12 +344,12 @@ class Tree {
                 i++;
                 continue;
             }
-            else if (sn.text == '') {
+            else if (sn.text === '') {
                 invariant(sn.id !== undefined);
                 this.deleteStepNode(sn.id);
                 stepNodes.splice(i, 1);
             }
-            else if (sn.text == '..') {
+            else if (sn.text === '..') {
                 // Validate that .. steps have a StepBlockNode directly below
                 if (i + 1 < stepNodes.length && !(stepNodes[i + 1] instanceof StepBlockNode)) {
                     utils.error('A .. line must be followed by a step block', filename, stepNodes[i].lineNumber);
@@ -378,7 +378,7 @@ class Tree {
 
             // Indents of new step node vs. last step node
             let indentsAdvanced = 0;
-            if (prevStepNode != null) {
+            if (prevStepNode !== null) {
                 indentsAdvanced = currStepNode.indents - prevStepNode.indents;
             }
 
@@ -597,7 +597,7 @@ ${branchAbove.output(this.stepNodeIndex)}
             const fd = parents[i];
             results.forEach((result) => {
                 result.children.forEach((c) => {
-                    if (c === stepNode || (c.isFunctionDeclaration && c.canon == fd.canon)) {
+                    if (c === stepNode || (c.isFunctionDeclaration && c.canon === fd.canon)) {
                         newResults.push(c);
                     }
                 });
@@ -654,7 +654,7 @@ ${branchAbove.output(this.stepNodeIndex)}
             return false;
         }
         else {
-            if (functionDeclarationNode.children.length == 0) {
+            if (functionDeclarationNode.children.length === 0) {
                 utils.error('You cannot use an empty function', stepNode.filename, stepNode.lineNumber);
             }
 
@@ -674,7 +674,7 @@ ${branchAbove.output(this.stepNodeIndex)}
 
         function validateChild(child: StepNode) {
             const varsBeingSet = child.getVarsBeingSet();
-            if (!varsBeingSet || varsBeingSet.length != 1 || varsBeingSet[0].isLocal) {
+            if (!varsBeingSet || varsBeingSet.length !== 1 || varsBeingSet[0].isLocal) {
                 utils.error(
                     `The function called at ${stepNode.filename}:${stepNode.lineNumber} must have all steps in its declaration be in format {x}='string' or {x}=Function (but ${child.filename}:${child.lineNumber} is not)`,
                     stepNode.filename,
@@ -755,7 +755,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         let branchesFromThisStepNode: Branch[] = []; // Array of Branch
         const fids: number[] = []; // If stepNode is a function call, all matching function declaration ids go here
 
-        if (stepNode.indents == -1) {
+        if (stepNode.indents === -1) {
             // We're at the root. Ignore it.
         }
         else if (stepNode.isFunctionCall) {
@@ -786,7 +786,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                     () => this.branchify(functionDeclarationNode, branchAbove, level + 1, true) || []
                 ); // there's no isSequential because isSequential does not extend into function calls
 
-                if (newBranchesFromThisStepNode.length == 0) {
+                if (newBranchesFromThisStepNode.length === 0) {
                     // If newBranchesFromThisStepNode is empty (happens when the function declaration is empty),
                     // stick the current step (function call) into a sole branch, but only if it has a code block
                     if (functionDeclarationNode.hasCodeBlock()) {
@@ -829,7 +829,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                 branchesFromThisStepNode = branchesFromThisStepNode.concat(newBranchesFromThisStepNode);
             });
 
-            if (branchesFromThisStepNode.length == 0) {
+            if (branchesFromThisStepNode.length === 0) {
                 // If branchesFromThisStepNode is empty (happens when the function declarations are empty),
                 // just stick the current step (function call) into a sole branch
                 const branch = new Branch();
@@ -843,7 +843,7 @@ ${branchAbove.output(this.stepNodeIndex)}
             for (let i = 0; i < stepNode.steps.length; i++) {
                 const s = stepNode.steps[i];
 
-                if (i == stepNode.steps.length - 1) {
+                if (i === stepNode.steps.length - 1) {
                     // last step in block
                     s.children = stepNode.children;
                 }
@@ -878,7 +878,7 @@ ${branchAbove.output(this.stepNodeIndex)}
 
         let children = stepNode.children;
 
-        if (children.length == 0) {
+        if (children.length === 0) {
             // If this step node is a member of a non-sequential step block, the step block's children are this step node's "children"
             if (stepNode.containingStepBlock && !stepNode.containingStepBlock.isSequential) {
                 children = stepNode.containingStepBlock.children;
@@ -905,7 +905,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                         for (let j = 0; j < c.steps.length; ) {
                             !stepNodeHasModifier(c.steps[j]) ? c.steps.splice(j, 1) : j++;
                         }
-                        c.steps.length == 0 ? children.splice(i, 1) : i++;
+                        c.steps.length === 0 ? children.splice(i, 1) : i++;
                     }
                     else {
                         // regular StepNode
@@ -960,7 +960,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                     afterEveryStep.push(hookStep);
                 }
                 else if (canStepText === 'before everything') {
-                    if (child.indents != 0) {
+                    if (child.indents !== 0) {
                         utils.error(
                             'A Before Everything hook must not be indented (it must be at 0 indents)',
                             child.filename,
@@ -971,7 +971,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                     self.beforeEverything.unshift(hookStep); // inserted this way so that packaged hooks get executed first
                 }
                 else if (canStepText === 'after everything') {
-                    if (child.indents != 0) {
+                    if (child.indents !== 0) {
                         utils.error(
                             'An After Everything hook must not be indented (it must be at 0 indents)',
                             child.filename,
@@ -991,7 +991,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         let branchesBelow: Branch[] = []; // what we're returning - represents all branches at and below this step node
 
         // If branchesFromThisStepNode is empty, "prime" it with an empty Branch, so that the loops below work
-        if (branchesFromThisStepNode.length == 0) {
+        if (branchesFromThisStepNode.length === 0) {
             branchesFromThisStepNode.push(new Branch());
         }
 
@@ -1016,7 +1016,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                                 );
                                 branchesFromChild = this.removeUnwantedBranches(
                                     branchesFromChild,
-                                    stepNode.indents == -1
+                                    stepNode.indents === -1
                                 );
 
                                 branchesFromChild.forEach((branchFromChild) => {
@@ -1036,7 +1036,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                             branchesFromChild.forEach(
                                 (branch) => branch.isSkipBranch && (bigBranch.isSkipBranch = true)
                             );
-                            branchesFromChild = this.removeUnwantedBranches(branchesFromChild, stepNode.indents == -1);
+                            branchesFromChild = this.removeUnwantedBranches(branchesFromChild, stepNode.indents === -1);
 
                             branchesFromChild.forEach((branchFromChild) => {
                                 bigBranch.mergeToEnd(branchFromChild);
@@ -1077,14 +1077,14 @@ ${branchAbove.output(this.stepNodeIndex)}
                     }
                 });
 
-                branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, stepNode.indents == -1);
+                branchesFromChildren = this.removeUnwantedBranches(branchesFromChildren, stepNode.indents === -1);
                 branchesFromChildren.forEach((branchFromChild) => {
                     branchesBelow.push(branchFromThisStepNode.clone().mergeToEnd(branchFromChild.clone()));
                 });
             });
 
             if (
-                branchesBelow.length == 0 &&
+                branchesBelow.length === 0 &&
                 branchesFromThisStepNode.length >= 1 &&
                 branchesFromThisStepNode[0].steps.length > 0
             ) {
@@ -1178,7 +1178,7 @@ ${branchAbove.output(this.stepNodeIndex)}
             if (branch.isOnly) {
                 // A $ was found
                 const obj = this.findModifierDepth(branch, '$');
-                if (obj.depth < shortestDepth || shortestDepth == -1) {
+                if (obj.depth < shortestDepth || shortestDepth === -1) {
                     shortestDepth = obj.depth;
                 }
             }
@@ -1190,7 +1190,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                     return false;
                 }
                 else {
-                    return obj.depth == shortestDepth;
+                    return obj.depth === shortestDepth;
                 }
             });
         }
@@ -1284,7 +1284,7 @@ ${branchAbove.output(this.stepNodeIndex)}
             if (branch.isDebug) {
                 // A ~ was found
                 const o = this.findModifierDepth(branch, '~');
-                if (o.depth < shortestDepth || shortestDepth == -1) {
+                if (o.depth < shortestDepth || shortestDepth === -1) {
                     shortestDepth = o.depth;
                     branchFound = branch;
                 }
@@ -1616,7 +1616,7 @@ ${branchAbove.output(this.stepNodeIndex)}
             const branch = this.branches[i];
             if (branch.isRunning) {
                 snapshot.branches.push(branch.serialize());
-                if (typeof max != 'undefined' && snapshot.branches.length >= max) {
+                if (typeof max !== 'undefined' && snapshot.branches.length >= max) {
                     break;
                 }
             }
@@ -1669,7 +1669,7 @@ ${branchAbove.output(this.stepNodeIndex)}
      */
     markPassedFromPrevRun(previous: string) {
         const prevHashes = previous.split('\n');
-        if (prevHashes.length == 0) {
+        if (prevHashes.length === 0) {
             return;
         }
         prevHashes.splice(prevHashes.length - 1, 1); // remove last item, which is a blank line
@@ -1677,7 +1677,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         this.branches.forEach((branch) => {
             // Find an equal branch in prevHashes
             for (let i = 0; i < prevHashes.length; i++) {
-                if (branch.hash == prevHashes[i]) {
+                if (branch.hash === prevHashes[i]) {
                     branch.passedLastTime = true;
                     break;
                 }
@@ -1793,7 +1793,7 @@ ${branchAbove.output(this.stepNodeIndex)}
                         if (b.isRunning && b.nonParallelIds) {
                             for (let g = 0; g < b.nonParallelIds.length; g++) {
                                 for (let h = 0; h < branch.nonParallelIds.length; h++) {
-                                    if (b.nonParallelIds[g] == branch.nonParallelIds[h]) {
+                                    if (b.nonParallelIds[g] === branch.nonParallelIds[h]) {
                                         found = true;
                                         break start;
                                     }

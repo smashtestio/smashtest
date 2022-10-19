@@ -126,7 +126,7 @@ class Comparer {
                     // Make sure every expected item has a corresponding actual item
                     for (let expectedIndex = 0, actualIndex = 0; expectedIndex < expected.length; expectedIndex++) {
                         const expectedItem = expected[expectedIndex];
-                        if (['$subset', '$anyOrder'].indexOf(expectedItem) == -1) {
+                        if (['$subset', '$anyOrder'].indexOf(expectedItem) === -1) {
                             if (subset || anyOrder) {
                                 // corresponding actual item can be anywhere
                                 const actualClone = this.clone(actual);
@@ -184,7 +184,7 @@ class Comparer {
                             errors.push('not $typeof array');
                         }
                     }
-                    else if (typeof actual != expected.$typeof) {
+                    else if (typeof actual !== expected.$typeof) {
                         errors.push(`not $typeof ${expected.$typeof}`);
                     }
                 }
@@ -204,7 +204,7 @@ class Comparer {
                     }
 
                     // Validate actual matches expected
-                    if (typeof actual != 'string') {
+                    if (typeof actual !== 'string') {
                         errors.push(`isn't a string so can't match $regex /${regex.source}/`);
                     }
                     else if (!actual.match(regex)) {
@@ -215,12 +215,12 @@ class Comparer {
                 // { $contains: "string" }
                 if ('$contains' in expected) {
                     // Validate expected
-                    if (typeof expected.$contains != 'string') {
+                    if (typeof expected.$contains !== 'string') {
                         throw new Error(`$contains has to be a string: ${JSON.stringify(expected.$contains)}`);
                     }
 
                     // Validate actual matches expected
-                    if (typeof actual != 'string') {
+                    if (typeof actual !== 'string') {
                         errors.push(`isn't a string so can't $contains "${expected.$contains}"`);
                     }
                     else if (!actual.includes(expected.$contains)) {
@@ -231,12 +231,12 @@ class Comparer {
                 // { $max: <number> }
                 if ('$max' in expected) {
                     // Validate expected
-                    if (typeof expected.$max != 'number') {
+                    if (typeof expected.$max !== 'number') {
                         throw new Error(`$max has to be a number: ${JSON.stringify(expected.$max)}`);
                     }
 
                     // Validate actual matches expected
-                    if (typeof actual != 'number') {
+                    if (typeof actual !== 'number') {
                         errors.push(`isn't a number so can't have a $max of ${expected.$max}`);
                     }
                     else if (actual > expected.$max) {
@@ -252,7 +252,7 @@ class Comparer {
                     }
 
                     // Validate actual matches expected
-                    if (typeof actual != 'number') {
+                    if (typeof actual !== 'number') {
                         errors.push(`isn't a number so can't have a $min of ${expected.$min}`);
                     }
                     else if (actual < expected.$min) {
@@ -300,7 +300,7 @@ class Comparer {
                     }
 
                     // Validate actual matches expected
-                    if (typeof actual != 'object' && typeof actual != 'string') {
+                    if (typeof actual !== 'object' && typeof actual !== 'string') {
                         errors.push(`isn't an object, array, or string so can't have a $length of ${expected.$length}`);
                     }
                     else {
@@ -376,7 +376,7 @@ class Comparer {
                 // { $every: <value> }
                 if ('$every' in expected) {
                     // Validate actual matches expected
-                    if (typeof actual != 'object' || !(actual instanceof Array)) {
+                    if (typeof actual !== 'object' || !(actual instanceof Array)) {
                         errors.push('not an array as needed for $every');
                     }
                     else if (actual.length === 0) {
@@ -641,7 +641,7 @@ class Comparer {
             ret = value + (commaAtEnd ? ',' : '') + outputErrors() + '\n';
         }
 
-        if (indents == 0) {
+        if (indents === 0) {
             this.endSeen(true);
             return ret.trim();
         }
@@ -655,7 +655,7 @@ class Comparer {
         function outputErrors() {
             const filteredErrors = errors.filter((error) => !error.blockError);
 
-            if (filteredErrors.length == 0) {
+            if (filteredErrors.length === 0) {
                 return '';
             }
 
@@ -677,7 +677,7 @@ class Comparer {
         function outputBlockErrors() {
             const filteredErrors = errors.filter((error) => error.blockError);
 
-            if (filteredErrors.length == 0) {
+            if (filteredErrors.length === 0) {
                 return '';
             }
 

@@ -336,7 +336,7 @@ class BrowserInstance {
         let domain = matches[2];
         const path = matches[4];
 
-        if (protocol != 'file://') {
+        if (protocol !== 'file://') {
             if (!domain) {
                 const currUrl = await this.driver.getCurrentUrl();
                 matches = currUrl.match(URL_REGEX);
@@ -437,7 +437,7 @@ class BrowserInstance {
         dropdownElement = await this.$(dropdownElement, true);
 
         const tagName = await dropdownElement.getTagName();
-        if (tagName.toLowerCase() != 'select') {
+        if (tagName.toLowerCase() !== 'select') {
             // Click it open
             await dropdownElement.click();
         }
@@ -951,7 +951,7 @@ class BrowserInstance {
             throw new Error(ERR);
         }
 
-        if (stateElems.length == 0 || (await stateElems[0].getId()) != (await elem.getId())) {
+        if (stateElems.length === 0 || (await stateElems[0].getId()) !== (await elem.getId())) {
             throw new Error(ERR);
         }
     }
@@ -975,7 +975,7 @@ class BrowserInstance {
                 throw new Error(ERR);
             }
 
-            if (stateElems.length == 0 || (await stateElems[0].getId()) != (await elem.getId())) {
+            if (stateElems.length === 0 || (await stateElems[0].getId()) !== (await elem.getId())) {
                 throw new Error(ERR);
             }
         }

@@ -97,7 +97,7 @@ class Reporter {
                 // If we're doing --skip-passed, delete a screenshot only if the branch didn't pass last time
                 if (
                     !this.runner.skipPassed ||
-                    !this.tree.branches.find((branch) => branch.hash == hash && branch.passedLastTime)
+                    !this.tree.branches.find((branch) => branch.hash === hash && branch.passedLastTime)
                 ) {
                     fs.unlinkSync(path.join(smashtestSSDir, file));
                 }

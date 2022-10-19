@@ -27,7 +27,7 @@ export const stripBrackets = (str: string) => {
  * @return {Boolean} true if str is in 'quotes', "quotes", or [quotes], false otherwise
  */
 export const hasQuotes = (str: string) => {
-    return str.trim().match(/^'.*'$|^".*"$|^\[.*\]$/) != null;
+    return str.trim().match(/^'.*'$|^".*"$|^\[.*\]$/) !== null;
 };
 
 /**
@@ -217,11 +217,11 @@ export const numIndents = (line: string, filename?: string, lineNumber?: number)
     const numSpaces = spacesAtFront[1].length;
     const numIndents = numSpaces / Constants.SPACES_PER_INDENT;
 
-    if (numIndents - Math.floor(numIndents) != 0) {
+    if (numIndents - Math.floor(numIndents) !== 0) {
         error(
             `The number of spaces at the beginning of a line must be a multiple of ${
                 Constants.SPACES_PER_INDENT
-            }. You have ${numSpaces} space${numSpaces != 1 ? 's' : ''}.`,
+            }. You have ${numSpaces} space${numSpaces !== 1 ? 's' : ''}.`,
             filename,
             lineNumber
         );

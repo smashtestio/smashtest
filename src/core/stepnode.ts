@@ -92,7 +92,7 @@ class StepNode {
         const filename = this.filename;
         const lineNumber = this.lineNumber;
 
-        if (line.trim() == '') {
+        if (line.trim() === '') {
             this.text = '';
             return this;
         }
@@ -121,7 +121,7 @@ class StepNode {
         );
 
         if (matches[4] || this.isOpeningBracket) {
-            if (this.isOpeningBracket && (!matches[4] || matches[4].trim() != '*')) {
+            if (this.isOpeningBracket && (!matches[4] || matches[4].trim() !== '*')) {
                 this.isFunctionDeclaration = true;
                 this.isPrivateFunctionDeclaration = true;
                 this.isMultiBlockFunctionDeclaration = true;
@@ -130,19 +130,19 @@ class StepNode {
                 }
             }
             if (matches[4]) {
-                if (matches[4].trim() == '*') {
+                if (matches[4].trim() === '*') {
                     this.isFunctionDeclaration = true;
                 }
-                if (matches[4].trim() == '**') {
+                if (matches[4].trim() === '**') {
                     this.isFunctionDeclaration = true;
                     this.isPrivateFunctionDeclaration = true;
                 }
-                if (matches[4].trim() == '***') {
+                if (matches[4].trim() === '***') {
                     this.isFunctionDeclaration = true;
                     this.isHook = true;
                 }
             }
-            if (matches[5] && matches[5].trim() == ']') {
+            if (matches[5] && matches[5].trim() === ']') {
                 this.isFunctionCall = true;
                 this.isMultiBlockFunctionCall = true;
                 this.text = ' ';
@@ -308,7 +308,7 @@ class StepNode {
                 for (let i = 0; i < varsBeingSet.length; i++) {
                     const varBeingSet = varsBeingSet[i];
 
-                    if (varBeingSet.value.trim() == '') {
+                    if (varBeingSet.value.trim() === '') {
                         utils.error('A {variable} must be set to something', filename, lineNumber);
                     }
                     if (!varBeingSet.value.match(Constants.STRING_LITERAL_WHOLE)) {
@@ -334,7 +334,7 @@ class StepNode {
                     }
 
                     // Validations
-                    if (varBeingSet.value.trim() == '') {
+                    if (varBeingSet.value.trim() === '') {
                         utils.error('A {variable} must be set to something', filename, lineNumber);
                     }
                     if (varBeingSet.value.replace(/\s+/g, '').match(Constants.NUMBERS_ONLY_WHOLE)) {
@@ -407,7 +407,7 @@ class StepNode {
     getFunctionCallText() {
         if (this.isFunctionCall) {
             const varsBeingSet = this.getVarsBeingSet();
-            if (varsBeingSet && varsBeingSet.length == 1) {
+            if (varsBeingSet && varsBeingSet.length === 1) {
                 // {var} = Func
                 return varsBeingSet[0].value;
             }

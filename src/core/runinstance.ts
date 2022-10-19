@@ -248,7 +248,7 @@ class RunInstance {
                     }
                 }
                 else {
-                    // step.level == prevStep.level
+                    // step.level === prevStep.level
                     if (prevStepWasACodeBlockFunc) {
                         this.popLocalStack(); // on this step we're stepping out of the code block in the previous step
                     }
@@ -358,7 +358,7 @@ class RunInstance {
 
                     // Step is {var} = Func or Text { code block }
                     // NOTE: When Step is {var} = Func, where Func has children in format {x}='string', we don't need to do anything else
-                    if (varsBeingSet && varsBeingSet.length == 1) {
+                    if (varsBeingSet && varsBeingSet.length === 1) {
                         // Grab return value from code and assign it to {var}
                         if (varsBeingSet[0].isLocal && stepNode.isFunctionCall) {
                             // {{local var}} = Function, necessitates setting {{local var}} which is already on the localStack
@@ -678,7 +678,7 @@ class RunInstance {
         const stepNode = this.tree.stepNodeIndex[keys[keys.length - 1]];
 
         let branchAbove = this.stepsRan;
-        if (!branchAbove || branchAbove.steps.length == 0) {
+        if (!branchAbove || branchAbove.steps.length === 0) {
             // Create a fake, empty step that connects to the tree
             const tempStep = this.tree.newStepNode();
             tempStep.parent = this.tree.root;
@@ -899,7 +899,7 @@ class RunInstance {
                         return requireOrImportAndSet(packageNameAttempt, exportName, varName);
                     }
                     catch (e) {
-                        if (currPath == path.dirname(currPath)) {
+                        if (currPath === path.dirname(currPath)) {
                             // we're at the highest directory, break out of the loop and throw an error
                             throw e;
                         }
@@ -1142,7 +1142,7 @@ class RunInstance {
                     }
                 }
 
-                if (['string', 'boolean', 'number'].indexOf(typeof value) == -1) {
+                if (['string', 'boolean', 'number'].indexOf(typeof value) === -1) {
                     utils.error(`The variable ${match} must be set to a string`);
                 }
 
@@ -1225,8 +1225,8 @@ class RunInstance {
                 for (let j = 0; j < varsBeingSet.length; j++) {
                     const varBeingSet = varsBeingSet[j];
                     if (
-                        utils.canonicalize(varBeingSet.name) == utils.canonicalize(varname) &&
-                        varBeingSet.isLocal == isLocal
+                        utils.canonicalize(varBeingSet.name) === utils.canonicalize(varname) &&
+                        varBeingSet.isLocal === isLocal
                     ) {
                         let value = null;
                         if (this.tree.hasCodeBlock(s)) {

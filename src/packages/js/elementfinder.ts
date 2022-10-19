@@ -1,7 +1,14 @@
 import { WebDriver, WebElement } from 'selenium-webdriver';
 import invariant from 'tiny-invariant';
 import * as Constants from '../../core/constants.js';
-import { BrowserElementFinder, ElementFinderPayload, PropDefinition, Props, SerializedProps, SmashError } from '../../core/types.js';
+import {
+    BrowserElementFinder,
+    ElementFinderPayload,
+    PropDefinition,
+    Props,
+    SerializedProps,
+    SmashError
+} from '../../core/types.js';
 import * as utils from '../../core/utils.js';
 import { browserFunction } from './elementfinder-browser.js';
 
@@ -144,9 +151,9 @@ class ElementFinder {
         // If there is more than one line at baseIndent, make this a body EF and all of str will be its children
         for (let i = parentLineNumber; i < lines.length; i++) {
             const line = lines[i];
-            if (line.trim() != '') {
+            if (line.trim() !== '') {
                 const indents = utils.numIndents(line, filename, i + 1);
-                if (indents == baseIndent) {
+                if (indents === baseIndent) {
                     const spaces = utils.getIndentWhitespace(1);
                     lines = lines.map((line) => spaces + line);
 
@@ -163,7 +170,7 @@ class ElementFinder {
         // Parse parentLine
         parentLine = parentLine.trim();
         this.line = parentLine;
-        if (parentLine[0] == '*') {
+        if (parentLine[0] === '*') {
             // Element Array
             this.isElemArray = true;
             this.counter = { min: 0 };
@@ -228,7 +235,7 @@ class ElementFinder {
                         this.counter = { min: parseInt(min), max: parseInt(max) };
                     }
                 }
-                else if (middle == '+') {
+                else if (middle === '+') {
                     // N+
                     this.counter = { min: parseInt(min) };
                 }
@@ -255,7 +262,7 @@ class ElementFinder {
                 throw new Error('Internal error: Comma separation regex should match on prop');
             }
 
-            const propStrs = match.filter((propStr) => propStr.trim() != '');
+            const propStrs = match.filter((propStr) => propStr.trim() !== '');
             let implicitVisible = true;
 
             for (let i = 0; i < propStrs.length; i++) {
@@ -308,7 +315,7 @@ class ElementFinder {
                                     j += len - 1;
                                     break;
                                 }
-                                else if (len == 1) {
+                                else if (len === 1) {
                                     isSpecialFormat = false;
                                     break outside;
                                 }
@@ -375,8 +382,8 @@ class ElementFinder {
             const line = lines[i];
             const lineNumber = i + 1 + lineNumberOffset;
 
-            if (line.trim() == '') {
-                if (childObjs.length != 0) {
+            if (line.trim() === '') {
+                if (childObjs.length !== 0) {
                     childObjs[childObjs.length - 1].str += `\n${line}`; // goes onto the end of the last child
                 }
 
@@ -392,12 +399,12 @@ class ElementFinder {
                     lineNumber
                 );
             }
-            else if (indents == 1) {
+            else if (indents === 1) {
                 childObjs.push({ str: line, lineNumber: lineNumber }); // a new child is formed
             }
             else {
                 // indents > 1
-                if (childObjs.length == 0) {
+                if (childObjs.length === 0) {
                     utils.error(
                         'ElementFinder cannot have a line that\'s indented more than once compared to the line above',
                         filename,
@@ -407,7 +414,7 @@ class ElementFinder {
 
                 childObjs[childObjs.length - 1].str += `\n${line}`; // string goes onto the end of the last child
             }
-            // NOTE: indents == 0 shouldn't occur
+            // NOTE: indents === 0 shouldn't occur
         }
 
         childObjs.forEach((c) => {
@@ -665,7 +672,7 @@ class ElementFinder {
                     if (duration > timeout) {
                         const error = !isNot
                             ? new SmashError(
-                                `Element${this.counter.max == 1 ? '' : 's'} not found${
+                                `Element${this.counter.max === 1 ? '' : 's'} not found${
                                     timeout > 0 ? ` in time (${timeout / 1000} s)` : ''
                                 }:\n\n${results.ef.print(
                                     Constants.CONSOLE_END_COLOR + Constants.CONSOLE_START_RED + '-->',
@@ -673,7 +680,7 @@ class ElementFinder {
                                 )}`
                             )
                             : new SmashError(
-                                `Element${this.counter.max == 1 ? '' : 's'} still found${
+                                `Element${this.counter.max === 1 ? '' : 's'} still found${
                                     timeout > 0 ? ` after timeout (${timeout / 1000} s)` : ''
                                 }`
                             );
@@ -811,7 +818,7 @@ class ElementFinder {
 
             'page title': [
                 utils.es5(function (elems: Element[], input?: string) {
-                    return document.title == input ? elems : [];
+                    return document.title === input ? elems : [];
                 })
             ],
 
@@ -1103,7 +1110,7 @@ class ElementFinder {
                     });
 
                     return elems.filter(function (elem) {
-                        return nodesArr.indexOf(elem) != -1;
+                        return nodesArr.indexOf(elem) !== -1;
                     });
                 })
             ]

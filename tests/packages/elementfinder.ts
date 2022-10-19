@@ -2983,7 +2983,7 @@ one
                     children: []
                 },
                 definedProps: {
-                    big: ['(elems, input) => elems.filter(elem => elem.className == \'big\')']
+                    big: ['(elems, input) => elems.filter(elem => elem.className === \'big\')']
                 }
             });
         });
