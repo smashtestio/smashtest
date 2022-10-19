@@ -505,6 +505,8 @@ function plural(count: number) {
         }
 
         // Sort command line arguments into filenames and flags
+        const filePatterns: string[] = [];
+
         for (let i = 2; i < process.argv.length; i++) {
             const arg = process.argv[i];
             if (arg.startsWith('-')) {
@@ -520,19 +522,27 @@ function plural(count: number) {
                 }
             }
             else {
-                const newFilenames = glob.sync(utils.normalizePathname(path.resolve(arg)), { absolute: true });
-
-                // If it's a concrete filename with no glob wildcard, and
-                // there's no match, it's probably a typo, so throw an error
-                if (newFilenames.length === 0 && !/[*?]/.test(arg)) {
-                    utils.error(`File not found: ${arg}`);
-                }
-
-                filenames = [...filenames, ...newFilenames];
+                filePatterns.push(arg);
             }
         }
 
-        if (filenames.length == 0 && !runner.isRepl) {
+        for (const filePattern of filePatterns) {
+            const newFilenames = glob.sync(utils.normalizePathname(path.resolve(filePattern)), { absolute: true });
+
+            // If it's a concrete filename with no glob wildcard, and
+            // there's no match, it's probably a typo, so throw an error
+            if (newFilenames.length === 0 && !/[*?]/.test(filePattern)) {
+                utils.error(`File not found: ${filePattern}`);
+            }
+
+            filenames = [...filenames, ...newFilenames];
+        }
+
+        if (filenames.length === 0 && filePatterns.length > 0) {
+            utils.error(`No files found for: ${filePatterns.join(', ')}`);
+        }
+
+        if (filenames.length === 0 && !runner.isRepl) {
             let searchString = '*.smash';
 
             if (isRecursive) {
