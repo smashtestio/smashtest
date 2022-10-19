@@ -34,7 +34,7 @@ export const hasQuotes = (str: string) => {
  * Throws an Error with the given message, filename, and line number
  * @throws {Error}
  */
-export const error = (msg?: string, filename?: string, lineNumber?: number, outputStack = true) => {
+export const error = (msg?: string, filename?: string, lineNumber?: number, outputStack = false) => {
     if (filename || lineNumber) {
         throw Object.assign(new Error(`${msg} [${filename || ''}:${lineNumber || ''}]`), { outputStack });
     }
