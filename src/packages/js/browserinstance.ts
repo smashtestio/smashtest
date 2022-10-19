@@ -87,8 +87,6 @@ class BrowserInstance {
     static async killAllBrowsers(runner: Runner) {
         const browsers = runner.p('browsers');
 
-        invariant(browsers, '\'browser\' is not set during killAllBrowsers');
-
         if (browsers) {
             for (let i = 0; i < browsers.length; i++) {
                 const browser = browsers[i];
