@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.1
+
+- Sync versions, npm package and changelog
+
 ## 1.8.0
 
 - Smashtest has been migrated to Typescript runtime. If you're installing Smashtest as a global package (npm i -g), you have to install ts-node as well
