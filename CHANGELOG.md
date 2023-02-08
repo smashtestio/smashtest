@@ -17,6 +17,8 @@
   - Sinon not being injected as a local dep ([3337b86](https://github.com/smashtestio/smashtest/commit/3337b867b43f7be65850c1cefdf25d10e01bd1af))
   - Runtime error in `not$` called with a non-visible WebElement ([ecb7514](https://github.com/smashtestio/smashtest/commit/ecb7514fcbe16d08d8800c3b532c061c300a4b72))
   - Null error on the 'resume' command in REPL when the session finishes ([17c56f3](https://github.com/smashtestio/smashtest/commit/17c56f39c53977539d36a73b455a938e7783454c))
+  - BrowserInstance::isAlertOpen() always returned false ([60ca46](https://github.com/smashtestio/smashtest/commit/60ca46cccde83cd11ce05d0fcbb5257a693365d1))
+  - The steps were not printed to the console in the browser during debugging ([baf85b9](https://github.com/smashtestio/smashtest/commit/baf85b9881a4d5bd23896221a4680a69e76a4ef4))
 
 ## 1.7.0
 
