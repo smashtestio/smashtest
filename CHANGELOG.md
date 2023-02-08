@@ -7,7 +7,7 @@
 ## 1.8.0
 
 - Smashtest has been migrated to Typescript runtime. If you're installing Smashtest as a global package (npm i -g), you have to install ts-node as well
-- Smashtest is now an ESM package
+- Migrated from CJS to ESM
 - The `i()` API accepts ESM and `.ts` modules as well. ESM and `.ts` modules need to be awaited (`await i()`), CJS modules can be used with pure `i()` as before. The most compatible way is to always use `await i(...)`
 - Runtime errors no longer dump the stack trace to the console.
 - REPL commands have been curated, irrelevant factory Node commands are removed ([#78](https://github.com/smashtestio/smashtest/pull/78))
