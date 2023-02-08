@@ -1,11 +1,11 @@
 import chalk from 'chalk';
 import invariant from 'tiny-invariant';
+import BrowserInstance from '../packages/js/browserinstance.js';
 import Reporter from './reporter.js';
 import RunInstance from './runinstance.js';
 import Tree from './tree.js';
 import { Frequency, SerializedSmashError } from './types.js';
 import * as utils from './utils.js';
-import BrowserInstance from '../packages/js/browserinstance.js';
 
 /**
  * Test runner
@@ -269,7 +269,7 @@ class Runner {
             if (this.consoleOutput && s.error) {
                 console.log('');
                 console.log(chalk.red.bold('Before Everything error occurred:'));
-                console.log(this.formatStackTrace(s.error));
+                console.log(this.formatError(s.error));
                 console.log('');
             }
             if (s.error || this.isStopped) {
@@ -309,7 +309,7 @@ class Runner {
             if (this.consoleOutput && s.error) {
                 console.log('');
                 console.log(chalk.red.bold('After Everything error occurred:'));
-                console.log(this.formatStackTrace(s.error));
+                console.log(this.formatError(s.error));
                 console.log('');
             }
         }
@@ -327,7 +327,7 @@ class Runner {
     /**
      * Injects [filename:lineNumber] into the given Error's stack trace, colors the lines, and returns it
      */
-    formatStackTrace(error: SerializedSmashError) {
+    formatError(error: SerializedSmashError) {
         let stack = error.stack;
 
         invariant(stack, 'Internal error: error.stack is undefined');
@@ -338,7 +338,12 @@ class Runner {
         if (firstLine) {
             stack = stack.replace(firstLine[0], '');
             stack = chalk.gray(stack);
-            stack = chalk.red(firstLine[0]) + stack;
+
+            // We don't want to dump the full stack trace to the console, since
+            // it's not very useful, it's just smashtest internals.
+            // stack = chalk.red(firstLine[0]) + stack;
+
+            stack = chalk.red(firstLine[0]);
         }
 
         return stack;

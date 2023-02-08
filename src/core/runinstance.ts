@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import fileUrl from 'file-url';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import invariant from 'tiny-invariant';
@@ -11,7 +12,6 @@ import Step from './step.js';
 import StepNode from './stepnode.js';
 import { isSmashError, SerializedSmashError, SmashError, VarBeingSet } from './types.js';
 import * as utils from './utils.js';
-import fileUrl from 'file-url';
 
 const require = createRequire(import.meta.url);
 
@@ -407,7 +407,7 @@ class RunInstance {
             step.timeEnded = new Date();
             step.elapsed = Number(step.timeEnded) - Number(step.timeStarted);
 
-            branch.markStep(isPassed ? 'pass' : 'fail', step, error, finishBranchNow, this.tree.stepDataMode);
+            step = branch.markStep(isPassed ? 'pass' : 'fail', step, error, finishBranchNow, this.tree.stepDataMode);
         }
 
         // Execute After Every Step hooks (all of them, regardless if one fails - though a stop will terminate right away)
@@ -557,7 +557,7 @@ class RunInstance {
                 (showTrace ? chalk.gray(this.stepsRan.output(this.tree.stepNodeIndex, 0)) + '\n' : '') +
                 chalk.red.bold(stepNode.text) +
                 '\n' +
-                this.runner.formatStackTrace(error)
+                this.runner.formatError(error)
         );
     }
 
@@ -605,7 +605,13 @@ class RunInstance {
 
             if (this.currStep) {
                 // if we still have a currStep and didn't fall off the end of the branch
-                this.currBranch.markStep('skip', this.currStep, undefined, false, this.tree.stepDataMode); // mark the current step as skipped
+                this.currStep = this.currBranch.markStep(
+                    'skip',
+                    this.currStep,
+                    undefined,
+                    false,
+                    this.tree.stepDataMode
+                ); // mark the current step as skipped
 
                 // Third parameter was for skipping/not skipping branches having already failed steps
                 // See https://github.com/smashtestio/smashtest/commit/c35aff31c422f793b0933428b8380c96aae2aa6a

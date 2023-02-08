@@ -1932,7 +1932,7 @@ ${branchAbove.output(this.stepNodeIndex)}
         // Original comment:
         // If the next step is a -s or is already skipped, mark it as skipped and advance again
         if (advance && nextStep && (nextStep.isSkip || nextStep.isSkipped)) {
-            branch.markStep('skip', nextStep, undefined, false, this.stepDataMode);
+            nextStep = branch.markStep('skip', nextStep, undefined, false, this.stepDataMode);
             return this.nextStep(branch, advance);
         }
 

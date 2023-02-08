@@ -423,6 +423,8 @@ class Branch {
         if (finishBranchNow || this.steps.indexOf(step) + 1 === this.steps.length) {
             this.finishOffBranch(stepDataMode);
         }
+
+        return step;
     }
 
     /**

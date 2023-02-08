@@ -276,6 +276,7 @@ export const serializeError = (error: SmashError): SerializedSmashError => {
         stack: error.stack,
         filename: error.filename,
         lineNumber: error.lineNumber,
+        outputStack: error.outputStack,
         ...(error.continue && { continue: true })
     };
 };

@@ -495,7 +495,7 @@ describe('Branch', () => {
 
     describe('markStep()', () => {
         it('marks a step passed', () => {
-            const stepA = new Step(1);
+            let stepA = new Step(1);
             stepA.isRunning = true;
 
             const stepB = new Step(2);
@@ -506,7 +506,7 @@ describe('Branch', () => {
 
             branch.steps = [stepA, stepB, stepC, stepD];
 
-            branch.markStep('pass', stepA);
+            stepA = branch.markStep('pass', stepA);
 
             Comparer.expect(branch).to.match({
                 steps: [
@@ -530,14 +530,14 @@ describe('Branch', () => {
             const stepC = new Step(3);
             stepC.isPassed = true;
 
-            const stepD = new Step(4);
+            let stepD = new Step(4);
             stepD.isRunning = true;
 
             const branch = new Branch();
 
             branch.steps = [stepA, stepB, stepC, stepD];
 
-            branch.markStep('pass', stepD);
+            stepD = branch.markStep('pass', stepD);
 
             Comparer.expect(branch).to.match({
                 steps: [
@@ -561,14 +561,14 @@ describe('Branch', () => {
             const stepC = new Step(3);
             stepC.isPassed = true;
 
-            const stepD = new Step(4);
+            let stepD = new Step(4);
             stepD.isRunning = true;
 
             const branch = new Branch();
 
             branch.steps = [stepA, stepB, stepC, stepD];
 
-            branch.markStep('pass', stepD);
+            stepD = branch.markStep('pass', stepD);
 
             Comparer.expect(branch).to.match({
                 steps: [
@@ -583,7 +583,7 @@ describe('Branch', () => {
         });
 
         it('marks a step failed and sets its error', () => {
-            const stepA = new Step(1);
+            let stepA = new Step(1);
             stepA.isRunning = true;
 
             const stepB = new Step(2);
@@ -594,7 +594,7 @@ describe('Branch', () => {
 
             branch.steps = [stepA, stepB, stepC, stepD];
 
-            branch.markStep('fail', stepA, new Error('foobar'));
+            stepA = branch.markStep('fail', stepA, new Error('foobar'));
 
             Comparer.expect(branch).to.match({
                 steps: [
@@ -620,14 +620,14 @@ describe('Branch', () => {
             const stepC = new Step(3);
             stepC.isPassed = true;
 
-            const stepD = new Step(4);
+            let stepD = new Step(4);
             stepD.isRunning = true;
 
             const branch = new Branch();
 
             branch.steps = [stepA, stepB, stepC, stepD];
 
-            branch.markStep('fail', stepD, new Error('foobar'));
+            stepD = branch.markStep('fail', stepD, new Error('foobar'));
 
             Comparer.expect(branch).to.match({
                 steps: [
@@ -650,7 +650,7 @@ describe('Branch', () => {
             const stepB = new Step(2);
             stepB.isPassed = true;
 
-            const stepC = new Step(3);
+            let stepC = new Step(3);
             stepC.isRunning = true;
 
             const stepD = new Step(4);
@@ -659,7 +659,7 @@ describe('Branch', () => {
 
             branch.steps = [stepA, stepB, stepC, stepD];
 
-            branch.markStep('fail', stepC, new Error('foobar'), true);
+            stepC = branch.markStep('fail', stepC, new Error('foobar'), true);
 
             Comparer.expect(branch).to.match({
                 steps: [
@@ -676,7 +676,7 @@ describe('Branch', () => {
         });
 
         it('marks a step skipped', () => {
-            const stepA = new Step(1);
+            let stepA = new Step(1);
             stepA.isRunning = true;
 
             const stepB = new Step(2);
@@ -687,7 +687,7 @@ describe('Branch', () => {
 
             branch.steps = [stepA, stepB, stepC, stepD];
 
-            branch.markStep('skip', stepA);
+            stepA = branch.markStep('skip', stepA);
 
             Comparer.expect(branch).to.match({
                 steps: [
@@ -711,14 +711,14 @@ describe('Branch', () => {
             const stepC = new Step(3);
             stepC.isPassed = true;
 
-            const stepD = new Step(4);
+            let stepD = new Step(4);
             stepD.isRunning = true;
 
             const branch = new Branch();
 
             branch.steps = [stepA, stepB, stepC, stepD];
 
-            branch.markStep('skip', stepD);
+            stepD = branch.markStep('skip', stepD);
 
             Comparer.expect(branch).to.match({
                 steps: [
