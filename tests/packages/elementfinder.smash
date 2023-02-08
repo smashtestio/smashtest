@@ -4667,6 +4667,24 @@ open browser
                                 |1+ x div, contains 'bad'  \u001b[0m\u001b[31m-->  not found (zero matches after \`contains 'bad'\` applied)\u001b[0m\u001b[30m`));
                         }
 
+                $ - in SVG (textContent)
+
+                    create html page {
+                        await setPageBody(`
+                            <svg>
+                                <text>foo bar</text>
+                            </svg>
+                        `);
+                    }
+
+                        finds elements {
+                            let ef = new ElementFinder(`text, contains 'foo bar'`);
+                            let results = await ef.find(browser.driver, undefined, false, false, 500);
+
+                            expect(results).to.have.lengthOf(1);
+                        }
+                }
+
                 - in value
 
                     create html page {
