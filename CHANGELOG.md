@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.8.0
+
+- Smashtest has been migrated to Typescript runtime. If you're installing Smashtest as a global package (npm i -g), you have to install ts-node as well
+- Smashtest is now an ESM package
+- The `i()` API accepts ESM and `.ts` modules as well. ESM and `.ts` modules need to be awaited (`await i()`), CJS modules can be used with pure `i()` as before. The most compatible way is to always use `await i(...)`
+- Runtime errors no longer dump the stack trace to the console.
+- Console commands have been curated, irrelevant factory Node commands are removed ([#78](https://github.com/smashtestio/smashtest/pull/78))
+- Added console command `.copy (c): Copy all evaluated passed commands to the clipboard` ([#78](https://github.com/smashtestio/smashtest/pull/78))
+- Sinon now intercepts `fetch` requests ([e1e9ca7](https://github.com/smashtestio/smashtest/commit/e1e9ca79545f1901ccade12388808587f57d4d5d))
+- Fixed numerous bugs
+  - Sinon not being injected as a local dep ([3337b86](https://github.com/smashtestio/smashtest/commit/3337b867b43f7be65850c1cefdf25d10e01bd1af))
+  - Runtime error in `not$` called with a non-visible WebElement ([ecb7514](https://github.com/smashtestio/smashtest/commit/ecb7514fcbe16d08d8800c3b532c061c300a4b72))
+  - Null error on the 'resume' command in REPL when the session finishes ([17c56f3](https://github.com/smashtestio/smashtest/commit/17c56f39c53977539d36a73b455a938e7783454c))
+
 ## 1.7.0
 
 - New 'Verify element is state' and 'Verify every element is state' steps
