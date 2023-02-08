@@ -3,3 +3,4 @@ node_modules
 coverage
 smashtest
 dist
+.DS_Store
