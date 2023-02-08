@@ -10,8 +10,8 @@
 - Smashtest is now an ESM package
 - The `i()` API accepts ESM and `.ts` modules as well. ESM and `.ts` modules need to be awaited (`await i()`), CJS modules can be used with pure `i()` as before. The most compatible way is to always use `await i(...)`
 - Runtime errors no longer dump the stack trace to the console.
-- Console commands have been curated, irrelevant factory Node commands are removed ([#78](https://github.com/smashtestio/smashtest/pull/78))
-- Added console command `.copy (c): Copy all evaluated passed commands to the clipboard` ([#78](https://github.com/smashtestio/smashtest/pull/78))
+- REPL commands have been curated, irrelevant factory Node commands are removed ([#78](https://github.com/smashtestio/smashtest/pull/78))
+- Added REPL command `.copy (c): Copy all evaluated passed commands to the clipboard` ([#78](https://github.com/smashtestio/smashtest/pull/78))
 - Sinon now intercepts `fetch` requests ([e1e9ca7](https://github.com/smashtestio/smashtest/commit/e1e9ca79545f1901ccade12388808587f57d4d5d))
 - Fixed numerous bugs
   - Sinon not being injected as a local dep ([3337b86](https://github.com/smashtestio/smashtest/commit/3337b867b43f7be65850c1cefdf25d10e01bd1af))
