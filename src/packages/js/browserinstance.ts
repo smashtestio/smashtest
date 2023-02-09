@@ -360,7 +360,7 @@ class BrowserInstance {
      * @param {String} text - The text to type in
      * @param {String, ElementFinder, or WebElement} element - The element to type into (same as the element sent to $())
      */
-    async type(text: string, element: EFElement) {
+    async type(text: string, element?: EFElement) {
         let items = text.split(/(?=(?<=[^\\])\[)|(?<=(?=[^\\])\])/g);
         items = items.map((item) => {
             const keyName = item.match(/^\[(?<keyName>.*)\]$/)?.groups?.keyName?.toUpperCase();
@@ -379,7 +379,13 @@ class BrowserInstance {
             }
         });
 
-        await (await this.$(element)).sendKeys(...items);
+        if (element) {
+            await (await this.$(element)).sendKeys(...items);
+        }
+        else {
+            invariant(this.driver, 'Missing driver instance in type()');
+            await this.driver.actions({ bridge: true }).sendKeys(items.join('')).perform();
+        }
     }
 
     /**

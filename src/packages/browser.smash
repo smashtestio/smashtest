@@ -126,6 +126,10 @@
         await browser.nav(url);
     }
 
+    * Click {
+        await browser.driver.actions({ bridge: true }).click().perform()
+    }
+
     * Click {{element}} {
         let elem = await $(element, true);
         if(browser.params.name === 'safari') {
@@ -179,6 +183,10 @@
             await browser.driver.actions({bridge: true}).move({origin: elem}).perform();
         }
     }
+
+    * Hover over and click {{element}} ..
+        Hover over {{element}}
+        Click
 
     * Scroll to {{element}} {
         await executeScript(function(element) {
@@ -244,6 +252,15 @@
         }
 
         await browser.type(text, element);
+    }
+
+    * Type {{text}} {
+        if(text.trim().toLowerCase() == '[none]') {
+            log(`Ignoring since text is set to [none]`);
+            return;
+        }
+
+        await browser.type(text);
     }
 
     * Clear {{element}} {

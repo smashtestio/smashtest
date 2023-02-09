@@ -70,6 +70,20 @@ Open test page
 
                         Verify ['I was clicked'] is visible
 
+                    - with an API using no target element
+
+                        Hover over [target button]
+
+                            Click
+
+                                Verify ['I was clicked'] is visible
+
+                    - with an API using no target element 2
+
+                        Hover over and click [target button]
+
+                            Verify ['I was clicked'] is visible
+
             - an unclickable child of a clickable parent
 
                 Generate page {
@@ -416,6 +430,12 @@ Open test page
 
                     Type 'foobar' into [#textbox]
                         Verify 'foobar' is typed in
+
+                - a normal string of chars into a textbox - with an API using no target element
+
+                    Click [#textbox]
+                        Type 'foobar'
+                            Verify 'foobar' is typed in
 
                 - '[none]'
 
