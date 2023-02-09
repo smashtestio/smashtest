@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.8.2
+
+- Removed leftover stack trace dump from the CLI
+- Added targetless Click and Type steps ([#84](https://github.com/smashtestio/smashtest/pull/84))
+
 ## 1.8.1
 
 - Sync versions, npm package and changelog
