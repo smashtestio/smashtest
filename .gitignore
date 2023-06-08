@@ -4,3 +4,4 @@ coverage
 smashtest
 dist
 .DS_Store
+package-lock.json
