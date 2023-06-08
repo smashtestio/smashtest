@@ -1,5 +1,4 @@
-#!/usr/bin/env ts-node-esm
-
+#!/usr/bin/env node
 import chalk from 'chalk';
 import progress from 'cli-progress';
 import clipboardy from 'clipboardy';

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.3
+
+- Remove ts-node dependency. ts-node is still used when importing .ts files from smash files, but it's not anymore a dependency to run the framework.
+
 ## 1.8.2
 
 - Removed leftover stack trace dump from the CLI
