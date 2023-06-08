@@ -308,7 +308,8 @@ const compiler = tsNode.create({
     transpileOnly: true,
     swc: false,
     compilerOptions: {
-        target: 'es5'
+        target: 'es5',
+        module: 'esnext'
     }
 });
 
