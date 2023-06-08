@@ -30,6 +30,14 @@ const packageJson = JSON.parse(readFileSync(filePath, 'utf-8'));
 
 const { version } = packageJson;
 
+// selenium-webdriver now includes a manager which automatically downloads the
+// drivers. We just don't need those debug messages about it.
+const consoleDebug = console.debug;
+console.debug = (...args) => {
+    if (args[0]?.includes('Applicable driver not found; attempting to install with Selenium Manager')) return;
+    return consoleDebug(...args);
+};
+
 // ***************************************
 //  Globals
 // ***************************************
