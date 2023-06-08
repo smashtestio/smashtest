@@ -1,6 +1,6 @@
 {
   "name": "smashtest",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "type": "module",
   "description": "smashtest",
   "keywords": [
@@ -56,15 +56,20 @@
     "ws": "^8.8.1"
   },
   "devDependencies": {
+    "@types/caseless": "^0.12.2",
     "@types/chai": "^4.3.3",
     "@types/cli-progress": "^3.11.0",
+    "@types/estree": "^1.0.1",
     "@types/glob": "^8.0.0",
+    "@types/json-schema": "^7.0.12",
     "@types/lodash": "^4.14.185",
     "@types/mocha": "^9.1.1",
     "@types/node": "^18.7.18",
     "@types/request": "^2.48.8",
     "@types/selenium-webdriver": "^4.1.5",
     "@types/sinon": "^10.0.13",
+    "@types/tough-cookie": "^4.0.2",
+    "@types/ws": "^8.5.4",
     "@typescript-eslint/eslint-plugin": "^5.36.2",
     "@typescript-eslint/parser": "^5.36.2",
     "body-parser": "^1.20.0",
