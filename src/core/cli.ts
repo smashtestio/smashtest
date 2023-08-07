@@ -932,9 +932,12 @@ function plural(count: number) {
      * Updates the elapsed variable
      */
     function updateElapsed() {
-        const d = new Date();
-        d.setSeconds((Number(new Date()) - Number(tree.timeStarted)) / 1000);
-        elapsed = d.toISOString().substring(11, 19);
+        const diff = Math.abs(Number(new Date()) - Number(tree.timeStarted));
+        const hours = Math.floor(diff / 3.6e6);
+        const minutes = Math.floor((diff % 3.6e6) / 6e4);
+        const seconds = Math.floor((diff % 6e4) / 1e3);
+
+        elapsed = [hours, minutes, seconds].map((unit) => String(unit).padStart(2, '0')).join(':');
     }
 
     /**
