@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.8.5
+
+- Fix elapsed display showing wrong time on the CLI.
+
+
 ## 1.8.4
 
 - Fix non-existing 'exports' reference causing JS error in transpiled elementfinder code.
