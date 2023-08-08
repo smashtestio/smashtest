@@ -1,9 +1,12 @@
 # Changelog
 
+## 1.8.6
+
+- Empty the queue when using the 'copy' REPL command, so subsequent usages only copy the new commands.
+
 ## 1.8.5
 
 - Fix elapsed display showing wrong time on the CLI.
-
 
 ## 1.8.4
 
