@@ -1,7 +1,6 @@
 {
   "name": "smashtest",
   "version": "1.8.6",
-  "type": "module",
   "description": "smashtest",
   "keywords": [
     "smashtest",
@@ -29,9 +28,32 @@
     "ci",
     "cd"
   ],
-  "author": "smashtest <smashtest.io>",
-  "license": "MIT",
   "homepage": "smashtest.io",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/smashtestio/smashtest.git"
+  },
+  "license": "MIT",
+  "author": "smashtest <smashtest.io>",
+  "type": "module",
+  "bin": {
+    "smashtest": "./dist/core/cli.js"
+  },
+  "files": [
+    "src/**",
+    "dist/**"
+  ],
+  "scripts": {
+    "copy-assets": "rsync -am --include='*.smash' --include='*.html' --include='*/' --exclude='*' src/ dist",
+    "open-report": "node -e 'require(`find-chrome-bin`).findChrome().then(i => require(`child_process`).spawn(i.executablePath, [`file:///${process.cwd()}/smashtest/report.html`]))'",
+    "prepublishOnly": "tsc && npm run copy-assets && eslint . && npm run test:unit",
+    "test": "npm run test:unit && npm run test:browser:chrome",
+    "test:browser:chrome": "./src/core/cli.ts tests/packages/*.smash --groups=chrome",
+    "test:browser:chrome:debug": "npm run test:browser:chrome -- --max-parallel=1 --headless=false",
+    "test:browser:chrome:debug:report": "(npm run open-report &) && npm run test:browser:chrome:debug",
+    "test:unit": "NODE_OPTIONS=\"${NODE_OPTIONS} --loader ts-node/esm\" nyc --reporter=lcov mocha tests/core/*.ts tests/packages/*.ts",
+    "typecheck": "tsc"
+  },
   "dependencies": {
     "@swc/core": "^1.3.0",
     "chai": "^4.3.6",
@@ -79,27 +101,5 @@
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",
     "prettier-eslint": "^15.0.1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/smashtestio/smashtest.git"
-  },
-  "files": [
-    "src/**",
-    "dist/**"
-  ],
-  "scripts": {
-    "typecheck": "tsc",
-    "test:unit": "NODE_OPTIONS=\"${NODE_OPTIONS} --loader ts-node/esm\" nyc --reporter=lcov mocha tests/core/*.ts tests/packages/*.ts",
-    "test:browser:chrome": "./src/core/cli.ts tests/packages/*.smash --groups=chrome",
-    "test:browser:chrome:debug": "npm run test:browser:chrome -- --max-parallel=1 --headless=false",
-    "test:browser:chrome:debug:report": "(npm run open-report &) && npm run test:browser:chrome:debug",
-    "test": "npm run test:unit && npm run test:browser:chrome",
-    "open-report": "node -e 'require(`find-chrome-bin`).findChrome().then(i => require(`child_process`).spawn(i.executablePath, [`file:///${process.cwd()}/smashtest/report.html`]))'",
-    "copy-assets": "rsync -am --include='*.smash' --include='*.html' --include='*/' --exclude='*' src/ dist",
-    "prepublishOnly": "tsc && npm run copy-assets && eslint . && npm run test:unit"
-  },
-  "bin": {
-    "smashtest": "./dist/core/cli.js"
   }
 }
