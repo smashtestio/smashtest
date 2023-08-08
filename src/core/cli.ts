@@ -377,7 +377,7 @@ function plural(count: number) {
 }
 
 (async () => {
-    const passedReplCommands: string[] = [];
+    let passedReplCommands: string[] = [];
     let isBranchComplete: boolean;
     let replServer: repl.REPLServer;
     let elapsed = '';
@@ -465,6 +465,7 @@ function plural(count: number) {
             help: '(c) Copy all evaluated passed commands to the clipboard',
             action: wrapAction(async () => {
                 clipboardy.writeSync(passedReplCommands.join('\n') + '\n');
+                passedReplCommands = [];
                 console.log('Copied passed commands to clipboard');
                 console.log('');
                 replServer.displayPrompt();
