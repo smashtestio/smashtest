@@ -30,10 +30,14 @@ const packageJson = JSON.parse(readFileSync(filePath, 'utf-8'));
 const { version } = packageJson;
 
 // selenium-webdriver now includes a manager which automatically downloads the
-// drivers. We just don't need those debug messages about it.
+// drivers and browsers. But it totally breaks Smashtest's progress bar output
+// by its debug messages.
 const consoleDebug = console.debug;
 console.debug = (...args) => {
     if (args[0]?.includes('Applicable driver not found; attempting to install with Selenium Manager')) return;
+    if (args[0]?.includes('Selenium Manager binary found at')) return;
+    if (args[0]?.includes('Driver path:')) return;
+    if (args[0]?.includes('Browser path:')) return;
     return consoleDebug(...args);
 };
 

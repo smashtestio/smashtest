@@ -3,8 +3,8 @@ open browser
     open test page + [
 
         inits {
-            await i('ElementFinder', '../../src/packages/js/elementfinder.ts');
-            await i('Comparer', '../../src/packages/js/comparer.ts');
+            await i('ElementFinder', '../../dist/packages/js/elementfinder.js');
+            await i('Comparer', '../../dist/packages/js/comparer.js');
             chai.use(i('chai-as-promised'));
 
             g('setPageBody', async (htmlStr) => {

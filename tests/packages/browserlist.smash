@@ -1,6 +1,11 @@
 * Open browser
-    Open Chrome       #mac #windows
-    Open Firefox      #mac #windows
-    Open Safari       #mac
-    Open IE           #windows
-    Open Edge         #windows
+    // Chrome v114+ has a major a bug:
+    // "WebDriverError: unknown error: backendNodeId is missing in a node"
+    // https://bugs.chromium.org/p/chromedriver/issues/detail?id=4532
+    {browser version} = '113'  #mac #windows
+        Open Chrome
+    Open Firefox               #mac #windows
+    Open Safari                #mac
+    Open IE                    #windows
+    Open Edge                  #windows
+
