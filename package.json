@@ -46,7 +46,8 @@
   "scripts": {
     "copy-assets": "rsync -am --include='*.smash' --include='*.html' --include='*/' --exclude='*' src/ dist",
     "open-report": "node -e 'require(`find-chrome-bin`).findChrome().then(i => require(`child_process`).spawn(i.executablePath, [`file:///${process.cwd()}/smashtest/report.html`]))'",
-    "prepublishOnly": "tsc && npm run copy-assets && eslint . && npm run test:unit",
+    "build": "tsc && npm run copy-assets",
+    "prepublishOnly": "npm run build && eslint . && npm run test:unit",
     "test": "npm run test:unit && npm run test:browser:chrome",
     "test:browser:chrome": "./src/core/cli.ts tests/packages/*.smash --groups=chrome",
     "test:browser:chrome:debug": "npm run test:browser:chrome -- --max-parallel=1 --headless=false",
