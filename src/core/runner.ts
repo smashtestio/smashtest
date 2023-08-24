@@ -24,6 +24,7 @@ class Runner {
     minFrequency?: Frequency; // Only run branches at or above this frequency, no restrictions if this is undefined
     noDebug = false; // If true, a compile error will occur if a $, ~, or ~~ is present anywhere in the tree
     outputErrors = true; // If true, output errors to console
+    showProgressBar = true; // If true, shows progress bar in the output of the console.
     random = true; // If true, randomize the order of branches
     screenshots = false; // If true, take screenshots before and after each step
     skipPassed?: boolean; // If true, carry over branches that passed last time
