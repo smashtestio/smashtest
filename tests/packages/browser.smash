@@ -81,6 +81,7 @@ Open test page
                     - with an API using no target element 2
 
                         Hover over and click [target button]
+                        Click over [target button]
 
                             Verify ['I was clicked'] is visible
 

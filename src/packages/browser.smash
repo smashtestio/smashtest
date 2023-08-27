@@ -143,6 +143,9 @@
         }
     }
 
+    * Click over {{element}}
+        Hover over and click {{element}}
+
     * Native click {{element}} {
         await executeScript(function(element) {
             element.click();

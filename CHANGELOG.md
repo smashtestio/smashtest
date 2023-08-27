@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.8.7
+
+- Uses selenium-webdriver@4.11 which automatically downloads browsers and their drivers, notably Chrome for Testing and chromedriver. Use the step `{browser version} = '<major version>'` to specify the browser version. Note: Chrome has a [recent bug](https://bugs.chromium.org/p/chromedriver/issues/detail?id=4532) so using `{browser version} = '113'` is recommended as of today.
+- Added CLI option to disable the progress bar. Closes https://github.com/smashtestio/smashtest/issues/58
+- Added step `Click over {{element}}` which is an alias for `Hover over and click {{element}}`
+
 ## 1.8.6
 
 - Empty the queue when using the 'copy' REPL command, so subsequent usages only copy the new commands.

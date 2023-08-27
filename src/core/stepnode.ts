@@ -81,13 +81,13 @@ class StepNode {
         return this.codeBlock !== undefined;
     }
 
-    // /**
-    //  * Parses a line into this StepNode
-    //  * this.text will be set to '' if this is an empty line, and to '..' if the whole line is just '..'
-    //  * @param {String} line - The full text of the line
-    //  * @returns {StepNode} This StepNode
-    //  * @throws {Error} If there is a parse error
-    //  */
+    /**
+     * Parses a line into this StepNode
+     * this.text will be set to '' if this is an empty line, and to '..' if the whole line is just '..'
+     * @param {String} line - The full text of the line
+     * @returns {StepNode} This StepNode
+     * @throws {Error} If there is a parse error
+     */
     parseLine(line: string) {
         const filename = this.filename;
         const lineNumber = this.lineNumber;

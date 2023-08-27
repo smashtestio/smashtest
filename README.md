@@ -111,12 +111,17 @@ await driver.wait(until.elementLocated(By.id('#success-element')), 10000);
 etc.
 ```
 
-### Full documentation
+### Installation
 
-[See smashtest.io](https://smashtest.io) for full documentation, setup, tutorials, and screenshots
+`npm install smashtest`
 
 ### Usage
 
 `smashtest [.smash files to run] [options]`
 
 Use `smashtest -?` to list options
+
+### Full documentation
+
+[See smashtest.io](https://smashtest.io) for full documentation, setup, tutorials, and screenshots
+
