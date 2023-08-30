@@ -8,12 +8,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import readline from 'node:readline';
 import repl from 'node:repl';
+import { spawnSync } from 'node:child_process';
 // @ts-expect-error - no types
 import readFiles from 'read-files-promise';
+import { fileURLToPath } from 'url';
 import * as Constants from './constants.js';
 import { reporter, runner, tree } from './instances.js';
 import StepNode from './stepnode.js';
 import * as utils from './utils.js';
+// @ts-expect-error - no types
+import shellQuote from 'shell-quote';
 
 // Reading package.json is way simpler already, but it's a parse error for
 // eslint, so even // eslint-disable doesn't work. Eslint only supports stage 4
@@ -193,6 +197,7 @@ Options
   --screenshots=<true/false>               Whether to take screenshots at each step
   --skip-passed=<true/false/file>          Whether to skip branches that passed last time (-s/-a)
   --step-data=<all/fail/none>              Keep step data for all steps, only failed steps, or no steps
+  --start-server="'<cmd>' <condition>"     Starts a server and shuts it down at the end (see npmjs.com/package/start-server-and-test)
   --test-server=<url>                      Location of test server (e.g., http://localhost:4444/wd/hub for selenium server)
   --version                                Output the version of Smashtest (-v)
 `);
@@ -298,6 +303,44 @@ Options
                 runner.skipPassed = Boolean(value);
             }
             break;
+
+        case 'start-server': {
+            let args = shellQuote.parse(value);
+
+            if (args.length === 0) {
+                utils.error(
+                    'Invalid start-server. It must have 1 or 2 arguments.\n' +
+                            'Example: --start-server="\'npm start\' :5001"\n' +
+                            'For more information, see the first and second arguments at npmjs.com/package/start-server-and-test'
+                );
+            }
+            if (args.length === 1) {
+                args = ['npm start', ...args];
+            }
+            else if (args.length > 2) {
+                utils.error(
+                    `Invalid start-server. It must have 1 or 2 arguments. (${args.length} were provided).\n` +
+                            'Example: --start-server="\'npm start\' :5001"\n' +
+                            'For more information, see the first and second arguments at npmjs.com/package/start-server-and-test'
+                );
+            }
+
+            const [serverCmdLine, condition] = args;
+            const testCmdLine = process.argv.filter((arg) => !arg.startsWith('--start-server=')).join(' ');
+
+            const scriptDir = path.dirname(fileURLToPath(import.meta.url));
+            const bundlePath = path.join(scriptDir, '../../start-server-and-test/bundle.js');
+            const result = spawnSync('node', [bundlePath, serverCmdLine, condition, testCmdLine], {
+                stdio: 'inherit'
+            });
+
+            if (result.status !== 0) {
+                console.error(`Child process exited with code ${result.status}`);
+            }
+
+            process.exit(result.status ?? void 0);
+            break;
+        }
 
         case 'step-data':
             if (value === 'all' || value === 'fail' || value === 'none') {
