@@ -16,7 +16,6 @@ import * as Constants from './constants.js';
 import { reporter, runner, tree } from './instances.js';
 import StepNode from './stepnode.js';
 import * as utils from './utils.js';
-// @ts-expect-error - no types
 import shellQuote from 'shell-quote';
 
 // Reading package.json is way simpler already, but it's a parse error for
@@ -307,36 +306,34 @@ Options
         case 'start-server': {
             let args = shellQuote.parse(value);
 
-            if (args.length === 0) {
+            const err = (msg: string) => {
                 utils.error(
-                    'Invalid start-server. It must have 1 or 2 arguments.\n' +
-                            'Example: --start-server="\'npm start\' :5001"\n' +
-                            'For more information, see the first and second arguments at npmjs.com/package/start-server-and-test'
+                    `${msg}\nExample: --start-server="'npm start' :5001"\n` +
+                            'For more information, see the first and second arguments at https://npmjs.com/package/start-server-and-test'
                 );
+            };
+
+            if (args.some((arg) => typeof arg !== 'string')) {
+                const parsedAs = JSON.stringify(args);
+                err(`Invalid start-server. It must have 1 or 2 string arguments. (Parsed it as ${parsedAs})`);
+            }
+            else if (args.length === 0) {
+                utils.error('Invalid start-server. It must have 1 or 2 arguments.');
             }
             if (args.length === 1) {
                 args = ['npm start', ...args];
             }
             else if (args.length > 2) {
-                utils.error(
-                    `Invalid start-server. It must have 1 or 2 arguments. (${args.length} were provided).\n` +
-                            'Example: --start-server="\'npm start\' :5001"\n' +
-                            'For more information, see the first and second arguments at npmjs.com/package/start-server-and-test'
-                );
+                utils.error(`Invalid start-server. It must have 1 or 2 arguments. (${args.length} were provided).`);
             }
-
-            const [serverCmdLine, condition] = args;
-            const testCmdLine = process.argv.filter((arg) => !arg.startsWith('--start-server=')).join(' ');
 
             const scriptDir = path.dirname(fileURLToPath(import.meta.url));
             const bundlePath = path.join(scriptDir, '../../start-server-and-test/bundle.js');
-            const result = spawnSync('node', [bundlePath, serverCmdLine, condition, testCmdLine], {
-                stdio: 'inherit'
-            });
+            const [serverCmdLine, condition] = args as string[];
+            const testCmdLine = process.argv.filter((arg) => !arg.startsWith('--start-server=')).join(' ');
 
-            if (result.status !== 0) {
-                console.error(`Child process exited with code ${result.status}`);
-            }
+            const nodeArgs = [bundlePath, serverCmdLine, condition, testCmdLine];
+            const result = spawnSync('node', nodeArgs, { stdio: 'inherit' });
 
             process.exit(result.status ?? void 0);
             break;
