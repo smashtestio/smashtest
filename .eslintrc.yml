@@ -16,6 +16,7 @@ ignorePatterns:
   - dist
   - node_modules
   - smashtest
+  - start-server-and-test/bundle.js
 rules:
   indent:
     - error
