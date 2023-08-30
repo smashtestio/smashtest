@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.0
+
+- Add CLI option `--start-server`.
+
 ## 1.8.7
 
 - Uses selenium-webdriver@4.11 which automatically downloads browsers and their drivers, notably Chrome for Testing and chromedriver. Use the step `{browser version} = '<major version>'` to specify the browser version. Note: Chrome has a [recent bug](https://bugs.chromium.org/p/chromedriver/issues/detail?id=4532) so using `{browser version} = '113'` is recommended as of today.
