@@ -46,7 +46,7 @@
   ],
   "scripts": {
     "build": "tsc && npm run copy-assets && npm run build:ssat",
-    "build:ssat": "cd start-server-and-test && rm -rf node_modules && rm package-lock.json && npm i && npm run build",
+    "build:ssat": "cd start-server-and-test && rm -rf node_modules; rm package-lock.json; npm i && npm run build",
     "copy-assets": "rsync -am --include='*.smash' --include='*.html' --include='*/' --exclude='*' src/ dist",
     "open-report": "open file://$(pwd)/smashtest/report.html",
     "prepublishOnly": "npm run build && eslint . && npm run test:unit",
