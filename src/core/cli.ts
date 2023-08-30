@@ -304,7 +304,7 @@ Options
             break;
 
         case 'start-server': {
-            let args = shellQuote.parse(value);
+            const ssatArgs = shellQuote.parse(value);
 
             const err = (msg: string) => {
                 utils.error(
@@ -313,23 +313,25 @@ Options
                 );
             };
 
-            if (args.some((arg) => typeof arg !== 'string')) {
-                const parsedAs = JSON.stringify(args);
+            if (ssatArgs.some((arg) => typeof arg !== 'string')) {
+                const parsedAs = JSON.stringify(ssatArgs);
                 err(`Invalid start-server. It must have 1 or 2 string arguments. (Parsed it as ${parsedAs})`);
             }
-            else if (args.length === 0) {
+            else if (ssatArgs.length === 0) {
                 utils.error('Invalid start-server. It must have 1 or 2 arguments.');
             }
-            else if (args.length > 2) {
-                utils.error(`Invalid start-server. It must have 1 or 2 arguments. (${args.length} were provided).`);
+            else if (ssatArgs.length > 2) {
+                utils.error(
+                    `Invalid start-server. It must have 1 or 2 arguments. (${ssatArgs.length} were provided).`
+                );
             }
 
             const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-            const bundlePath = path.join(scriptDir, '../../start-server-and-test/bundle.js');
+            const ssatBundlePath = path.join(scriptDir, '../../start-server-and-test/bundle.js');
             const testCmdLine = process.argv.filter((arg) => !arg.startsWith('--start-server=')).join(' ');
 
-            const nodeArgs = [bundlePath, ...args, testCmdLine] as string[];
-            const result = spawnSync('node', nodeArgs, { stdio: 'inherit' });
+            const nodeArgs = [ssatBundlePath, ...ssatArgs, testCmdLine] as string[];
+            const result = spawnSync(process.argv[0], nodeArgs, { stdio: 'inherit' });
 
             process.exit(result.status ?? void 0);
             break;
