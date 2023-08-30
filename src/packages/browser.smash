@@ -7,7 +7,7 @@
 }
 
 *** After Everything {
-    if(typeof BrowserInstance != 'undefined') {
+    if (typeof BrowserInstance !== 'undefined') {
         await BrowserInstance.killAllBrowsers(runInstance.runner);
     }
 }
@@ -17,35 +17,35 @@
 // ***************************************
 
 * Open Chrome #chrome {
-    await BrowserInstance.create(runInstance).open({name: 'chrome'});
+    await BrowserInstance.create(runInstance).open({ name: 'chrome' });
 }
     Use browser +?
 
 * Open Firefox #firefox {
-    await BrowserInstance.create(runInstance).open({name: 'firefox'});
+    await BrowserInstance.create(runInstance).open({ name: 'firefox' });
 }
     Use browser +?
 
 * Open Safari !! #safari {
     // only one open Safari instance is allowed, hence the !!
-    await BrowserInstance.create(runInstance).open({name: 'safari'});
+    await BrowserInstance.create(runInstance).open({ name: 'safari' });
 }
     Use browser +?
 
 * Open IE !! #ie {
     // only one open IE instance is allowed, hence the !!
-    await BrowserInstance.create(runInstance).open({name: 'internet explorer'});
+    await BrowserInstance.create(runInstance).open({ name: 'internet explorer' });
 }
     Use browser +?
 
 * Open Edge !! #edge {
     // only one open Edge instance is allowed, hence the !1
-    await BrowserInstance.create(runInstance).open({name: 'MicrosoftEdge'});
+    await BrowserInstance.create(runInstance).open({ name: 'MicrosoftEdge' });
 }
     Use browser +?
 
 * Open browser {{name}} {
-    await BrowserInstance.create(runInstance).open({name: name});
+    await BrowserInstance.create(runInstance).open({ name });
 }
     Use browser +?
 
@@ -61,13 +61,13 @@
     g('WAITUNTIL_TIMEOUT', 15000);
 
     // If debug, activate EF debug
-    if(runInstance.runner.consoleOutput) {
+    if (runInstance.runner.consoleOutput) {
         ElementFinder.browserConsoleOutput = true;
     }
 
     // Checks if current browser is Chrome (for network throttling steps)
     g('isChrome', function() {
-        if(browser.params.name.toLowerCase() != 'chrome') {
+        if (browser.params.name.toLowerCase() !== 'chrome') {
             log(`Ignoring, since browser isn't chrome`);
             return false;
         }
@@ -81,13 +81,13 @@
     // ***************************************
 
     *** Before Every Step {
-        if(typeof browser !== 'undefined') {
+        if (typeof browser !== 'undefined') {
             await browser.takeScreenshot(false);
 
             // Print out step text to console
-            if(runInstance.tree.isDebug && runInstance.currStep && !await browser.isAlertOpen()) {
+            if (runInstance.tree.isDebug && runInstance.currStep && !await browser.isAlertOpen()) {
                 let currStepNode = runInstance.tree.stepNodeIndex[runInstance.currStep.id];
-                if(currStepNode) {
+                if (currStepNode) {
                     let loc = runInstance.currStep.locString(runInstance.tree.stepNodeIndex);
                     let stepText = `%cStep: %c${currStepNode.text}   %c${loc}`;
 
@@ -102,13 +102,13 @@
     }
 
     *** After Every Step {
-        if(typeof browser !== 'undefined') {
+        if (typeof browser !== 'undefined') {
             await browser.takeScreenshot(true);
         }
     }
 
     *** After Every Branch {
-        if(typeof browser !== 'undefined') {
+        if (typeof browser !== 'undefined') {
             await browser.clearUnneededScreenshots();
             await browser.close();
         }
@@ -132,7 +132,7 @@
 
     * Click {{element}} {
         let elem = await $(element, true);
-        if(browser.params.name === 'safari') {
+        if (browser.params.name === 'safari') {
             log(`Safari doesn't support webdriver click, so using js click event instead`);
             await executeScript(function(elem) {
                 elem.click();
@@ -662,9 +662,9 @@
         // Outputs details to browser's console and number of elements found to regular console
         // Throws error if nothing found or browser isn't open
 
-        if(browser) {
-            let results = await $$(element);
-            console.log(`\n${results.length} elements found. See browser console for details.\n`);
+        if (browser) {
+            const results = await $$(element);
+            log(`\n${results.length} elements found. See browser console for details.\n`);
         }
         else {
             throw new Error(`Browser isn't open`);
