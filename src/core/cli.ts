@@ -320,7 +320,7 @@ Options
             else if (args.length === 0) {
                 utils.error('Invalid start-server. It must have 1 or 2 arguments.');
             }
-            if (args.length === 1) {
+            else if (args.length === 1) {
                 args = ['npm start', ...args];
             }
             else if (args.length > 2) {
