@@ -41,10 +41,12 @@
   },
   "files": [
     "src/**",
-    "dist/**"
+    "dist/**",
+    "start-server-and-test/bundle.js"
   ],
   "scripts": {
-    "build": "tsc && npm run copy-assets",
+    "build": "tsc && npm run copy-assets && npm run build:ssat",
+    "build:ssat": "cd start-server-and-test && rm -rf node_modules && rm package-lock.json && npm i && npm run build",
     "copy-assets": "rsync -am --include='*.smash' --include='*.html' --include='*/' --exclude='*' src/ dist",
     "open-report": "open file://$(pwd)/smashtest/report.html",
     "prepublishOnly": "npm run build && eslint . && npm run test:unit",
@@ -72,6 +74,7 @@
     "read-files-promise": "^1.1.1",
     "request": "^2.88.0",
     "selenium-webdriver": "^4.11.1",
+    "shell-quote": "^1.8.1",
     "sinon": "^14.0.0",
     "tiny-invariant": "^1.2.0",
     "ts-node": "^10.9.1",
@@ -90,6 +93,7 @@
     "@types/node": "^18.7.18",
     "@types/request": "^2.48.8",
     "@types/selenium-webdriver": "^4.1.5",
+    "@types/shell-quote": "^1.7.1",
     "@types/sinon": "^10.0.13",
     "@types/tough-cookie": "^4.0.2",
     "@types/ws": "^8.5.4",

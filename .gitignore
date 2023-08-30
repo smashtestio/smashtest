@@ -5,3 +5,4 @@ smashtest
 dist
 .DS_Store
 package-lock.json
+start-server-and-test/bundle.js

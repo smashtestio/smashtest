@@ -1,0 +1,34 @@
+# Npm library 'patch-package' uses this file.
+# This patch fixes a compatibility problem between start-server-and-test and
+# smashtest. Track the issue here:
+# https://github.com/bahmutov/start-server-and-test/issues/368
+# Once it's fixed, this patch can be deleted. (But keep the next one.)
+diff --git a/node_modules/start-server-and-test/src/index.js b/node_modules/start-server-and-test/src/index.js
+index cca10d0..c84db6e 100644
+--- a/node_modules/start-server-and-test/src/index.js
++++ b/node_modules/start-server-and-test/src/index.js
+@@ -44,7 +44,7 @@ function waitAndRun ({ start, url, runFn, namedArguments }) {
+
+   debug('starting server with command "%s", verbose mode?', start, isDebug())
+
+-  const server = execa(start, { shell: true, stdio: 'inherit' })
++  const server = execa(start, { shell: true, stdio: ['ignore', 'inherit', 'inherit'] })
+   let serverStopped
+
+   function stopServer () {
+# This is not a bug in the library per se, but it's a dynamic require() call which
+# Rollup can't compile into an import statement. And we're ESM.
+diff --git a/node_modules/start-server-and-test/src/utils.js b/node_modules/start-server-and-test/src/utils.js
+index abd1a69..c5dad2c 100644
+--- a/node_modules/start-server-and-test/src/utils.js
++++ b/node_modules/start-server-and-test/src/utils.js
+@@ -153,7 +153,8 @@ const isPackageScriptName = command => {
+   if (!existsSync(packageFilename)) {
+     return false
+   }
+-  const packageJson = require(packageFilename)
++  const fs = require('fs')
++  const packageJson = JSON.parse(fs.readFileSync(packageFilename, 'utf8'))
+   if (!packageJson.scripts) {
+     return false
+   }
