@@ -320,19 +320,15 @@ Options
             else if (args.length === 0) {
                 utils.error('Invalid start-server. It must have 1 or 2 arguments.');
             }
-            else if (args.length === 1) {
-                args = ['npm start', ...args];
-            }
             else if (args.length > 2) {
                 utils.error(`Invalid start-server. It must have 1 or 2 arguments. (${args.length} were provided).`);
             }
 
             const scriptDir = path.dirname(fileURLToPath(import.meta.url));
             const bundlePath = path.join(scriptDir, '../../start-server-and-test/bundle.js');
-            const [serverCmdLine, condition] = args as string[];
             const testCmdLine = process.argv.filter((arg) => !arg.startsWith('--start-server=')).join(' ');
 
-            const nodeArgs = [bundlePath, serverCmdLine, condition, testCmdLine];
+            const nodeArgs = [bundlePath, ...args, testCmdLine] as string[];
             const result = spawnSync('node', nodeArgs, { stdio: 'inherit' });
 
             process.exit(result.status ?? void 0);
