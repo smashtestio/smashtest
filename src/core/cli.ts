@@ -195,8 +195,8 @@ Options
   --report-server=<true/false>             Whether to run a server during run for live report updates
   --screenshots=<true/false>               Whether to take screenshots at each step
   --skip-passed=<true/false/file>          Whether to skip branches that passed last time (-s/-a)
-  --step-data=<all/fail/none>              Keep step data for all steps, only failed steps, or no steps
   --start-server="'<cmd>' <condition>"     Starts a server and shuts it down at the end (see npmjs.com/package/start-server-and-test)
+  --step-data=<all/fail/none>              Keep step data for all steps, only failed steps, or no steps
   --test-server=<url>                      Location of test server (e.g., http://localhost:4444/wd/hub for selenium server)
   --version                                Output the version of Smashtest (-v)
 `);
