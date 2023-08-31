@@ -1,8 +1,12 @@
 # Changelog
 
+## 1.9.1
+
+- Fix direct console.log() calls breaking the progress bar when `* {{element}}` steps are used in the tests.
+
 ## 1.9.0
 
-- Add CLI option `--start-server`.
+- Add CLI option `--start-server`. See https://github.com/smashtestio/smashtest/pull/87
 
 ## 1.8.7
 
