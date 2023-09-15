@@ -866,13 +866,11 @@ function plural(count: number) {
             // ***************************************
             fullRun = true;
 
-            if (runner.showProgressBar) {
-                // Progress bar
-                progressBar = generateProgressBar(true);
-                progressBar.start(tree.counts.totalSteps, tree.counts.totalStepsComplete);
+            // Progress bar
+            progressBar = generateProgressBar(true);
+            progressBar.start(tree.counts.totalSteps, tree.counts.totalStepsComplete);
 
-                activateProgressBarTimer();
-            }
+            activateProgressBarTimer();
 
             // Run
             await runner.run();
@@ -914,7 +912,10 @@ function plural(count: number) {
      * Activates the progress bar timer
      */
     function activateProgressBarTimer() {
-        const timeout = tree.branches.length <= 100000 ? 500 : 5000; // every 500 ms or 5 secs
+        let timeout = tree.branches.length <= 100000 ? 500 : 5000; // every 500 ms or 5 secs
+        if (!runner.showProgressBar) {
+            timeout = 10000;
+        }
         setTimeout(updateProgressBar, timeout);
     }
 
@@ -933,6 +934,10 @@ function plural(count: number) {
 
         progressBar.start(tree.counts.totalSteps, tree.counts.totalStepsComplete);
         outputCounts();
+
+        if (!runner.showProgressBar) {
+            console.log('');
+        }
 
         if (forceComplete || runner.isComplete) {
             console.log('');
@@ -961,7 +966,7 @@ function plural(count: number) {
                 barsize: 25,
                 hideCursor: true,
                 linewrap: true,
-                format: '{bar} {percentage}% | '
+                format: runner.showProgressBar ? '{bar} {percentage}% | ' : '{percentage}% | '
             },
             progress.Presets.shades_classic
         );

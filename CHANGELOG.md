@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.2
+
+- Fix incorrect behavior with --progress-bar=false
+
 ## 1.9.1
 
 - Fix direct console.log() calls breaking the progress bar when `* {{element}}` steps are used in the tests.
